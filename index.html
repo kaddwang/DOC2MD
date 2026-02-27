@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAAC System Architecture — Impact Analysis</title>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; outline:none; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    background: #fbfbfd; /* Apple-like light gray background */
+    color: #1d1d1f;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #graph-container { width:100vw; height:100vh; background: #fbfbfd; }
+
+  /* TOP BAR */
+  #top-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  #top-bar h1 {
+    font-size: 16px; font-weight: 600; color: #1d1d1f;
+    white-space: nowrap; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 6px;
+  }
+  #top-bar h1 span {
+    color: #86868b; font-weight: 400; font-size: 13px;
+    background: rgba(0,0,0,0.04); padding: 2px 8px; border-radius: 6px;
+  }
+
+  .search-box { position: relative; flex: 0 1 260px; }
+  .search-box input {
+    width: 100%; padding: 8px 12px 8px 34px; border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.02);
+    color: #1d1d1f; font-size: 13px;
+    transition: all 0.2s ease;
+  }
+  .search-box input:focus {
+    background: #fff; border-color: #0071e3;
+    box-shadow: 0 0 0 4px rgba(0,113,227,0.1);
+  }
+  .search-box::before {
+    content: '🔍'; position: absolute; left: 10px; top: 50%;
+    transform: translateY(-50%); font-size: 12px; opacity: 0.4; pointer-events: none;
+  }
+
+  .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .btn {
+    padding: 6px 14px; border-radius: 18px;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: #fff; color: #515154;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.25,0.1,0.25,1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .btn:hover {
+    background: #f5f5f7; color: #1d1d1f; border-color: rgba(0,0,0,0.15);
+    transform: translateY(-0.5px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .btn.active {
+    background: #1d1d1f; color: #fff; border-color: #1d1d1f;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .btn.impact {
+    border-color: rgba(255,59,48,0.3); color: #ff3b30;
+    background: rgba(255,59,48,0.04);
+  }
+  .btn.impact:hover {
+    background: #ff3b30; color: #fff; border-color: #ff3b30;
+    box-shadow: 0 2px 8px rgba(255,59,48,0.25);
+  }
+  .btn.impact.active {
+    background: #ff3b30; color: #fff; border-color: #ff3b30;
+  }
+  .btn.reset-btn { color: #86868b; border-color: transparent; background: transparent; box-shadow: none; }
+  .btn.reset-btn:hover { background: rgba(0,0,0,0.04); color: #1d1d1f; }
+
+  /* IMPACT BANNER */
+  #impact-banner {
+    position: fixed; top: 64px; left: 50%; transform: translateX(-50%) translateY(-10px);
+    z-index: 200; background: #ff3b30; color: #fff;
+    padding: 8px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 600;
+    display: none; align-items: center; gap: 12px;
+    box-shadow: 0 8px 24px rgba(255,59,48,0.3);
+    opacity: 0; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  #impact-banner.show { display: flex; transform: translateX(-50%) translateY(0); opacity: 1; }
+  #impact-banner button {
+    background: rgba(255,255,255,0.25); border: none; color: #fff;
+    padding: 2px 8px; border-radius: 10px; cursor: pointer; font-size: 11px;
+    transition: background 0.2s;
+  }
+  #impact-banner button:hover { background: rgba(255,255,255,0.4); }
+
+  /* LEGEND */
+  #legend {
+    position: fixed; bottom: 24px; left: 24px; z-index: 100;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 16px; padding: 16px 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+    font-size: 12px; min-width: 180px;
+  }
+  #legend h3 { font-size: 11px; text-transform: uppercase; color: #86868b; margin-bottom: 12px; letter-spacing: 0.05em; font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 10px; margin: 8px 0; color: #424245; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .legend-line { width: 20px; height: 2px; border-radius: 1px; flex-shrink: 0; }
+
+  /* DETAIL PANEL */
+  #detail-panel {
+    position: fixed; top: 64px; right: 24px; bottom: 24px; width: 360px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 20px; z-index: 100;
+    transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto; padding: 24px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.12);
+  }
+  #detail-panel.open { transform: translateX(0); }
+  #detail-panel h2 { font-size: 20px; font-weight: 700; color: #1d1d1f; margin-bottom: 6px; letter-spacing: -0.02em; }
+  #detail-panel .group-badge {
+    display: inline-block; padding: 4px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 600; margin-bottom: 16px;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  #detail-panel .desc { color: #424245; font-size: 14px; line-height: 1.5; margin-bottom: 24px; }
+  #detail-panel h3 { font-size: 12px; text-transform: uppercase; color: #86868b; margin: 24px 0 10px; font-weight: 600; letter-spacing: 0.02em; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 6px; }
+  #detail-panel ul { list-style: none; padding: 0; }
+  #detail-panel li {
+    padding: 8px 12px; margin: 4px 0; border-radius: 8px; font-size: 13px;
+    cursor: pointer; transition: all 0.15s; color: #1d1d1f;
+    background: rgba(0,0,0,0.02); display: flex; align-items: center; gap: 8px;
+  }
+  #detail-panel li:hover { background: rgba(0,113,227,0.08); color: #0071e3; transform: translateX(2px); }
+  .edge-label { margin-left: auto; color: #86868b; font-size: 11px; background: rgba(255,255,255,0.5); padding: 2px 6px; border-radius: 4px; }
+  .close-panel {
+    position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.05);
+    border: none; color: #1d1d1f; cursor: pointer;
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; font-size: 14px;
+  }
+  .close-panel:hover { background: rgba(0,0,0,0.1); transform: rotate(90deg); }
+
+  /* IMPACT LIST */
+  #impact-list {
+    position: fixed; bottom: 24px; right: 24px; z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,59,48,0.2);
+    border-radius: 16px; padding: 16px; font-size: 12px;
+    width: 280px; max-height: 50vh; overflow-y: auto;
+    display: none; box-shadow: 0 8px 32px rgba(255,59,48,0.15);
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  #impact-list.show { display: block; }
+  #impact-list h3 { color: #ff3b30; font-size: 13px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  #impact-list .impact-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px;
+    border-bottom: 1px solid rgba(0,0,0,0.04); cursor: pointer;
+    transition: background 0.15s; border-radius: 6px;
+  }
+  #impact-list .impact-item:hover { background: rgba(255,59,48,0.05); }
+  #impact-list .impact-depth {
+    background: #ff3b30; color: #fff; font-weight: 700; font-size: 10px;
+    padding: 2px 6px; border-radius: 10px; min-width: 24px; text-align: center;
+  }
+  #impact-list .impact-name { color: #1d1d1f; font-weight: 500; flex: 1; }
+  #impact-list .impact-via { color: #86868b; font-size: 10px; max-width: 80px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* HELP TIP */
+  #help-tip {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    z-index: 90; background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 20px; padding: 8px 16px; font-size: 12px; color: #86868b;
+    display: flex; gap: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  }
+  #help-tip kbd {
+    display: inline-block; padding: 2px 6px; border-radius: 4px;
+    background: #fff; border: 1px solid rgba(0,0,0,0.1); color: #1d1d1f;
+    font-size: 10px; font-family: -apple-system, monospace;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="top-bar">
+  <h1>MAAC <span>System Architecture</span></h1>
+  <div class="search-box"><input type="text" id="search" placeholder="Search modules..."></div>
+  <div class="btn-group" id="filter-btns">
+    <button class="btn active" data-filter="all">All</button>
+    <button class="btn" data-filter="module">Module</button>
+    <button class="btn" data-filter="subfeature">Sub-feature</button>
+    <button class="btn" data-filter="infra">Infra</button>
+    <button class="btn" data-filter="data">Data</button>
+  </div>
+  <div style="flex:1"></div>
+  <button class="btn impact" id="impact-mode-btn">⚡ Impact Analysis</button>
+  <button class="btn reset-btn" id="reset-btn">Reset View</button>
+</div>
+
+<!-- IMPACT BANNER -->
+<div id="impact-banner">
+  <span>⚡ Impact Analysis Active</span>
+  <span style="opacity:0.6">|</span>
+  <span id="impact-source-label">Select a node...</span>
+  <button onclick="exitImpactMode()">Exit</button>
+</div>
+
+<!-- GRAPH -->
+<div id="graph-container"></div>
+
+<!-- LEGEND -->
+<div id="legend">
+  <h3>Node Types</h3>
+  <div class="legend-item"><div class="legend-dot" style="background:#0071e3;"></div><span>MAAC Platform</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#007aff;"></div><span>Module</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#34c759;"></div><span>Sub-feature</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ff9500;"></div><span>Infrastructure</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#af52de;"></div><span>Data Entity</span></div>
+  <div style="height:8px"></div>
+  <h3>Relationships</h3>
+  <div class="legend-item"><div class="legend-line" style="background:#007aff;"></div><span>Data Flow</span></div>
+  <div class="legend-item"><div class="legend-line" style="background:#ff9500;"></div><span>Infra Dependency</span></div>
+  <div class="legend-item"><div class="legend-line" style="background:#af52de;border-bottom:1px dashed #af52de;height:0;"></div><span>Entity Link</span></div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div id="detail-panel">
+  <button class="close-panel" onclick="closeDetail()">×</button>
+  <div id="detail-content"></div>
+</div>
+
+<!-- IMPACT LIST -->
+<div id="impact-list">
+  <h3>🔥 Impact Scope</h3>
+  <div id="impact-items"></div>
+</div>
+
+<!-- HELP -->
+<div id="help-tip">
+  <span><kbd>Click</kbd> Details</span>
+  <span><kbd>Double Click</kbd> Focus</span>
+  <span><kbd>Scroll</kbd> Zoom</span>
+  <span><kbd>Drag</kbd> Pan</span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  GRAPH DATA
+// ═══════════════════════════════════════════════════
+const RAW_DATA = {"nodes": [{"id": 1, "label": "MAAC Platform", "group": "platform", "title": "Marketing Automation & Analytics Center\nCrescendo Lab's core product platform", "size": 50}, {"id": 2, "label": "Contact\nManagement", "group": "module", "title": "聯絡人管理核心\n管理所有通路的聯絡人資料\n包含 LINE / FB / IG / Phone / Email", "size": 40}, {"id": 3, "label": "Segment", "group": "module", "title": "分眾引擎\n根據條件篩選聯絡人群組\n支援靜態/動態分眾", "size": 36}, {"id": 4, "label": "Tag\nManager", "group": "module", "title": "標籤系統\nTag CRUD、自動加標、標籤分析", "size": 34}, {"id": 5, "label": "Broadcast", "group": "module", "title": "推播中心\n排程推播、A/B 測試、多通路發送", "size": 38}, {"id": 6, "label": "Auto-reply", "group": "module", "title": "自動回覆\n關鍵字觸發、時間限制、重複控制", "size": 34}, {"id": 7, "label": "Customer\nJourney", "group": "module", "title": "自動化旅程\n多步驟自動化流程、觸發器、動作節點\n包含 EDM 整合", "size": 42}, {"id": 8, "label": "Rich Menu", "group": "module", "title": "LINE 圖文選單\n排程、分眾顯示、連結管理", "size": 30}, {"id": 9, "label": "Insight\n& Reports", "group": "module", "title": "數據分析\nTag 覆蓋率、獲客漏斗、訊息統計\n每日/每週報表", "size": 38}, {"id": 10, "label": "Deeplink", "group": "module", "title": "深度連結\nUTM 追蹤、獲客來源歸因", "size": 30}, {"id": 11, "label": "Tracelink", "group": "module", "title": "連結追蹤\n點擊分析、轉換追蹤", "size": 28}, {"id": 12, "label": "Prize\nManagement", "group": "module", "title": "獎品管理\n獎品池、兌換碼、抽獎系統", "size": 28}, {"id": 13, "label": "Template\nLibrary", "group": "module", "title": "範本庫\n訊息範本、可重用內容區塊", "size": 26}, {"id": 14, "label": "Contact\nProfile", "group": "subfeature", "title": "聯絡人檔案\n姓名、電話、Email、自訂欄位\n即時編輯與同步", "size": 18}, {"id": 15, "label": "Profile\nUnification", "group": "subfeature", "title": "跨通路合併\nLINE + SMS + Email 合併為單一聯絡人\n合併權重邏輯、欄位覆寫優先順序", "size": 22}, {"id": 16, "label": "Contact\nImport", "group": "subfeature", "title": "聯絡人匯入\nCSV / API 匯入、Key Value 匹配\n支援 line_uid / customer_id / phone / email", "size": 18}, {"id": 17, "label": "UID\nBinding", "group": "subfeature", "title": "身份綁定\nline_uid ↔ customer_id 對應\nBindlink 回呼、CID 綁定邏輯", "size": 18}, {"id": 18, "label": "Friend\nStatus", "group": "subfeature", "title": "LINE 好友狀態\nAuth / Following / Blocked\n根據 Webhook 事件追蹤", "size": 16}, {"id": 19, "label": "Display\nName", "group": "subfeature", "title": "顯示名稱邏輯\ndisplay_name vs original_name\n依賴 LINE Channel Token 同步", "size": 16}, {"id": 20, "label": "Contact\nFields", "group": "subfeature", "title": "聯絡人欄位\nname, phone, email, customer_id,\ntags, custom fields\n欄位更新規則：有值覆寫、空值保留", "size": 18}, {"id": 21, "label": "Filter\nConditions", "group": "subfeature", "title": "篩選條件引擎\nAND / OR 邏輯、Tag 篩選\n日期、互動、來源等多重條件", "size": 18}, {"id": 22, "label": "Dynamic\nSegment", "group": "subfeature", "title": "動態分眾\n條件變更時自動更新成員\n背景排程計算", "size": 16}, {"id": 23, "label": "Tag\nCRUD", "group": "subfeature", "title": "標籤管理\n建立、編輯、刪除標籤\n標籤名稱、排序", "size": 16}, {"id": 24, "label": "Auto-tag\nRules", "group": "subfeature", "title": "自動加標規則\n依事件/行為自動標記聯絡人", "size": 16}, {"id": 25, "label": "Message\nSend", "group": "subfeature", "title": "訊息發送引擎\n排程發送、即時發送\n多通路（LINE / SMS / Email）", "size": 18}, {"id": 26, "label": "A/B\nTesting", "group": "subfeature", "title": "A/B 測試\n多版本訊息比較\n自動選擇最佳版本", "size": 14}, {"id": 27, "label": "Audience\nTargeting", "group": "subfeature", "title": "受眾設定\n依 Segment 選擇推播對象", "size": 16}, {"id": 28, "label": "Keyword\nMatching", "group": "subfeature", "title": "關鍵字比對\n完全/部分匹配、正則\n觸發優先順序邏輯", "size": 16}, {"id": 29, "label": "Time & Reply\nLimits", "group": "subfeature", "title": "時間 & 次數限制\n冷卻時間、每人最大回覆次數\n重複訊息控制", "size": 16}, {"id": 30, "label": "Channel\nRestrictions", "group": "subfeature", "title": "通路限制\nMeta (FB/IG) 不支援新好友關鍵字回覆\nLINE / WhatsApp 支援", "size": 14}, {"id": 31, "label": "Trigger\nEngine", "group": "subfeature", "title": "觸發引擎\nEvent-Based：Webhook 事件驅動\nTime-Based：排程觸發 (Airflow)", "size": 20}, {"id": 32, "label": "Action\nNodes", "group": "subfeature", "title": "動作節點\nSend Message / Add Tag / Wait\nCondition Split / A/B Split", "size": 20}, {"id": 33, "label": "EDM / Email\nAction", "group": "subfeature", "title": "Email 發送節點\nMAAC → Epistola → SendGrid\nToken Exchange / iframe 編輯器", "size": 18}, {"id": 34, "label": "Member\nProgress", "group": "subfeature", "title": "成員進度追蹤\nREADY → RUNNING → WAITING → ENDED\n狀態機管理", "size": 16}, {"id": 35, "label": "Node\nPerformance", "group": "subfeature", "title": "節點績效指標\n每節點 send/open/click 率\nJourney 整體轉換漏斗", "size": 16}, {"id": 36, "label": "Tag\nCoverage", "group": "subfeature", "title": "標籤覆蓋率\n全品牌標籤使用統計\n依賴 Airflow 日報表", "size": 16}, {"id": 37, "label": "Acquisition\nFunnel", "group": "subfeature", "title": "獲客漏斗\n新聯絡人來源、轉換率\nDeeplink 報表", "size": 16}, {"id": 38, "label": "Message\nAnalytics", "group": "subfeature", "title": "訊息統計\n推播成效、開信率、點擊率\n自動回覆排名", "size": 16}, {"id": 39, "label": "Weekly\nReport", "group": "subfeature", "title": "每週報表\n自動寄送給客戶\n依賴 Airflow 排程", "size": 14}, {"id": 40, "label": "UTM\nTracking", "group": "subfeature", "title": "UTM 參數追蹤\n來源、媒介、活動歸因", "size": 14}, {"id": 41, "label": "Acquisition\nSource", "group": "subfeature", "title": "獲客來源追蹤\n新聯絡人歸因到 Deeplink", "size": 14}, {"id": 42, "label": "Menu\nScheduling", "group": "subfeature", "title": "排程管理\n按時間切換不同選單", "size": 14}, {"id": 43, "label": "Per-audience\nMenu", "group": "subfeature", "title": "分眾選單\n依標籤/分群顯示不同選單", "size": 14}, {"id": 44, "label": "Sender\nDomain", "group": "subfeature", "title": "Sender Domain 管理\nDNS 驗證：CNAME / DKIM1 / DKIM2 / DMARC\n透過 SendGrid API 驗證", "size": 16}, {"id": 45, "label": "Channel\nStatus", "group": "subfeature", "title": "Email 頻道狀態\nnot_set → connected → warning → suspended\nHard Bounce > 2% 或 Spam > 0.3% → warning", "size": 16}, {"id": 46, "label": "CDH", "group": "infra", "title": "Customer Data Hub\n統一客戶資料中心\n跨 MAAC / CAAC 同步聯絡人", "size": 28}, {"id": 47, "label": "CAAC", "group": "infra", "title": "Conversational Analytics\n& Automation Center\n客服對話平台", "size": 24}, {"id": 48, "label": "LINE\nAPI", "group": "infra", "title": "LINE Messaging API\nWebhook、Push/Reply Message\nProfile Sync、Friend Status", "size": 26}, {"id": 49, "label": "Meta\nAPI", "group": "infra", "title": "Facebook + Instagram API\n訊息收發、用戶資料\n有政策限制", "size": 22}, {"id": 50, "label": "SendGrid", "group": "infra", "title": "Email 發送服務\nSender Domain 驗證\nBounce / Spam Rate 監控", "size": 22}, {"id": 51, "label": "Airflow", "group": "infra", "title": "資料管線排程\n每日報表 Pipeline\n控制 Insight 資料更新", "size": 22}, {"id": 52, "label": "RabbitMQ", "group": "infra", "title": "訊息佇列\nJourney 事件分發\nWorker 任務排程", "size": 20}, {"id": 53, "label": "Rubato", "group": "infra", "title": "Journey 核心引擎\n觸發評估、節點執行\n進度管理", "size": 22}, {"id": 54, "label": "Epistola", "group": "infra", "title": "Email Extension Service\niframe 編輯器、訊息 CRUD\n與 MAAC Journey 整合", "size": 20}, {"id": 55, "label": "Cloud\nLogging", "group": "infra", "title": "GCP Cloud Logging\n事件日誌收集\nJourney 觸發事件來源", "size": 18}, {"id": 56, "label": "Contact\nEntity", "group": "data", "title": "聯絡人資料物件\nline_uid, customer_id, phone, email\nname, tags, custom_fields", "size": 22}, {"id": 57, "label": "Channel\nEntity", "group": "data", "title": "頻道實體\nLINE / Email / SMS / WhatsApp / FB / IG\nchannel_id, status, config", "size": 20}, {"id": 58, "label": "Tag\nEntity", "group": "data", "title": "標籤物件\ntag_id, name, source (maac/cdh)\n自動標 / 手動標", "size": 18}, {"id": 59, "label": "Message\nEntity", "group": "data", "title": "訊息物件\n推播/自動回覆/Journey 訊息\n範本、Rich Content", "size": 18}, {"id": 60, "label": "Event /\nWebhook", "group": "data", "title": "事件物件\nLINE Webhook, CDH Event\nFollow / Unfollow / Message / Tag Change", "size": 20}], "edges": [{"from": 1, "to": 2, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 3, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 4, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 5, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 6, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 7, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 8, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 9, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 10, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 11, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 12, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 13, "label": "", "edge_type": "hierarchy"}, {"from": 2, "to": 14, "label": "", "edge_type": "contains"}, {"from": 2, "to": 15, "label": "", "edge_type": "contains"}, {"from": 2, "to": 16, "label": "", "edge_type": "contains"}, {"from": 2, "to": 17, "label": "", "edge_type": "contains"}, {"from": 2, "to": 18, "label": "", "edge_type": "contains"}, {"from": 2, "to": 19, "label": "", "edge_type": "contains"}, {"from": 2, "to": 20, "label": "", "edge_type": "contains"}, {"from": 3, "to": 21, "label": "", "edge_type": "contains"}, {"from": 3, "to": 22, "label": "", "edge_type": "contains"}, {"from": 4, "to": 23, "label": "", "edge_type": "contains"}, {"from": 4, "to": 24, "label": "", "edge_type": "contains"}, {"from": 5, "to": 25, "label": "", "edge_type": "contains"}, {"from": 5, "to": 26, "label": "", "edge_type": "contains"}, {"from": 5, "to": 27, "label": "", "edge_type": "contains"}, {"from": 6, "to": 28, "label": "", "edge_type": "contains"}, {"from": 6, "to": 29, "label": "", "edge_type": "contains"}, {"from": 6, "to": 30, "label": "", "edge_type": "contains"}, {"from": 7, "to": 31, "label": "", "edge_type": "contains"}, {"from": 7, "to": 32, "label": "", "edge_type": "contains"}, {"from": 7, "to": 33, "label": "", "edge_type": "contains"}, {"from": 7, "to": 34, "label": "", "edge_type": "contains"}, {"from": 7, "to": 35, "label": "", "edge_type": "contains"}, {"from": 9, "to": 36, "label": "", "edge_type": "contains"}, {"from": 9, "to": 37, "label": "", "edge_type": "contains"}, {"from": 9, "to": 38, "label": "", "edge_type": "contains"}, {"from": 9, "to": 39, "label": "", "edge_type": "contains"}, {"from": 10, "to": 40, "label": "", "edge_type": "contains"}, {"from": 10, "to": 41, "label": "", "edge_type": "contains"}, {"from": 8, "to": 42, "label": "", "edge_type": "contains"}, {"from": 8, "to": 43, "label": "", "edge_type": "contains"}, {"from": 7, "to": 44, "label": "", "edge_type": "contains"}, {"from": 7, "to": 45, "label": "", "edge_type": "contains"}, {"from": 2, "to": 3, "label": "提供聯絡人", "edge_type": "data_flow"}, {"from": 2, "to": 5, "label": "推播對象", "edge_type": "data_flow"}, {"from": 2, "to": 7, "label": "旅程成員", "edge_type": "data_flow"}, {"from": 2, "to": 6, "label": "回覆對象", "edge_type": "data_flow"}, {"from": 2, "to": 8, "label": "選單對象", "edge_type": "data_flow"}, {"from": 2, "to": 9, "label": "數據來源", "edge_type": "data_flow"}, {"from": 3, "to": 5, "label": "受眾篩選", "edge_type": "data_flow"}, {"from": 3, "to": 7, "label": "入口條件", "edge_type": "data_flow"}, {"from": 3, "to": 8, "label": "分眾顯示", "edge_type": "data_flow"}, {"from": 4, "to": 3, "label": "篩選條件", "edge_type": "data_flow"}, {"from": 4, "to": 2, "label": "標記聯絡人", "edge_type": "data_flow"}, {"from": 4, "to": 8, "label": "選單分群依據", "edge_type": "data_flow"}, {"from": 4, "to": 7, "label": "觸發/動作條件", "edge_type": "data_flow"}, {"from": 4, "to": 9, "label": "覆蓋率統計", "edge_type": "data_flow"}, {"from": 5, "to": 9, "label": "推播成效", "edge_type": "data_flow"}, {"from": 5, "to": 13, "label": "使用範本", "edge_type": "data_flow"}, {"from": 27, "to": 3, "label": "讀取分眾", "edge_type": "data_flow"}, {"from": 6, "to": 4, "label": "觸發自動加標", "edge_type": "data_flow"}, {"from": 6, "to": 9, "label": "回覆統計", "edge_type": "data_flow"}, {"from": 7, "to": 5, "label": "觸發推播", "edge_type": "data_flow"}, {"from": 7, "to": 4, "label": "加/移除標籤", "edge_type": "data_flow"}, {"from": 7, "to": 2, "label": "更新聯絡人", "edge_type": "data_flow"}, {"from": 7, "to": 12, "label": "獎品發放", "edge_type": "data_flow"}, {"from": 10, "to": 2, "label": "新聯絡人歸因", "edge_type": "data_flow"}, {"from": 10, "to": 9, "label": "Deeplink 報表", "edge_type": "data_flow"}, {"from": 11, "to": 9, "label": "點擊報表", "edge_type": "data_flow"}, {"from": 8, "to": 10, "label": "選單連結", "edge_type": "data_flow"}, {"from": 12, "to": 7, "label": "Journey 獎品節點", "edge_type": "data_flow"}, {"from": 12, "to": 5, "label": "推播中發獎", "edge_type": "data_flow"}, {"from": 48, "to": 2, "label": "Webhook 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 18, "label": "好友狀態事件", "edge_type": "infra_dep"}, {"from": 48, "to": 19, "label": "Profile 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 6, "label": "接收訊息", "edge_type": "infra_dep"}, {"from": 48, "to": 5, "label": "Push Message", "edge_type": "infra_dep"}, {"from": 48, "to": 8, "label": "Rich Menu API", "edge_type": "infra_dep"}, {"from": 49, "to": 6, "label": "FB/IG 訊息", "edge_type": "infra_dep"}, {"from": 49, "to": 30, "label": "政策限制", "edge_type": "infra_dep"}, {"from": 50, "to": 33, "label": "Email 發送", "edge_type": "infra_dep"}, {"from": 50, "to": 44, "label": "DNS 驗證", "edge_type": "infra_dep"}, {"from": 50, "to": 45, "label": "Bounce/Spam 監控", "edge_type": "infra_dep"}, {"from": 51, "to": 9, "label": "日報表 Pipeline", "edge_type": "infra_dep"}, {"from": 51, "to": 36, "label": "Tag 覆蓋率計算", "edge_type": "infra_dep"}, {"from": 51, "to": 39, "label": "週報排程", "edge_type": "infra_dep"}, {"from": 51, "to": 31, "label": "Time-Based 觸發", "edge_type": "infra_dep"}, {"from": 46, "to": 15, "label": "統一 Profile", "edge_type": "infra_dep"}, {"from": 46, "to": 4, "label": "CDH Tag 同步", "edge_type": "infra_dep"}, {"from": 46, "to": 3, "label": "CDH 分眾規則", "edge_type": "infra_dep"}, {"from": 46, "to": 47, "label": "雙向同步", "edge_type": "infra_dep"}, {"from": 53, "to": 31, "label": "觸發評估", "edge_type": "infra_dep"}, {"from": 53, "to": 34, "label": "進度管理", "edge_type": "infra_dep"}, {"from": 52, "to": 53, "label": "任務佇列", "edge_type": "infra_dep"}, {"from": 55, "to": 53, "label": "事件日誌", "edge_type": "infra_dep"}, {"from": 54, "to": 33, "label": "Email 編輯/發送", "edge_type": "infra_dep"}, {"from": 47, "to": 2, "label": "客服對話資料", "edge_type": "infra_dep"}, {"from": 56, "to": 2, "label": "核心資料", "edge_type": "data_entity"}, {"from": 56, "to": 15, "label": "合併對象", "edge_type": "data_entity"}, {"from": 56, "to": 16, "label": "匯入目標", "edge_type": "data_entity"}, {"from": 57, "to": 2, "label": "通路資料", "edge_type": "data_entity"}, {"from": 57, "to": 7, "label": "頻道設定", "edge_type": "data_entity"}, {"from": 57, "to": 5, "label": "發送通路", "edge_type": "data_entity"}, {"from": 58, "to": 4, "label": "核心資料", "edge_type": "data_entity"}, {"from": 58, "to": 3, "label": "篩選依據", "edge_type": "data_entity"}, {"from": 58, "to": 46, "label": "CDH 同步", "edge_type": "data_entity"}, {"from": 59, "to": 5, "label": "訊息內容", "edge_type": "data_entity"}, {"from": 59, "to": 6, "label": "回覆內容", "edge_type": "data_entity"}, {"from": 59, "to": 13, "label": "範本來源", "edge_type": "data_entity"}, {"from": 59, "to": 7, "label": "Journey 訊息", "edge_type": "data_entity"}, {"from": 60, "to": 31, "label": "觸發事件", "edge_type": "data_entity"}, {"from": 60, "to": 18, "label": "狀態事件", "edge_type": "data_entity"}, {"from": 60, "to": 6, "label": "訊息事件", "edge_type": "data_entity"}, {"from": 60, "to": 48, "label": "Webhook", "edge_type": "data_entity"}]};
+
+// ═══════════════════════════════════════════════════
+//  APPLE STYLE COLOR CONFIG
+// ═══════════════════════════════════════════════════
+const GROUP_STYLES = {
+  platform:   { color:'#0071e3', border:'#0077ED', shape:'dot',     font:'#1d1d1f', borderWidth:0 },
+  module:     { color:'#007aff', border:'#0A84FF', shape:'dot',     font:'#1d1d1f', borderWidth:0 },
+  subfeature: { color:'#34c759', border:'#30D158', shape:'dot',     font:'#1d1d1f', borderWidth:0 },
+  infra:      { color:'#ff9500', border:'#FF9F0A', shape:'dot',     font:'#1d1d1f', borderWidth:0 },
+  data:       { color:'#af52de', border:'#BF5AF2', shape:'dot',     font:'#1d1d1f', borderWidth:0 },
+};
+// Lighter colors for background, darker for text
+const GROUP_COLORS = {
+  platform:   { bg: '#eef7ff', border: '#0071e3', text: '#0071e3' },
+  module:     { bg: '#e5f1ff', border: '#007aff', text: '#007aff' },
+  subfeature: { bg: '#e8fbe8', border: '#34c759', text: '#34c759' },
+  infra:      { bg: '#fff6e5', border: '#ff9500', text: '#ff9500' },
+  data:       { bg: '#f9f0ff', border: '#af52de', text: '#af52de' },
+};
+
+const GROUP_LABELS = {
+  platform:'Platform', module:'Module', subfeature:'Sub-feature', infra:'Infrastructure', data:'Data Entity'
+};
+
+const EDGE_COLORS = {
+  hierarchy:   { color:'#d1d1d6', highlight:'#8e8e93' },
+  contains:    { color:'#e5e5ea', highlight:'#aeaeb2' },
+  data_flow:   { color:'#8ecae6', highlight:'#007aff' }, // Light blue to Strong blue
+  infra_dep:   { color:'#ffd6a5', highlight:'#ff9500' }, // Light orange to Strong orange
+  data_entity: { color:'#e0b0ff', highlight:'#af52de' }, // Light purple to Strong purple
+  default:     { color:'#e5e5ea', highlight:'#8e8e93' },
+};
+
+// ═══════════════════════════════════════════════════
+//  BUILD VIS.JS DATASETS
+// ═══════════════════════════════════════════════════
+const visNodes = RAW_DATA.nodes.map(n => {
+  const g = GROUP_COLORS[n.group] || GROUP_COLORS.module;
+  // Calculate size based on original size but scaled for cleaner look
+  const size = Math.max(8, n.size * 0.6); 
+  
+  return {
+    id: n.id, label: n.label, group: n.group,
+    title: n.title, value: size, // Use value for scaling
+    shape: 'dot',
+    color: { 
+      background: g.bg, 
+      border: g.border, 
+      highlight: { background: '#fff', border: g.border } 
+    },
+    font: { 
+      color: '#1d1d1f', 
+      size: 14, 
+      face: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+      strokeWidth: 0, // No stroke for clean text
+      vadjust: -size - 10 // Position text above node
+    },
+    borderWidth: 2,
+    borderWidthSelected: 3,
+    shadow: { enabled: true, color: 'rgba(0,0,0,0.05)', size: 10, x: 0, y: 4 },
+    // Store original for reset
+    _origColor: { background: g.bg, border: g.border },
+    _origSize: size,
+  };
+});
+
+const visEdges = RAW_DATA.edges.map((e, i) => {
+  const ec = EDGE_COLORS[e.edge_type] || EDGE_COLORS.default;
+  const isContains = e.edge_type === 'hierarchy' || e.edge_type === 'contains';
+  return {
+    id: i, from: e.from, to: e.to,
+    label: e.label || '',
+    edge_type: e.edge_type,
+    color: { color: isContains ? '#f2f2f7' : ec.color, highlight: ec.highlight, opacity: isContains ? 0.5 : 0.8 },
+    arrows: { to: { enabled: !isContains, scaleFactor: 0.5, type: 'arrow' } },
+    dashes: e.edge_type === 'data_entity',
+    width: isContains ? 1 : 1.5,
+    font: { size: 10, color: '#86868b', strokeWidth: 0, align: 'horizontal', background: 'rgba(255,255,255,0.7)' },
+    smooth: { 
+      type: isContains ? 'cubicBezier' : 'curvedCW', 
+      roundness: 0.2 
+    },
+    hoverWidth: 0.5
+  };
+});
+
+const nodesDS = new vis.DataSet(visNodes);
+const edgesDS = new vis.DataSet(visEdges);
+
+// ═══════════════════════════════════════════════════
+//  VIS.JS NETWORK CONFIG
+// ═══════════════════════════════════════════════════
+const container = document.getElementById('graph-container');
+const network = new vis.Network(container, { nodes: nodesDS, edges: edgesDS }, {
+  nodes: {
+    scaling: { min: 10, max: 30 }
+  },
+  physics: {
+    enabled: true,
+    solver: 'forceAtlas2Based',
+    forceAtlas2Based: { 
+      gravitationalConstant: -100, 
+      centralGravity: 0.005, 
+      springLength: 200, 
+      springConstant: 0.04, 
+      damping: 0.5 
+    },
+    stabilization: { 
+      iterations: 200, 
+      updateInterval: 25,
+      fit: true 
+    },
+    maxVelocity: 40,
+    minVelocity: 0.1,
+  },
+  interaction: {
+    hover: true, 
+    hoverConnectedEdges: true, 
+    tooltipDelay: 300,
+    zoomView: true, 
+    dragView: true,
+    selectConnectedEdges: false
+  },
+  layout: { improvedLayout: true },
+});
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let impactMode = false;
+let currentFilter = 'all';
+
+// ═══════════════════════════════════════════════════
+//  SEARCH & HIGHLIGHT
+// ═══════════════════════════════════════════════════
+document.getElementById('search').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (!q) { resetHighlight(); return; }
+
+  const matches = nodesDS.get().filter(n =>
+    n.label.toLowerCase().includes(q) || (n.title||'').toLowerCase().includes(q)
+  );
+  const matchIds = new Set(matches.map(m=>m.id));
+
+  nodesDS.get().forEach(n => {
+    const isMatch = matchIds.has(n.id);
+    nodesDS.update({ id: n.id,
+      opacity: isMatch ? 1 : 0.1,
+      color: isMatch 
+        ? { background: n._origColor.background, border: n._origColor.border }
+        : { background: '#f2f2f7', border: '#d1d1d6' },
+      font: { color: isMatch ? '#1d1d1f' : 'rgba(0,0,0,0)' } // Hide text of non-matches
+    });
+  });
+  edgesDS.get().forEach(e => {
+    edgesDS.update({ id: e.id, color: { color: '#e5e5ea', opacity: 0.05 } });
+  });
+
+  if (matches.length === 1) network.focus(matches[0].id, { scale: 1.2, animation: true });
+});
+
+// ═══════════════════════════════════════════════════
+//  FILTER BUTTONS
+// ═══════════════════════════════════════════════════
+document.querySelectorAll('#filter-btns .btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#filter-btns .btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    currentFilter = this.dataset.filter;
+    applyFilter();
+  });
+});
+
+function applyFilter() {
+  if (currentFilter === 'all') { resetHighlight(); return; }
+  nodesDS.get().forEach(n => {
+    const show = n.group === currentFilter || n.group === 'platform';
+    nodesDS.update({ id: n.id,
+      opacity: show ? 1 : 0.1,
+      color: show 
+        ? { background: n._origColor.background, border: n._origColor.border }
+        : { background: '#f2f2f7', border: '#d1d1d6' },
+      font: { color: show ? '#1d1d1f' : 'rgba(0,0,0,0)' }
+    });
+  });
+  edgesDS.get().forEach(e => {
+     edgesDS.update({ id: e.id, color: { opacity: 0.05 } });
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  IMPACT ANALYSIS
+// ═══════════════════════════════════════════════════
+document.getElementById('impact-mode-btn').addEventListener('click', function() {
+  impactMode = !impactMode;
+  this.classList.toggle('active', impactMode);
+  if (impactMode) {
+    document.getElementById('impact-banner').classList.add('show');
+    network.setOptions({ interaction: { hover: false } }); // Disable hover for cleaner analysis
+  } else {
+    exitImpactMode();
+  }
+});
+
+function exitImpactMode() {
+  impactMode = false;
+  document.getElementById('impact-mode-btn').classList.remove('active');
+  document.getElementById('impact-banner').classList.remove('show');
+  document.getElementById('impact-list').classList.remove('show');
+  network.setOptions({ interaction: { hover: true } });
+  resetHighlight();
+}
+
+function runImpactAnalysis(nodeId) {
+  const sourceNode = nodesDS.get(nodeId);
+  if (!sourceNode) return;
+
+  // BFS logic identical to before
+  const visited = new Map();
+  visited.set(nodeId, { depth: 0, via: 'Origin' });
+  const queue = [{ id: nodeId, depth: 0 }];
+  const impactEdges = new Set();
+
+  while (queue.length > 0) {
+    const { id: currId, depth } = queue.shift();
+    if (depth >= 3) continue;
+
+    edgesDS.get().forEach(e => {
+      let nextId = null;
+      let edgeLabel = e.label || e.edge_type;
+      
+      if (e.edge_type === 'hierarchy' || e.edge_type === 'contains') {
+        if (e.to === currId && !visited.has(e.from)) { nextId = e.from; edgeLabel = 'Parent of'; }
+        if (e.from === currId && !visited.has(e.to)) { nextId = e.to; edgeLabel = 'Contains'; }
+      }
+      else if (e.edge_type === 'data_flow') {
+        if (e.from === currId && !visited.has(e.to)) { nextId = e.to; }
+        if (e.to === currId && !visited.has(e.from)) { nextId = e.from; edgeLabel = 'Input from ' + (e.label||''); }
+      }
+      else if (e.edge_type === 'infra_dep') {
+        if (e.from === currId && !visited.has(e.to)) { nextId = e.to; }
+        if (e.to === currId && !visited.has(e.from)) { nextId = e.from; edgeLabel = 'Dependent on ' + (e.label||''); }
+      }
+      else if (e.edge_type === 'data_entity') {
+        if (e.from === currId && !visited.has(e.to)) { nextId = e.to; }
+        if (e.to === currId && !visited.has(e.from)) { nextId = e.from; edgeLabel = 'Shared ' + (e.label||''); }
+      }
+
+      if (nextId !== null && !visited.has(nextId)) {
+        visited.set(nextId, { depth: depth + 1, via: edgeLabel });
+        impactEdges.add(e.id);
+        queue.push({ id: nextId, depth: depth + 1 });
+      }
+      if ((e.from === currId || e.to === currId) && visited.has(e.from) && visited.has(e.to)) {
+        impactEdges.add(e.id);
+      }
+    });
+  }
+
+  // Visualize Scope
+  const depthColors = ['#ff3b30', '#ff9500', '#ffcc00', '#8e8e93'];
+  nodesDS.get().forEach(n => {
+    if (n.id === nodeId) {
+      nodesDS.update({ id: n.id,
+        color: { background: '#ff3b30', border: '#ff3b30' },
+        font: { color: '#fff', size: 16, strokeWidth:0, vadjust: -20 },
+        shadow: { size: 15, color: 'rgba(255,59,48,0.4)' },
+        opacity: 1
+      });
+    } else if (visited.has(n.id)) {
+      const d = visited.get(n.id).depth;
+      const c = depthColors[d] || '#8e8e93';
+      nodesDS.update({ id: n.id,
+        color: { background: '#fff', border: c },
+        font: { color: '#1d1d1f' },
+        borderWidth: 2, opacity: 1
+      });
+    } else {
+      nodesDS.update({ id: n.id, opacity: 0.1, color: { background: '#f2f2f7', border: '#e5e5ea' }, font: { color: 'rgba(0,0,0,0)' } });
+    }
+  });
+
+  edgesDS.get().forEach(e => {
+    edgesDS.update({ id: e.id,
+      color: { color: impactEdges.has(e.id) ? '#ff3b30' : '#e5e5ea', opacity: impactEdges.has(e.id) ? 0.8 : 0.05 },
+      width: impactEdges.has(e.id) ? 2 : 0.5
+    });
+  });
+
+  document.getElementById('impact-source-label').textContent = `Change "${sourceNode.label.replace('\n',' ')}" affects ${visited.size - 1} nodes`;
+  
+  // Update Impact List
+  const listDiv = document.getElementById('impact-items');
+  listDiv.innerHTML = '';
+  const sorted = [...visited.entries()].filter(([id]) => id !== nodeId).sort((a,b) => a[1].depth - b[1].depth);
+  sorted.forEach(([id, info]) => {
+    const n = nodesDS.get(id);
+    const div = document.createElement('div');
+    div.className = 'impact-item';
+    div.innerHTML = `
+      <span class="impact-depth">L${info.depth}</span>
+      <span class="impact-name">${n.label.replace('\n',' ')}</span>
+      <span class="impact-via">${info.via}</span>
+    `;
+    div.onclick = () => network.focus(id, { scale: 1.5, animation: true });
+    listDiv.appendChild(div);
+  });
+  document.getElementById('impact-list').classList.add('show');
+  network.focus(nodeId, { scale: 1.0, animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
+}
+
+// ═══════════════════════════════════════════════════
+//  INTERACTION
+// ═══════════════════════════════════════════════════
+network.on('click', function(params) {
+  if (params.nodes.length === 0) { 
+    if (!impactMode) closeDetail(); 
+    return; 
+  }
+  const nodeId = params.nodes[0];
+  if (impactMode) {
+    runImpactAnalysis(nodeId);
+    return;
+  }
+  showDetail(nodeId);
+});
+
+network.on('doubleClick', function(params) {
+  if (params.nodes.length === 0) return;
+  const nid = params.nodes[0];
+  const connIds = network.getConnectedNodes(nid);
+  connIds.push(nid);
+  network.fit({ nodes: connIds, animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+});
+
+function showDetail(nodeId) {
+  const node = nodesDS.get(nodeId);
+  const gc = GROUP_COLORS[node.group] || GROUP_COLORS.module;
+  
+  // Connections logic
+  const incoming = [], outgoing = [], children = [], parents = [];
+  edgesDS.get().forEach(e => {
+    if (e.from === nodeId) {
+      const target = nodesDS.get(e.to);
+      if (e.edge_type === 'contains' || e.edge_type === 'hierarchy') children.push({ n: target, l: e.label });
+      else outgoing.push({ n: target, l: e.label, t: e.edge_type });
+    }
+    if (e.to === nodeId) {
+      const source = nodesDS.get(e.from);
+      if (e.edge_type === 'contains' || e.edge_type === 'hierarchy') parents.push({ n: source, l: e.label });
+      else incoming.push({ n: source, l: e.label, t: e.edge_type });
+    }
+  });
+
+  let html = `<h2>${node.label.replace('\n',' ')}</h2>`;
+  html += `<span class="group-badge" style="background:${gc.bg}; color:${gc.text}; border:1px solid ${gc.border}">${GROUP_LABELS[node.group]||node.group}</span>`;
+  html += `<div class="desc">${node.title||'No description.'}</div>`;
+
+  if (parents.length) {
+    html += `<h3>Parents</h3><ul>`;
+    parents.forEach(x => html += `<li onclick="network.focus(${x.n.id}, {scale:1.5, animation:true}); showDetail(${x.n.id})">⬆️ ${x.n.label.replace('\n',' ')}</li>`);
+    html += `</ul>`;
+  }
+  if (children.length) {
+    html += `<h3>Contains (${children.length})</h3><ul>`;
+    children.forEach(x => html += `<li onclick="network.focus(${x.n.id}, {scale:1.5, animation:true}); showDetail(${x.n.id})">📦 ${x.n.label.replace('\n',' ')}</li>`);
+    html += `</ul>`;
+  }
+  if (outgoing.length) {
+    html += `<h3>Impacts / Outputs (${outgoing.length})</h3><ul>`;
+    outgoing.forEach(x => html += `<li onclick="network.focus(${x.n.id}, {scale:1.5, animation:true}); showDetail(${x.n.id})"><span>→ ${x.n.label.replace('\n',' ')}</span> <span class="edge-label">${x.l||x.t}</span></li>`);
+    html += `</ul>`;
+  }
+  if (incoming.length) {
+    html += `<h3>Dependent On / Inputs (${incoming.length})</h3><ul>`;
+    incoming.forEach(x => html += `<li onclick="network.focus(${x.n.id}, {scale:1.5, animation:true}); showDetail(${x.n.id})"><span>← ${x.n.label.replace('\n',' ')}</span> <span class="edge-label">${x.l||x.t}</span></li>`);
+    html += `</ul>`;
+  }
+
+  html += `<div style="margin-top:24px"><button class="btn impact" style="width:100%" onclick="impactMode=true; document.getElementById('impact-mode-btn').classList.add('active'); runImpactAnalysis(${nodeId})">⚡ Analyze Impact</button></div>`;
+
+  document.getElementById('detail-content').innerHTML = html;
+  document.getElementById('detail-panel').classList.add('open');
+  
+  // Highlight neighbors
+  const connected = network.getConnectedNodes(nodeId);
+  connected.push(nodeId);
+  nodesDS.get().forEach(n => {
+    nodesDS.update({ id: n.id, opacity: connected.includes(n.id) ? 1 : 0.1 });
+  });
+  edgesDS.get().forEach(e => {
+    const isConn = connected.includes(e.from) && connected.includes(e.to) && (e.from === nodeId || e.to === nodeId);
+    edgesDS.update({ id: e.id, color: { opacity: isConn ? 1 : 0.05 } });
+  });
+}
+
+function closeDetail() {
+  document.getElementById('detail-panel').classList.remove('open');
+  if (!impactMode) resetHighlight();
+}
+
+function resetHighlight() {
+  nodesDS.get().forEach(n => {
+    nodesDS.update({ id: n.id, opacity: 1, color: { background: n._origColor.background, border: n._origColor.border }, font: { color: '#1d1d1f' } });
+  });
+  edgesDS.get().forEach(e => {
+    const ec = EDGE_COLORS[e.edge_type] || EDGE_COLORS.default;
+    const isContains = e.edge_type === 'hierarchy' || e.edge_type === 'contains';
+    edgesDS.update({ id: e.id, color: { color: isContains?'#f2f2f7':ec.color, opacity: isContains?0.5:0.8 } });
+  });
+}
+</script>
+</body>
+</html>

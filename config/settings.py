@@ -16,7 +16,7 @@ load_dotenv(PROJECT_ROOT / ".env")
 # ── OpenAI Settings ───────────────────────────────────────────
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL: str = "gpt-4o"
-OPENAI_MAX_TOKENS: int = 4096
+OPENAI_MAX_TOKENS: int = 16384  # GPT-4o max output tokens
 OPENAI_TEMPERATURE: float = 0.1  # Low temperature to reduce hallucination
 
 # ── I/O Directories ──────────────────────────────────────────

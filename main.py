@@ -17,6 +17,8 @@ Usage
   python main.py --input-dir /path/to/folder
 """
 
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path
