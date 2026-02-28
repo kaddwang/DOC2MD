@@ -7,18 +7,10 @@
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <style>
   :root {
-    --bg-color: #121212;
-    --panel-bg: rgba(30, 30, 30, 0.9);
+    --bg-color: #0d1117; /* GitHub Dark */
+    --panel-bg: rgba(22, 27, 34, 0.9);
     --text-primary: #E0E0E0;
-    --text-secondary: #A0A0A0;
     --border-color: rgba(255, 255, 255, 0.1);
-    
-    /* Neon Colors from Reference */
-    --c-platform: #8A2BE2; /* Violet */
-    --c-module: #4B0082;   /* Indigo/Purple */
-    --c-feature: #2E8B57;  /* Sea Green */
-    --c-infra: #DAA520;    /* Goldenrod */
-    --c-data: #4682B4;     /* Steel Blue */
   }
   
   * { margin:0; padding:0; box-sizing:border-box; outline:none; -webkit-font-smoothing: antialiased; }
@@ -29,69 +21,65 @@
     overflow: hidden;
   }
 
-  #graph-container { width:100vw; height:100vh; background: #121212; }
+  #graph-container { width:100vw; height:100vh; background: #0d1117; }
 
-  /* --- UI CONTROLS --- */
+  /* FLOATING PANEL */
   .floating-panel {
     position: fixed; z-index: 100;
     background: var(--panel-bg);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--border-color);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    border-radius: 14px;
     transition: all 0.3s ease;
   }
 
   /* TOP BAR */
   #top-bar {
     top: 20px; left: 20px; right: 20px;
-    padding: 12px 20px;
-    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
-    max-width: 1600px; margin: 0 auto;
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    max-width: 1400px; margin: 0 auto;
   }
   
-  .app-title { font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; font-size: 16px; }
-  .app-title span { color: var(--text-secondary); font-weight: 400; font-size: 12px; border: 1px solid var(--border-color); padding: 2px 8px; border-radius: 4px; }
+  .app-title { font-weight: 700; color: #fff; font-size: 16px; display:flex; align-items:center; gap:8px; }
+  .app-title span { font-weight:400; font-size:12px; opacity:0.6; border:1px solid #555; padding:2px 6px; border-radius:4px; }
 
   /* Search */
-  .search-wrapper { position: relative; flex: 1; max-width: 300px; }
+  .search-wrapper { position: relative; flex: 1; max-width: 320px; }
   .search-wrapper input {
     width: 100%; padding: 8px 12px 8px 36px;
-    border-radius: 8px; border: 1px solid var(--border-color);
-    background: rgba(0,0,0,0.3); color: #fff;
+    border-radius: 8px; border: 1px solid #30363d;
+    background: #0d1117; color: #fff;
     font-size: 13px;
   }
-  .search-wrapper input:focus { border-color: #fff; }
-  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+  .search-wrapper input:focus { border-color: #58a6ff; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
 
   /* Filters */
-  .filter-group { display: flex; gap: 6px; }
+  .filter-group { display: flex; gap: 8px; }
   .filter-btn {
-    border: 1px solid var(--border-color); background: rgba(255,255,255,0.05); 
-    padding: 6px 12px; border-radius: 6px; font-size: 12px; color: var(--text-secondary);
+    border: 1px solid #30363d; background: transparent; 
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #8b949e;
     cursor: pointer; transition: all 0.2s;
   }
-  .filter-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-  .filter-btn.active { background: #fff; color: #000; font-weight: 600; }
+  .filter-btn:hover { border-color: #8b949e; color: #c9d1d9; }
+  .filter-btn.active { background: #58a6ff; border-color: #58a6ff; color: #fff; }
 
   /* Actions */
   .action-btn {
-    padding: 8px 16px; border-radius: 20px; border: none;
+    padding: 8px 18px; border-radius: 20px; border: none;
     font-size: 12px; font-weight: 600; cursor: pointer;
-    background: #fff; color: #000;
+    background: #238636; color: #fff;
   }
-  .action-btn:hover { background: #e0e0e0; }
-  .btn-impact { background: #FF453A; color: #fff; }
-  .btn-impact:hover { background: #FF6961; }
-
+  .action-btn:hover { background: #2ea043; }
+  
   /* LEGEND */
   #legend {
-    bottom: 24px; left: 24px; padding: 16px;
-    width: 180px;
+    bottom: 24px; left: 24px; padding: 16px; width: 180px;
   }
-  .legend-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; }
-  .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 12px; color: var(--text-primary); }
-  .circle { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
+  .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
+  .circle { width: 12px; height: 12px; border-radius: 50%; }
 
   /* DETAIL PANEL */
   #detail-panel {
@@ -100,216 +88,185 @@
   }
   #detail-panel.open { transform: translateX(0); }
   
-  .panel-header { padding: 20px; border-bottom: 1px solid var(--border-color); }
-  .panel-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-  .panel-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; display: inline-block; font-weight: 600; }
+  .panel-header { padding: 20px; border-bottom: 1px solid #30363d; }
+  .panel-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .panel-badge { font-size: 10px; padding: 4px 8px; border-radius: 4px; display: inline-block; font-weight: 700; text-transform:uppercase; letter-spacing:0.5px; color:#000; }
   
   .panel-body { flex: 1; overflow-y: auto; padding: 20px; }
-  .panel-desc { font-size: 14px; line-height: 1.5; color: #ccc; margin-bottom: 20px; }
+  .panel-desc { font-size: 14px; line-height: 1.6; color: #8b949e; margin-bottom: 24px; }
   
   .rel-item {
     display: flex; align-items: center; gap: 10px;
     padding: 10px; border-radius: 8px; margin-bottom: 4px;
-    background: rgba(255,255,255,0.05); cursor: pointer; border: 1px solid transparent;
+    background: rgba(255,255,255,0.03); cursor: pointer; border: 1px solid transparent;
   }
-  .rel-item:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); }
-  .rel-type { font-size: 10px; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius: 4px; color: #aaa; }
-
-  /* IMPACT UI */
-  #impact-banner {
-    top: 90px; left: 50%; transform: translateX(-50%);
-    background: #FF453A; color: white; padding: 8px 24px; border-radius: 30px;
-    display: none; align-items: center; gap: 12px; font-weight: 600; font-size: 13px;
-    box-shadow: 0 0 20px rgba(255, 69, 58, 0.4);
-  }
-  #impact-banner.show { display: flex; }
-
-  #impact-list {
-    bottom: 24px; right: 400px; width: 240px; max-height: 400px; overflow-y: auto;
-    display: none;
-  }
-  #impact-list.show { display: block; }
-  .impact-row { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid var(--border-color); color: #fff; cursor: pointer; }
-  .impact-row:hover { background: rgba(255,255,255,0.1); }
-  .depth-tag { background: #FF453A; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 8px; }
+  .rel-item:hover { border-color: #58a6ff; background: rgba(88,166,255,0.1); }
+  .rel-type { font-size: 10px; padding: 2px 6px; background: rgba(255,255,255,0.1); border-radius: 4px; color: #8b949e; margin-left:auto; }
 
 </style>
 </head>
 <body>
 
 <div id="top-bar" class="floating-panel">
-  <div class="app-title">MAAC <span>Knowledge Graph</span></div>
-  
+  <div class="app-title">MAAC <span>Graph</span></div>
   <div class="search-wrapper">
     <span class="search-icon">🔍</span>
     <input type="text" id="search" placeholder="Search...">
   </div>
-
   <div class="filter-group">
     <button class="filter-btn active" data-filter="all">All</button>
     <button class="filter-btn" data-filter="module">Modules</button>
     <button class="filter-btn" data-filter="subfeature">Features</button>
     <button class="filter-btn" data-filter="infra">Infra</button>
-    <button class="filter-btn" data-filter="data">Data</button>
   </div>
-  
   <div style="flex:1"></div>
-  <button class="action-btn btn-impact" id="impact-btn">⚡ Impact Analysis</button>
-  <button class="action-btn" onclick="resetView()" style="background:transparent;color:#aaa;border:1px solid #aaa">Reset</button>
+  <button class="action-btn" onclick="network.fit({animation:true})">Reset Zoom</button>
 </div>
 
 <div id="graph-container"></div>
 
-<div id="impact-banner" class="floating-panel">
-  <span>Analysis Mode</span>
-  <span style="opacity:0.5">|</span>
-  <span id="impact-msg">Select a node</span>
-  <button onclick="exitImpact()" style="background:rgba(0,0,0,0.2);border:none;color:#fff;border-radius:12px;padding:2px 8px;font-size:11px;cursor:pointer">Exit</button>
-</div>
-
-<div id="impact-list" class="floating-panel">
-  <div style="padding:12px; border-bottom:1px solid var(--border-color); color:#FF453A; font-weight:700">Affected Nodes</div>
-  <div id="impact-content"></div>
-</div>
-
 <div id="legend" class="floating-panel">
-  <div class="legend-title">Nodes</div>
-  <div class="legend-row"><div class="circle" style="background:#BD93F9;border-color:#BD93F9"></div> Platform</div>
-  <div class="legend-row"><div class="circle" style="background:#8BE9FD;border-color:#8BE9FD"></div> Module</div>
-  <div class="legend-row"><div class="circle" style="background:#50FA7B;border-color:#50FA7B"></div> Feature</div>
-  <div class="legend-row"><div class="circle" style="background:#FFB86C;border-color:#FFB86C"></div> Infra</div>
-  <div class="legend-row"><div class="circle" style="background:#FF79C6;border-color:#FF79C6"></div> Data</div>
-  <div style="margin-top:12px" class="legend-title">Edges</div>
-  <div class="legend-row"><div style="width:20px;height:1px;background:#fff"></div> Relationship</div>
+  <div class="legend-row"><div class="circle" style="background:#A371F7"></div> Platform</div>
+  <div class="legend-row"><div class="circle" style="background:#58A6FF"></div> Module</div>
+  <div class="legend-row"><div class="circle" style="background:#3FB950"></div> Feature</div>
+  <div class="legend-row"><div class="circle" style="background:#D29922"></div> Infra</div>
+  <div class="legend-row"><div class="circle" style="background:#F778BA"></div> Data</div>
 </div>
 
 <div id="detail-panel" class="floating-panel">
-  <button onclick="closeDetail()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#fff;font-size:20px;cursor:pointer">×</button>
+  <button onclick="document.getElementById('detail-panel').classList.remove('open')" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer">×</button>
   <div id="detail-content"></div>
 </div>
 
 <script>
-const RAW_DATA = {"nodes": [{"id": 1, "label": "MAAC Platform", "group": "platform", "title": "Marketing Automation & Analytics Center\nCrescendo Lab's core product platform", "size": 50}, {"id": 2, "label": "Contact\nManagement", "group": "module", "title": "聯絡人管理核心\n管理所有通路的聯絡人資料\n包含 LINE / FB / IG / Phone / Email", "size": 40}, {"id": 3, "label": "Segment", "group": "module", "title": "分眾引擎\n根據條件篩選聯絡人群組\n支援靜態/動態分眾", "size": 36}, {"id": 4, "label": "Tag\nManager", "group": "module", "title": "標籤系統\nTag CRUD、自動加標、標籤分析", "size": 34}, {"id": 5, "label": "Broadcast", "group": "module", "title": "推播中心\n排程推播、A/B 測試、多通路發送", "size": 38}, {"id": 6, "label": "Auto-reply", "group": "module", "title": "自動回覆\n關鍵字觸發、時間限制、重複控制", "size": 34}, {"id": 7, "label": "Customer\nJourney", "group": "module", "title": "自動化旅程\n多步驟自動化流程、觸發器、動作節點\n包含 EDM 整合", "size": 42}, {"id": 8, "label": "Rich Menu", "group": "module", "title": "LINE 圖文選單\n排程、分眾顯示、連結管理", "size": 30}, {"id": 9, "label": "Insight\n& Reports", "group": "module", "title": "數據分析\nTag 覆蓋率、獲客漏斗、訊息統計\n每日/每週報表", "size": 38}, {"id": 10, "label": "Deeplink", "group": "module", "title": "深度連結\nUTM 追蹤、獲客來源歸因", "size": 30}, {"id": 11, "label": "Tracelink", "group": "module", "title": "連結追蹤\n點擊分析、轉換追蹤", "size": 28}, {"id": 12, "label": "Prize\nManagement", "group": "module", "title": "獎品管理\n獎品池、兌換碼、抽獎系統", "size": 28}, {"id": 13, "label": "Template\nLibrary", "group": "module", "title": "範本庫\n訊息範本、可重用內容區塊", "size": 26}, {"id": 14, "label": "Contact\nProfile", "group": "subfeature", "title": "聯絡人檔案\n姓名、電話、Email、自訂欄位\n即時編輯與同步", "size": 18}, {"id": 15, "label": "Profile\nUnification", "group": "subfeature", "title": "跨通路合併\nLINE + SMS + Email 合併為單一聯絡人\n合併權重邏輯、欄位覆寫優先順序", "size": 22}, {"id": 16, "label": "Contact\nImport", "group": "subfeature", "title": "聯絡人匯入\nCSV / API 匯入、Key Value 匹配\n支援 line_uid / customer_id / phone / email", "size": 18}, {"id": 17, "label": "UID\nBinding", "group": "subfeature", "title": "身份綁定\nline_uid ↔ customer_id 對應\nBindlink 回呼、CID 綁定邏輯", "size": 18}, {"id": 18, "label": "Friend\nStatus", "group": "subfeature", "title": "LINE 好友狀態\nAuth / Following / Blocked\n根據 Webhook 事件追蹤", "size": 16}, {"id": 19, "label": "Display\nName", "group": "subfeature", "title": "顯示名稱邏輯\ndisplay_name vs original_name\n依賴 LINE Channel Token 同步", "size": 16}, {"id": 20, "label": "Contact\nFields", "group": "subfeature", "title": "聯絡人欄位\nname, phone, email, customer_id,\ntags, custom fields\n欄位更新規則：有值覆寫、空值保留", "size": 18}, {"id": 21, "label": "Filter\nConditions", "group": "subfeature", "title": "篩選條件引擎\nAND / OR 邏輯、Tag 篩選\n日期、互動、來源等多重條件", "size": 18}, {"id": 22, "label": "Dynamic\nSegment", "group": "subfeature", "title": "動態分眾\n條件變更時自動更新成員\n背景排程計算", "size": 16}, {"id": 23, "label": "Tag\nCRUD", "group": "subfeature", "title": "標籤管理\n建立、編輯、刪除標籤\n標籤名稱、排序", "size": 16}, {"id": 24, "label": "Auto-tag\nRules", "group": "subfeature", "title": "自動加標規則\n依事件/行為自動標記聯絡人", "size": 16}, {"id": 25, "label": "Message\nSend", "group": "subfeature", "title": "訊息發送引擎\n排程發送、即時發送\n多通路（LINE / SMS / Email）", "size": 18}, {"id": 26, "label": "A/B\nTesting", "group": "subfeature", "title": "A/B 測試\n多版本訊息比較\n自動選擇最佳版本", "size": 14}, {"id": 27, "label": "Audience\nTargeting", "group": "subfeature", "title": "受眾設定\n依 Segment 選擇推播對象", "size": 16}, {"id": 28, "label": "Keyword\nMatching", "group": "subfeature", "title": "關鍵字比對\n完全/部分匹配、正則\n觸發優先順序邏輯", "size": 16}, {"id": 29, "label": "Time & Reply\nLimits", "group": "subfeature", "title": "時間 & 次數限制\n冷卻時間、每人最大回覆次數\n重複訊息控制", "size": 16}, {"id": 30, "label": "Channel\nRestrictions", "group": "subfeature", "title": "通路限制\nMeta (FB/IG) 不支援新好友關鍵字回覆\nLINE / WhatsApp 支援", "size": 14}, {"id": 31, "label": "Trigger\nEngine", "group": "subfeature", "title": "觸發引擎\nEvent-Based：Webhook 事件驅動\nTime-Based：排程觸發 (Airflow)", "size": 20}, {"id": 32, "label": "Action\nNodes", "group": "subfeature", "title": "動作節點\nSend Message / Add Tag / Wait\nCondition Split / A/B Split", "size": 20}, {"id": 33, "label": "EDM / Email\nAction", "group": "subfeature", "title": "Email 發送節點\nMAAC → Epistola → SendGrid\nToken Exchange / iframe 編輯器", "size": 18}, {"id": 34, "label": "Member\nProgress", "group": "subfeature", "title": "成員進度追蹤\nREADY → RUNNING → WAITING → ENDED\n狀態機管理", "size": 16}, {"id": 35, "label": "Node\nPerformance", "group": "subfeature", "title": "節點績效指標\n每節點 send/open/click 率\nJourney 整體轉換漏斗", "size": 16}, {"id": 36, "label": "Tag\nCoverage", "group": "subfeature", "title": "標籤覆蓋率\n全品牌標籤使用統計\n依賴 Airflow 日報表", "size": 16}, {"id": 37, "label": "Acquisition\nFunnel", "group": "subfeature", "title": "獲客漏斗\n新聯絡人來源、轉換率\nDeeplink 報表", "size": 16}, {"id": 38, "label": "Message\nAnalytics", "group": "subfeature", "title": "訊息統計\n推播成效、開信率、點擊率\n自動回覆排名", "size": 16}, {"id": 39, "label": "Weekly\nReport", "group": "subfeature", "title": "每週報表\n自動寄送給客戶\n依賴 Airflow 排程", "size": 14}, {"id": 40, "label": "UTM\nTracking", "group": "subfeature", "title": "UTM 參數追蹤\n來源、媒介、活動歸因", "size": 14}, {"id": 41, "label": "Acquisition\nSource", "group": "subfeature", "title": "獲客來源追蹤\n新聯絡人歸因到 Deeplink", "size": 14}, {"id": 42, "label": "Menu\nScheduling", "group": "subfeature", "title": "排程管理\n按時間切換不同選單", "size": 14}, {"id": 43, "label": "Per-audience\nMenu", "group": "subfeature", "title": "分眾選單\n依標籤/分群顯示不同選單", "size": 14}, {"id": 44, "label": "Sender\nDomain", "group": "subfeature", "title": "Sender Domain 管理\nDNS 驗證：CNAME / DKIM1 / DKIM2 / DMARC\n透過 SendGrid API 驗證", "size": 16}, {"id": 45, "label": "Channel\nStatus", "group": "subfeature", "title": "Email 頻道狀態\nnot_set → connected → warning → suspended\nHard Bounce > 2% 或 Spam > 0.3% → warning", "size": 16}, {"id": 46, "label": "CDH", "group": "infra", "title": "Customer Data Hub\n統一客戶資料中心\n跨 MAAC / CAAC 同步聯絡人", "size": 28}, {"id": 47, "label": "CAAC", "group": "infra", "title": "Conversational Analytics\n& Automation Center\n客服對話平台", "size": 24}, {"id": 48, "label": "LINE\nAPI", "group": "infra", "title": "LINE Messaging API\nWebhook、Push/Reply Message\nProfile Sync、Friend Status", "size": 26}, {"id": 49, "label": "Meta\nAPI", "group": "infra", "title": "Facebook + Instagram API\n訊息收發、用戶資料\n有政策限制", "size": 22}, {"id": 50, "label": "SendGrid", "group": "infra", "title": "Email 發送服務\nSender Domain 驗證\nBounce / Spam Rate 監控", "size": 22}, {"id": 51, "label": "Airflow", "group": "infra", "title": "資料管線排程\n每日報表 Pipeline\n控制 Insight 資料更新", "size": 22}, {"id": 52, "label": "RabbitMQ", "group": "infra", "title": "訊息佇列\nJourney 事件分發\nWorker 任務排程", "size": 20}, {"id": 53, "label": "Rubato", "group": "infra", "title": "Journey 核心引擎\n觸發評估、節點執行\n進度管理", "size": 22}, {"id": 54, "label": "Epistola", "group": "infra", "title": "Email Extension Service\niframe 編輯器、訊息 CRUD\n與 MAAC Journey 整合", "size": 20}, {"id": 55, "label": "Cloud\nLogging", "group": "infra", "title": "GCP Cloud Logging\n事件日誌收集\nJourney 觸發事件來源", "size": 18}, {"id": 56, "label": "Contact\nEntity", "group": "data", "title": "聯絡人資料物件\nline_uid, customer_id, phone, email\nname, tags, custom_fields", "size": 22}, {"id": 57, "label": "Channel\nEntity", "group": "data", "title": "頻道實體\nLINE / Email / SMS / WhatsApp / FB / IG\nchannel_id, status, config", "size": 20}, {"id": 58, "label": "Tag\nEntity", "group": "data", "title": "標籤物件\ntag_id, name, source (maac/cdh)\n自動標 / 手動標", "size": 18}, {"id": 59, "label": "Message\nEntity", "group": "data", "title": "訊息物件\n推播/自動回覆/Journey 訊息\n範本、Rich Content", "size": 18}, {"id": 60, "label": "Event /\nWebhook", "group": "data", "title": "事件物件\nLINE Webhook, CDH Event\nFollow / Unfollow / Message / Tag Change", "size": 20}], "edges": [{"from": 1, "to": 2, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 3, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 4, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 5, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 6, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 7, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 8, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 9, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 10, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 11, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 12, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 13, "label": "", "edge_type": "hierarchy"}, {"from": 2, "to": 14, "label": "", "edge_type": "contains"}, {"from": 2, "to": 15, "label": "", "edge_type": "contains"}, {"from": 2, "to": 16, "label": "", "edge_type": "contains"}, {"from": 2, "to": 17, "label": "", "edge_type": "contains"}, {"from": 2, "to": 18, "label": "", "edge_type": "contains"}, {"from": 2, "to": 19, "label": "", "edge_type": "contains"}, {"from": 2, "to": 20, "label": "", "edge_type": "contains"}, {"from": 3, "to": 21, "label": "", "edge_type": "contains"}, {"from": 3, "to": 22, "label": "", "edge_type": "contains"}, {"from": 4, "to": 23, "label": "", "edge_type": "contains"}, {"from": 4, "to": 24, "label": "", "edge_type": "contains"}, {"from": 5, "to": 25, "label": "", "edge_type": "contains"}, {"from": 5, "to": 26, "label": "", "edge_type": "contains"}, {"from": 5, "to": 27, "label": "", "edge_type": "contains"}, {"from": 6, "to": 28, "label": "", "edge_type": "contains"}, {"from": 6, "to": 29, "label": "", "edge_type": "contains"}, {"from": 6, "to": 30, "label": "", "edge_type": "contains"}, {"from": 7, "to": 31, "label": "", "edge_type": "contains"}, {"from": 7, "to": 32, "label": "", "edge_type": "contains"}, {"from": 7, "to": 33, "label": "", "edge_type": "contains"}, {"from": 7, "to": 34, "label": "", "edge_type": "contains"}, {"from": 7, "to": 35, "label": "", "edge_type": "contains"}, {"from": 9, "to": 36, "label": "", "edge_type": "contains"}, {"from": 9, "to": 37, "label": "", "edge_type": "contains"}, {"from": 9, "to": 38, "label": "", "edge_type": "contains"}, {"from": 9, "to": 39, "label": "", "edge_type": "contains"}, {"from": 10, "to": 40, "label": "", "edge_type": "contains"}, {"from": 10, "to": 41, "label": "", "edge_type": "contains"}, {"from": 8, "to": 42, "label": "", "edge_type": "contains"}, {"from": 8, "to": 43, "label": "", "edge_type": "contains"}, {"from": 7, "to": 44, "label": "", "edge_type": "contains"}, {"from": 7, "to": 45, "label": "", "edge_type": "contains"}, {"from": 2, "to": 3, "label": "提供聯絡人", "edge_type": "data_flow"}, {"from": 2, "to": 5, "label": "推播對象", "edge_type": "data_flow"}, {"from": 2, "to": 7, "label": "旅程成員", "edge_type": "data_flow"}, {"from": 2, "to": 6, "label": "回覆對象", "edge_type": "data_flow"}, {"from": 2, "to": 8, "label": "選單對象", "edge_type": "data_flow"}, {"from": 2, "to": 9, "label": "數據來源", "edge_type": "data_flow"}, {"from": 3, "to": 5, "label": "受眾篩選", "edge_type": "data_flow"}, {"from": 3, "to": 7, "label": "入口條件", "edge_type": "data_flow"}, {"from": 3, "to": 8, "label": "分眾顯示", "edge_type": "data_flow"}, {"from": 4, "to": 3, "label": "篩選條件", "edge_type": "data_flow"}, {"from": 4, "to": 2, "label": "標記聯絡人", "edge_type": "data_flow"}, {"from": 4, "to": 8, "label": "選單分群依據", "edge_type": "data_flow"}, {"from": 4, "to": 7, "label": "觸發/動作條件", "edge_type": "data_flow"}, {"from": 4, "to": 9, "label": "覆蓋率統計", "edge_type": "data_flow"}, {"from": 5, "to": 9, "label": "推播成效", "edge_type": "data_flow"}, {"from": 5, "to": 13, "label": "使用範本", "edge_type": "data_flow"}, {"from": 27, "to": 3, "label": "讀取分眾", "edge_type": "data_flow"}, {"from": 6, "to": 4, "label": "觸發自動加標", "edge_type": "data_flow"}, {"from": 6, "to": 9, "label": "回覆統計", "edge_type": "data_flow"}, {"from": 7, "to": 5, "label": "觸發推播", "edge_type": "data_flow"}, {"from": 7, "to": 4, "label": "加/移除標籤", "edge_type": "data_flow"}, {"from": 7, "to": 2, "label": "更新聯絡人", "edge_type": "data_flow"}, {"from": 7, "to": 12, "label": "獎品發放", "edge_type": "data_flow"}, {"from": 10, "to": 2, "label": "新聯絡人歸因", "edge_type": "data_flow"}, {"from": 10, "to": 9, "label": "Deeplink 報表", "edge_type": "data_flow"}, {"from": 11, "to": 9, "label": "點擊報表", "edge_type": "data_flow"}, {"from": 8, "to": 10, "label": "選單連結", "edge_type": "data_flow"}, {"from": 12, "to": 7, "label": "Journey 獎品節點", "edge_type": "data_flow"}, {"from": 12, "to": 5, "label": "推播中發獎", "edge_type": "data_flow"}, {"from": 48, "to": 2, "label": "Webhook 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 18, "label": "好友狀態事件", "edge_type": "infra_dep"}, {"from": 48, "to": 19, "label": "Profile 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 6, "label": "接收訊息", "edge_type": "infra_dep"}, {"from": 48, "to": 5, "label": "Push Message", "edge_type": "infra_dep"}, {"from": 48, "to": 8, "label": "Rich Menu API", "edge_type": "infra_dep"}, {"from": 49, "to": 6, "label": "FB/IG 訊息", "edge_type": "infra_dep"}, {"from": 49, "to": 30, "label": "政策限制", "edge_type": "infra_dep"}, {"from": 50, "to": 33, "label": "Email 發送", "edge_type": "infra_dep"}, {"from": 50, "to": 44, "label": "DNS 驗證", "edge_type": "infra_dep"}, {"from": 50, "to": 45, "label": "Bounce/Spam 監控", "edge_type": "infra_dep"}, {"from": 51, "to": 9, "label": "日報表 Pipeline", "edge_type": "infra_dep"}, {"from": 51, "to": 36, "label": "Tag 覆蓋率計算", "edge_type": "infra_dep"}, {"from": 51, "to": 39, "label": "週報排程", "edge_type": "infra_dep"}, {"from": 51, "to": 31, "label": "Time-Based 觸發", "edge_type": "infra_dep"}, {"from": 46, "to": 15, "label": "統一 Profile", "edge_type": "infra_dep"}, {"from": 46, "to": 4, "label": "CDH Tag 同步", "edge_type": "infra_dep"}, {"from": 46, "to": 3, "label": "CDH 分眾規則", "edge_type": "infra_dep"}, {"from": 46, "to": 47, "label": "雙向同步", "edge_type": "infra_dep"}, {"from": 53, "to": 31, "label": "觸發評估", "edge_type": "infra_dep"}, {"from": 53, "to": 34, "label": "進度管理", "edge_type": "infra_dep"}, {"from": 52, "to": 53, "label": "任務佇列", "edge_type": "infra_dep"}, {"from": 55, "to": 53, "label": "事件日誌", "edge_type": "infra_dep"}, {"from": 54, "to": 33, "label": "Email 編輯/發送", "edge_type": "infra_dep"}, {"from": 47, "to": 2, "label": "客服對話資料", "edge_type": "infra_dep"}, {"from": 56, "to": 2, "label": "核心資料", "edge_type": "data_entity"}, {"from": 56, "to": 15, "label": "合併對象", "edge_type": "data_entity"}, {"from": 56, "to": 16, "label": "匯入目標", "edge_type": "data_entity"}, {"from": 57, "to": 2, "label": "通路資料", "edge_type": "data_entity"}, {"from": 57, "to": 7, "label": "頻道設定", "edge_type": "data_entity"}, {"from": 57, "to": 5, "label": "發送通路", "edge_type": "data_entity"}, {"from": 58, "to": 4, "label": "核心資料", "edge_type": "data_entity"}, {"from": 58, "to": 3, "label": "篩選依據", "edge_type": "data_entity"}, {"from": 58, "to": 46, "label": "CDH 同步", "edge_type": "data_entity"}, {"from": 59, "to": 5, "label": "訊息內容", "edge_type": "data_entity"}, {"from": 59, "to": 6, "label": "回覆內容", "edge_type": "data_entity"}, {"from": 59, "to": 13, "label": "範本來源", "edge_type": "data_entity"}, {"from": 59, "to": 7, "label": "Journey 訊息", "edge_type": "data_entity"}, {"from": 60, "to": 31, "label": "觸發事件", "edge_type": "data_entity"}, {"from": 60, "to": 18, "label": "狀態事件", "edge_type": "data_entity"}, {"from": 60, "to": 6, "label": "訊息事件", "edge_type": "data_entity"}, {"from": 60, "to": 48, "label": "Webhook", "edge_type": "data_entity"}]};
+const RAW_DATA = {"nodes": [{"id": 1, "label": "MAAC Platform", "group": "platform", "title": "Marketing Automation & Analytics Center\nCrescendo Lab's core product platform", "size": 60}, {"id": 2, "label": "Contact\nManagement", "group": "module", "title": "聯絡人管理核心\n管理所有通路的聯絡人資料\n包含 LINE / FB / IG / Phone / Email", "size": 50}, {"id": 3, "label": "Segment", "group": "module", "title": "分眾引擎\n根據條件篩選聯絡人群組\n支援靜態/動態分眾", "size": 45}, {"id": 4, "label": "Tag\nManager", "group": "module", "title": "標籤系統\nTag CRUD、自動加標、標籤分析", "size": 45}, {"id": 5, "label": "Broadcast", "group": "module", "title": "推播中心\n排程推播、A/B 測試、多通路發送", "size": 50}, {"id": 6, "label": "Auto-reply", "group": "module", "title": "自動回覆\n關鍵字觸發、時間限制、重複控制", "size": 45}, {"id": 7, "label": "Customer\nJourney", "group": "module", "title": "自動化旅程\n多步驟自動化流程、觸發器、動作節點\n包含 EDM 整合", "size": 55}, {"id": 8, "label": "Rich Menu", "group": "module", "title": "LINE 圖文選單\n排程、分眾顯示、連結管理", "size": 40}, {"id": 9, "label": "Insight\n& Reports", "group": "module", "title": "數據分析\nTag 覆蓋率、獲客漏斗、訊息統計\n每日/每週報表", "size": 50}, {"id": 10, "label": "Deeplink", "group": "module", "title": "深度連結\nUTM 追蹤、獲客來源歸因", "size": 40}, {"id": 11, "label": "Tracelink", "group": "module", "title": "連結追蹤\n點擊分析、轉換追蹤", "size": 35}, {"id": 12, "label": "Prize\nManagement", "group": "module", "title": "獎品管理\n獎品池、兌換碼、抽獎系統", "size": 35}, {"id": 13, "label": "Template\nLibrary", "group": "module", "title": "範本庫\n訊息範本、可重用內容區塊", "size": 35}, {"id": 14, "label": "Contact\nProfile", "group": "subfeature", "title": "聯絡人檔案\n姓名、電話、Email、自訂欄位\n即時編輯與同步", "size": 25}, {"id": 15, "label": "Profile\nUnification", "group": "subfeature", "title": "跨通路合併\nLINE + SMS + Email 合併為單一聯絡人\n合併權重邏輯、欄位覆寫優先順序", "size": 30}, {"id": 16, "label": "Contact\nImport", "group": "subfeature", "title": "聯絡人匯入\nCSV / API 匯入、Key Value 匹配\n支援 line_uid / customer_id / phone / email", "size": 25}, {"id": 17, "label": "UID\nBinding", "group": "subfeature", "title": "身份綁定\nline_uid ↔ customer_id 對應\nBindlink 回呼、CID 綁定邏輯", "size": 25}, {"id": 18, "label": "Friend\nStatus", "group": "subfeature", "title": "LINE 好友狀態\nAuth / Following / Blocked\n根據 Webhook 事件追蹤", "size": 20}, {"id": 19, "label": "Display\nName", "group": "subfeature", "title": "顯示名稱邏輯\ndisplay_name vs original_name\n依賴 LINE Channel Token 同步", "size": 20}, {"id": 20, "label": "Contact\nFields", "group": "subfeature", "title": "聯絡人欄位\nname, phone, email, customer_id,\ntags, custom fields\n欄位更新規則：有值覆寫、空值保留", "size": 25}, {"id": 21, "label": "Filter\nConditions", "group": "subfeature", "title": "篩選條件引擎\nAND / OR 邏輯、Tag 篩選\n日期、互動、來源等多重條件", "size": 25}, {"id": 22, "label": "Dynamic\nSegment", "group": "subfeature", "title": "動態分眾\n條件變更時自動更新成員\n背景排程計算", "size": 20}, {"id": 23, "label": "Tag\nCRUD", "group": "subfeature", "title": "標籤管理\n建立、編輯、刪除標籤\n標籤名稱、排序", "size": 20}, {"id": 24, "label": "Auto-tag\nRules", "group": "subfeature", "title": "自動加標規則\n依事件/行為自動標記聯絡人", "size": 20}, {"id": 25, "label": "Message\nSend", "group": "subfeature", "title": "訊息發送引擎\n排程發送、即時發送\n多通路（LINE / SMS / Email）", "size": 25}, {"id": 26, "label": "A/B\nTesting", "group": "subfeature", "title": "A/B 測試\n多版本訊息比較\n自動選擇最佳版本", "size": 18}, {"id": 27, "label": "Audience\nTargeting", "group": "subfeature", "title": "受眾設定\n依 Segment 選擇推播對象", "size": 20}, {"id": 28, "label": "Keyword\nMatching", "group": "subfeature", "title": "關鍵字比對\n完全/部分匹配、正則\n觸發優先順序邏輯", "size": 20}, {"id": 29, "label": "Time & Reply\nLimits", "group": "subfeature", "title": "時間 & 次數限制\n冷卻時間、每人最大回覆次數\n重複訊息控制", "size": 20}, {"id": 30, "label": "Channel\nRestrictions", "group": "subfeature", "title": "通路限制\nMeta (FB/IG) 不支援新好友關鍵字回覆\nLINE / WhatsApp 支援", "size": 18}, {"id": 31, "label": "Trigger\nEngine", "group": "subfeature", "title": "觸發引擎\nEvent-Based：Webhook 事件驅動\nTime-Based：排程觸發 (Airflow)", "size": 30}, {"id": 32, "label": "Action\nNodes", "group": "subfeature", "title": "動作節點\nSend Message / Add Tag / Wait\nCondition Split / A/B Split", "size": 30}, {"id": 33, "label": "EDM / Email\nAction", "group": "subfeature", "title": "Email 發送節點\nMAAC → Epistola → SendGrid\nToken Exchange / iframe 編輯器", "size": 25}, {"id": 34, "label": "Member\nProgress", "group": "subfeature", "title": "成員進度追蹤\nREADY → RUNNING → WAITING → ENDED\n狀態機管理", "size": 20}, {"id": 35, "label": "Node\nPerformance", "group": "subfeature", "title": "節點績效指標\n每節點 send/open/click 率\nJourney 整體轉換漏斗", "size": 20}, {"id": 36, "label": "Tag\nCoverage", "group": "subfeature", "title": "標籤覆蓋率\n全品牌標籤使用統計\n依賴 Airflow 日報表", "size": 20}, {"id": 37, "label": "Acquisition\nFunnel", "group": "subfeature", "title": "獲客漏斗\n新聯絡人來源、轉換率\nDeeplink 報表", "size": 20}, {"id": 38, "label": "Message\nAnalytics", "group": "subfeature", "title": "訊息統計\n推播成效、開信率、點擊率\n自動回覆排名", "size": 20}, {"id": 39, "label": "Weekly\nReport", "group": "subfeature", "title": "每週報表\n自動寄送給客戶\n依賴 Airflow 排程", "size": 18}, {"id": 40, "label": "UTM\nTracking", "group": "subfeature", "title": "UTM 參數追蹤\n來源、媒介、活動歸因", "size": 18}, {"id": 41, "label": "Acquisition\nSource", "group": "subfeature", "title": "獲客來源追蹤\n新聯絡人歸因到 Deeplink", "size": 18}, {"id": 42, "label": "Menu\nScheduling", "group": "subfeature", "title": "排程管理\n按時間切換不同選單", "size": 18}, {"id": 43, "label": "Per-audience\nMenu", "group": "subfeature", "title": "分眾選單\n依標籤/分群顯示不同選單", "size": 18}, {"id": 44, "label": "Sender\nDomain", "group": "subfeature", "title": "Sender Domain 管理\nDNS 驗證：CNAME / DKIM1 / DKIM2 / DMARC\n透過 SendGrid API 驗證", "size": 20}, {"id": 45, "label": "Channel\nStatus", "group": "subfeature", "title": "Email 頻道狀態\nnot_set → connected → warning → suspended\nHard Bounce > 2% 或 Spam > 0.3% → warning", "size": 20}, {"id": 46, "label": "CDH", "group": "infra", "title": "Customer Data Hub\n統一客戶資料中心\n跨 MAAC / CAAC 同步聯絡人", "size": 35}, {"id": 47, "label": "CAAC", "group": "infra", "title": "Conversational Analytics\n& Automation Center\n客服對話平台", "size": 30}, {"id": 48, "label": "LINE\nAPI", "group": "infra", "title": "LINE Messaging API\nWebhook、Push/Reply Message\nProfile Sync、Friend Status", "size": 32}, {"id": 49, "label": "Meta\nAPI", "group": "infra", "title": "Facebook + Instagram API\n訊息收發、用戶資料\n有政策限制", "size": 28}, {"id": 50, "label": "SendGrid", "group": "infra", "title": "Email 發送服務\nSender Domain 驗證\nBounce / Spam Rate 監控", "size": 28}, {"id": 51, "label": "Airflow", "group": "infra", "title": "資料管線排程\n每日報表 Pipeline\n控制 Insight 資料更新", "size": 28}, {"id": 52, "label": "RabbitMQ", "group": "infra", "title": "訊息佇列\nJourney 事件分發\nWorker 任務排程", "size": 25}, {"id": 53, "label": "Rubato", "group": "infra", "title": "Journey 核心引擎\n觸發評估、節點執行\n進度管理", "size": 28}, {"id": 54, "label": "Epistola", "group": "infra", "title": "Email Extension Service\niframe 編輯器、訊息 CRUD\n與 MAAC Journey 整合", "size": 25}, {"id": 55, "label": "Cloud\nLogging", "group": "infra", "title": "GCP Cloud Logging\n事件日誌收集\nJourney 觸發事件來源", "size": 25}, {"id": 56, "label": "Contact\nEntity", "group": "data", "title": "聯絡人資料物件\nline_uid, customer_id, phone, email\nname, tags, custom_fields", "size": 28}, {"id": 57, "label": "Channel\nEntity", "group": "data", "title": "頻道實體\nLINE / Email / SMS / WhatsApp / FB / IG\nchannel_id, status, config", "size": 25}, {"id": 58, "label": "Tag\nEntity", "group": "data", "title": "標籤物件\ntag_id, name, source (maac/cdh)\n自動標 / 手動標", "size": 25}, {"id": 59, "label": "Message\nEntity", "group": "data", "title": "訊息物件\n推播/自動回覆/Journey 訊息\n範本、Rich Content", "size": 25}, {"id": 60, "label": "Event /\nWebhook", "group": "data", "title": "事件物件\nLINE Webhook, CDH Event\nFollow / Unfollow / Message / Tag Change", "size": 25}], "edges": [{"from": 1, "to": 2, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 3, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 4, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 5, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 6, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 7, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 8, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 9, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 10, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 11, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 12, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 13, "label": "", "edge_type": "hierarchy"}, {"from": 2, "to": 14, "label": "", "edge_type": "contains"}, {"from": 2, "to": 15, "label": "", "edge_type": "contains"}, {"from": 2, "to": 16, "label": "", "edge_type": "contains"}, {"from": 2, "to": 17, "label": "", "edge_type": "contains"}, {"from": 2, "to": 18, "label": "", "edge_type": "contains"}, {"from": 2, "to": 19, "label": "", "edge_type": "contains"}, {"from": 2, "to": 20, "label": "", "edge_type": "contains"}, {"from": 3, "to": 21, "label": "", "edge_type": "contains"}, {"from": 3, "to": 22, "label": "", "edge_type": "contains"}, {"from": 4, "to": 23, "label": "", "edge_type": "contains"}, {"from": 4, "to": 24, "label": "", "edge_type": "contains"}, {"from": 5, "to": 25, "label": "", "edge_type": "contains"}, {"from": 5, "to": 26, "label": "", "edge_type": "contains"}, {"from": 5, "to": 27, "label": "", "edge_type": "contains"}, {"from": 6, "to": 28, "label": "", "edge_type": "contains"}, {"from": 6, "to": 29, "label": "", "edge_type": "contains"}, {"from": 6, "to": 30, "label": "", "edge_type": "contains"}, {"from": 7, "to": 31, "label": "", "edge_type": "contains"}, {"from": 7, "to": 32, "label": "", "edge_type": "contains"}, {"from": 7, "to": 33, "label": "", "edge_type": "contains"}, {"from": 7, "to": 34, "label": "", "edge_type": "contains"}, {"from": 7, "to": 35, "label": "", "edge_type": "contains"}, {"from": 9, "to": 36, "label": "", "edge_type": "contains"}, {"from": 9, "to": 37, "label": "", "edge_type": "contains"}, {"from": 9, "to": 38, "label": "", "edge_type": "contains"}, {"from": 9, "to": 39, "label": "", "edge_type": "contains"}, {"from": 10, "to": 40, "label": "", "edge_type": "contains"}, {"from": 10, "to": 41, "label": "", "edge_type": "contains"}, {"from": 8, "to": 42, "label": "", "edge_type": "contains"}, {"from": 8, "to": 43, "label": "", "edge_type": "contains"}, {"from": 7, "to": 44, "label": "", "edge_type": "contains"}, {"from": 7, "to": 45, "label": "", "edge_type": "contains"}, {"from": 2, "to": 3, "label": "提供聯絡人", "edge_type": "data_flow"}, {"from": 2, "to": 5, "label": "推播對象", "edge_type": "data_flow"}, {"from": 2, "to": 7, "label": "旅程成員", "edge_type": "data_flow"}, {"from": 2, "to": 6, "label": "回覆對象", "edge_type": "data_flow"}, {"from": 2, "to": 8, "label": "選單對象", "edge_type": "data_flow"}, {"from": 2, "to": 9, "label": "數據來源", "edge_type": "data_flow"}, {"from": 3, "to": 5, "label": "受眾篩選", "edge_type": "data_flow"}, {"from": 3, "to": 7, "label": "入口條件", "edge_type": "data_flow"}, {"from": 3, "to": 8, "label": "分眾顯示", "edge_type": "data_flow"}, {"from": 4, "to": 3, "label": "篩選條件", "edge_type": "data_flow"}, {"from": 4, "to": 2, "label": "標記聯絡人", "edge_type": "data_flow"}, {"from": 4, "to": 8, "label": "選單分群依據", "edge_type": "data_flow"}, {"from": 4, "to": 7, "label": "觸發/動作條件", "edge_type": "data_flow"}, {"from": 4, "to": 9, "label": "覆蓋率統計", "edge_type": "data_flow"}, {"from": 5, "to": 9, "label": "推播成效", "edge_type": "data_flow"}, {"from": 5, "to": 13, "label": "使用範本", "edge_type": "data_flow"}, {"from": 27, "to": 3, "label": "讀取分眾", "edge_type": "data_flow"}, {"from": 6, "to": 4, "label": "觸發自動加標", "edge_type": "data_flow"}, {"from": 6, "to": 9, "label": "回覆統計", "edge_type": "data_flow"}, {"from": 7, "to": 5, "label": "觸發推播", "edge_type": "data_flow"}, {"from": 7, "to": 4, "label": "加/移除標籤", "edge_type": "data_flow"}, {"from": 7, "to": 2, "label": "更新聯絡人", "edge_type": "data_flow"}, {"from": 7, "to": 12, "label": "獎品發放", "edge_type": "data_flow"}, {"from": 10, "to": 2, "label": "新聯絡人歸因", "edge_type": "data_flow"}, {"from": 10, "to": 9, "label": "Deeplink 報表", "edge_type": "data_flow"}, {"from": 11, "to": 9, "label": "點擊報表", "edge_type": "data_flow"}, {"from": 8, "to": 10, "label": "選單連結", "edge_type": "data_flow"}, {"from": 12, "to": 7, "label": "Journey 獎品節點", "edge_type": "data_flow"}, {"from": 12, "to": 5, "label": "推播中發獎", "edge_type": "data_flow"}, {"from": 48, "to": 2, "label": "Webhook 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 18, "label": "好友狀態事件", "edge_type": "infra_dep"}, {"from": 48, "to": 19, "label": "Profile 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 6, "label": "接收訊息", "edge_type": "infra_dep"}, {"from": 48, "to": 5, "label": "Push Message", "edge_type": "infra_dep"}, {"from": 48, "to": 8, "label": "Rich Menu API", "edge_type": "infra_dep"}, {"from": 49, "to": 6, "label": "FB/IG 訊息", "edge_type": "infra_dep"}, {"from": 49, "to": 30, "label": "政策限制", "edge_type": "infra_dep"}, {"from": 50, "to": 33, "label": "Email 發送", "edge_type": "infra_dep"}, {"from": 50, "to": 44, "label": "DNS 驗證", "edge_type": "infra_dep"}, {"from": 50, "to": 45, "label": "Bounce/Spam 監控", "edge_type": "infra_dep"}, {"from": 51, "to": 9, "label": "日報表 Pipeline", "edge_type": "infra_dep"}, {"from": 51, "to": 36, "label": "Tag 覆蓋率計算", "edge_type": "infra_dep"}, {"from": 51, "to": 39, "label": "週報排程", "edge_type": "infra_dep"}, {"from": 51, "to": 31, "label": "Time-Based 觸發", "edge_type": "infra_dep"}, {"from": 46, "to": 15, "label": "統一 Profile", "edge_type": "infra_dep"}, {"from": 46, "to": 4, "label": "CDH Tag 同步", "edge_type": "infra_dep"}, {"from": 46, "to": 3, "label": "CDH 分眾規則", "edge_type": "infra_dep"}, {"from": 46, "to": 47, "label": "雙向同步", "edge_type": "infra_dep"}, {"from": 53, "to": 31, "label": "觸發評估", "edge_type": "infra_dep"}, {"from": 53, "to": 34, "label": "進度管理", "edge_type": "infra_dep"}, {"from": 52, "to": 53, "label": "任務佇列", "edge_type": "infra_dep"}, {"from": 55, "to": 53, "label": "事件日誌", "edge_type": "infra_dep"}, {"from": 54, "to": 33, "label": "Email 編輯/發送", "edge_type": "infra_dep"}, {"from": 47, "to": 2, "label": "客服對話資料", "edge_type": "infra_dep"}, {"from": 56, "to": 2, "label": "核心資料", "edge_type": "data_entity"}, {"from": 56, "to": 15, "label": "合併對象", "edge_type": "data_entity"}, {"from": 56, "to": 16, "label": "匯入目標", "edge_type": "data_entity"}, {"from": 57, "to": 2, "label": "通路資料", "edge_type": "data_entity"}, {"from": 57, "to": 7, "label": "頻道設定", "edge_type": "data_entity"}, {"from": 57, "to": 5, "label": "發送通路", "edge_type": "data_entity"}, {"from": 58, "to": 4, "label": "核心資料", "edge_type": "data_entity"}, {"from": 58, "to": 3, "label": "篩選依據", "edge_type": "data_entity"}, {"from": 58, "to": 46, "label": "CDH 同步", "edge_type": "data_entity"}, {"from": 59, "to": 5, "label": "訊息內容", "edge_type": "data_entity"}, {"from": 59, "to": 6, "label": "回覆內容", "edge_type": "data_entity"}, {"from": 59, "to": 13, "label": "範本來源", "edge_type": "data_entity"}, {"from": 59, "to": 7, "label": "Journey 訊息", "edge_type": "data_entity"}, {"from": 60, "to": 31, "label": "觸發事件", "edge_type": "data_entity"}, {"from": 60, "to": 18, "label": "狀態事件", "edge_type": "data_entity"}, {"from": 60, "to": 6, "label": "訊息事件", "edge_type": "data_entity"}, {"from": 60, "to": 48, "label": "Webhook", "edge_type": "data_entity"}]};
 
-// 🎨 DARK MODE COLOR PALETTE (Dracula/Neon inspired)
+// COLOR PALETTE (Vibrant on Dark)
 const COLORS = {
-  platform:   { bg: '#BD93F9', border: '#BD93F9', font: '#000' }, // Purple
-  module:     { bg: '#8BE9FD', border: '#8BE9FD', font: '#000' }, // Cyan
-  subfeature: { bg: '#50FA7B', border: '#50FA7B', font: '#000' }, // Green
-  infra:      { bg: '#FFB86C', border: '#FFB86C', font: '#000' }, // Orange
-  data:       { bg: '#FF79C6', border: '#FF79C6', font: '#000' }, // Pink
+  platform:   { bg: '#A371F7', border: '#A371F7' }, // Purple
+  module:     { bg: '#58A6FF', border: '#58A6FF' }, // Blue
+  subfeature: { bg: '#3FB950', border: '#3FB950' }, // Green
+  infra:      { bg: '#D29922', border: '#D29922' }, // Orange
+  data:       { bg: '#F778BA', border: '#F778BA' }, // Pink
 };
 
-// 🔧 EDGE STYLES
-const EDGE_COLORS = {
-  default: '#6272A4',
-  data_flow: '#8BE9FD',
-  infra_dep: '#FFB86C',
-  contains: '#44475A'
-};
-
-// 1. Process Nodes
+// 1. Process Nodes (Circles with Text Inside)
 const nodes = RAW_DATA.nodes.map(n => {
-  const style = COLORS[n.group] || COLORS.module;
+  const c = COLORS[n.group] || COLORS.module;
+  const size = n.size < 30 ? 35 : n.size; // Ensure minimum size for text
   
-  // Calculate size - Circles need to be big enough for text
-  // Base size + length of text factor
-  const baseSize = n.group === 'platform' ? 60 : 
-                   n.group === 'module' ? 50 : 
-                   n.group === 'subfeature' ? 40 : 30;
-  
-  // Format label: Replace 
- with space for circle packing, or keep 
- for multi-line
-  // Vis.js 'circle' puts label inside.
   return {
     id: n.id,
-    label: n.label, // Keep original label with 
-
+    label: n.label, // Vis.js handles \n automatically
     group: n.group,
     title: n.title,
-    shape: 'circle', // THE KEY: Text inside circle
-    widthConstraint: { minimum: baseSize, maximum: baseSize + 20 }, // Force circle size range
+    shape: 'circle', // Circle shape
+    widthConstraint: { minimum: size, maximum: size + 30 }, // Force circle size
     color: {
-      background: style.bg,
-      border: style.border,
+      background: c.bg,
+      border: c.border,
       highlight: { background: '#fff', border: '#fff' },
       hover: { background: '#fff', border: '#fff' }
     },
     font: {
-      color: '#000000', // Black text inside bright circles
-      size: n.group === 'infra' ? 10 : 12, // Smaller font for small nodes
+      color: '#000000', // Black text for contrast
+      size: 12,
       face: 'Segoe UI, sans-serif',
-      multi: 'html',
-      bold: n.group === 'module' || n.group === 'platform'
+      bold: true,
+      multi: true
     },
     borderWidth: 2,
-    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10 },
     margin: 10,
-    
-    // Store for reset
-    _orig: style
+    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10 }
   };
 });
 
-// 2. Process Edges
+// 2. Process Edges (Straight lines with labels)
 const edges = RAW_DATA.edges.map((e, i) => {
   const isContains = e.edge_type === 'hierarchy' || e.edge_type === 'contains';
   return {
     id: i, from: e.from, to: e.to,
-    label: isContains ? '' : (e.label || ''), // Show label on edge
-    color: { 
-      color: isContains ? '#44475A' : '#F8F8F2', // White/Light lines for visibility
-      opacity: isContains ? 0.3 : 0.6 
-    },
+    label: isContains ? '' : (e.label || ''),
+    color: { color: isContains ? '#30363d' : '#8b949e', opacity: isContains ? 0.4 : 0.8 },
     arrows: isContains ? '' : 'to',
     width: isContains ? 1 : 1.5,
-    font: { 
-      size: 10, 
-      color: '#F8F8F2', // White text
-      strokeWidth: 0, 
-      background: '#121212', // Dark background for text
-      align: 'middle' 
-    },
-    smooth: { type: 'continuous', roundness: 0 } // Straighter lines like the reference image
+    font: { size: 10, color: '#8b949e', background: '#0d1117', strokeWidth: 0, align: 'middle' },
+    smooth: { type: 'continuous' } // Straighter lines
   };
 });
 
-// 3. Initialize Network
+// 3. Init Network
 const container = document.getElementById('graph-container');
 const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
 const options = {
   physics: {
     forceAtlas2Based: {
-      gravitationalConstant: -100,
+      gravitationalConstant: -120,
       centralGravity: 0.01,
-      springLength: 150,
+      springLength: 180,
       springConstant: 0.08,
       damping: 0.4
     },
     maxVelocity: 50,
     solver: 'forceAtlas2Based',
     timestep: 0.35,
-    stabilization: { iterations: 200 }
+    stabilization: { iterations: 150 }
   },
   interaction: { hover: true, tooltipDelay: 200, hideEdgesOnDrag: true },
   layout: { improvedLayout: true }
 };
 const network = new vis.Network(container, data, options);
 
-// 4. Interaction Logic (Same as before but adapted for Dark Mode)
-let impactMode = false;
+// 4. Interaction
+network.on('click', p => {
+  if (p.nodes.length) {
+    const nid = p.nodes[0];
+    showDetail(nid);
+  } else {
+    document.getElementById('detail-panel').classList.remove('open');
+  }
+});
+
+function showDetail(nid) {
+  const n = data.nodes.get(nid);
+  const c = COLORS[n.group] || COLORS.module;
+  
+  // Get connections
+  const conns = network.getConnectedEdges(nid).map(eid => {
+    const e = data.edges.get(eid);
+    const isSrc = e.from === nid;
+    const neighbor = data.nodes.get(isSrc ? e.to : e.from);
+    return { name: neighbor.label.replace('\\n',' '), type: e.label, dir: isSrc ? '→' : '←', id: neighbor.id };
+  });
+
+  const html = `
+    <div class="panel-header">
+      <div class="panel-badge" style="background:${c.bg}">${n.group}</div>
+      <div class="panel-title">${n.label.replace('\\n',' ')}</div>
+    </div>
+    <div class="panel-body">
+      <div class="panel-desc">${n.title || ''}</div>
+      ${conns.map(cn => `
+        <div class="rel-item" onclick="network.focus(${cn.id}, {scale:1.2, animation:true}); showDetail(${cn.id})">
+          <span style="font-weight:700;color:${c.bg}">${cn.dir}</span>
+          <span style="flex:1;font-size:13px">${cn.name}</span>
+          <span class="rel-type">${cn.type}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('detail-content').innerHTML = html;
+  document.getElementById('detail-panel').classList.add('open');
+}
 
 // Search
 document.getElementById('search').addEventListener('input', e => {
   const val = e.target.value.toLowerCase();
-  if(!val) { resetView(); return; }
   const matches = data.nodes.get().filter(n => n.label.toLowerCase().includes(val));
   const ids = matches.map(n => n.id);
   data.nodes.forEach(n => {
-    data.nodes.update({ id: n.id, opacity: ids.includes(n.id) ? 1 : 0.1 });
+    data.nodes.update({ id: n.id, opacity: ids.length && !ids.includes(n.id) ? 0.1 : 1 });
   });
-  if(ids.length===1) network.focus(ids[0], {scale:1.2, animation:true});
 });
 
 // Filter
@@ -320,132 +277,11 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     const grp = e.target.dataset.filter;
     data.nodes.forEach(n => {
       const visible = grp === 'all' || n.group === grp || n.group === 'platform';
-      data.nodes.update({id: n.id, opacity: visible ? 1 : 0.05});
+      data.nodes.update({ id: n.id, opacity: visible ? 1 : 0.05 });
     });
   });
 });
 
-// Click
-network.on('click', p => {
-  if(p.nodes.length) {
-    if(impactMode) analyzeImpact(p.nodes[0]);
-    else showDetail(p.nodes[0]);
-  } else {
-    if(!impactMode) closeDetail();
-  }
-});
-
-function showDetail(nid) {
-  const n = data.nodes.get(nid);
-  const s = COLORS[n.group];
-  const conns = network.getConnectedEdges(nid).map(eid => {
-    const e = data.edges.get(eid);
-    const isSrc = e.from === nid;
-    const neighbor = data.nodes.get(isSrc ? e.to : e.from);
-    return { name: neighbor.label.replace('\n',' '), type: e.label, dir: isSrc ? '→' : '←', id: neighbor.id };
-  });
-
-  const html = `
-    <div class="panel-header">
-      <div class="panel-badge" style="background:${s.bg};color:#000">${n.group}</div>
-      <div class="panel-title" style="color:${s.bg}">${n.label.replace('\n',' ')}</div>
-    </div>
-    <div class="panel-body">
-      <div class="panel-desc" style="color:#eee">${n.title || ''}</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${conns.map(c => `
-          <div class="rel-item" onclick="network.focus(${c.id}, {scale:1.2, animation:true}); showDetail(${c.id})">
-            <span style="color:${s.bg};font-weight:700">${c.dir}</span>
-            <span style="flex:1;font-size:13px">${c.name}</span>
-            <span class="rel-type">${c.type || 'LINK'}</span>
-          </div>
-        `).join('')}
-      </div>
-      <button class="action-btn btn-impact" style="width:100%;margin-top:20px" onclick="enterImpact(${nid})">⚡ Impact Analysis</button>
-    </div>
-  `;
-  document.getElementById('detail-content').innerHTML = html;
-  document.getElementById('detail-panel').classList.add('open');
-}
-
-function closeDetail() { document.getElementById('detail-panel').classList.remove('open'); }
-
-// Impact
-document.getElementById('impact-btn').addEventListener('click', () => {
-  impactMode = !impactMode;
-  document.getElementById('impact-banner').classList.toggle('show', impactMode);
-  if(!impactMode) resetView();
-});
-
-function enterImpact(nid) {
-  impactMode = true;
-  document.getElementById('impact-banner').classList.add('show');
-  analyzeImpact(nid);
-}
-
-function exitImpact() {
-  impactMode = false;
-  document.getElementById('impact-banner').classList.remove('show');
-  document.getElementById('impact-list').classList.remove('show');
-  resetView();
-}
-
-function analyzeImpact(nid) {
-  const root = data.nodes.get(nid);
-  document.getElementById('impact-msg').innerText = `Impact of: ${root.label.replace('\n',' ')}`;
-  
-  const affected = new Map();
-  const queue = [{id: nid, lvl: 0}];
-  affected.set(nid, 0);
-
-  while(queue.length) {
-    const {id, lvl} = queue.shift();
-    if(lvl >= 3) continue;
-    const edges = network.getConnectedEdges(id);
-    edges.forEach(eid => {
-      const e = data.edges.get(eid);
-      let next = null;
-      if(e.from === id) next = e.to; // Forward only
-      if(next && !affected.has(next)) {
-        affected.set(next, lvl+1);
-        queue.push({id: next, lvl: lvl+1});
-      }
-    });
-  }
-
-  data.nodes.forEach(n => {
-    if(affected.has(n.id)) {
-      const lvl = affected.get(n.id);
-      data.nodes.update({ 
-        id: n.id, opacity: 1, 
-        color: { background: lvl===0 ? '#FF453A' : '#fff', border: '#FF453A' },
-        font: { color: '#000' }
-      });
-    } else {
-      data.nodes.update({ id: n.id, opacity: 0.1 });
-    }
-  });
-
-  const list = document.getElementById('impact-content');
-  const items = Array.from(affected.entries()).sort((a,b)=>a[1]-b[1]);
-  list.innerHTML = items.map(([id, l]) => `
-    <div class="impact-row" onclick="network.focus(${id},{scale:1.5,animation:true})">
-      <span class="depth-tag">L${l}</span> ${data.nodes.get(id).label.replace('\n',' ')}
-    </div>
-  `).join('');
-  document.getElementById('impact-list').classList.add('show');
-}
-
-function resetView() {
-  data.nodes.forEach(n => {
-    const s = COLORS[n.group] || COLORS.module;
-    data.nodes.update({
-      id: n.id, opacity: 1,
-      color: { background: s.bg, border: s.border },
-      font: { color: s.font }
-    });
-  });
-}
 </script>
 </body>
 </html>
