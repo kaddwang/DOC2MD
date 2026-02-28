@@ -3,426 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MAAC Knowledge Graph (Dark)</title>
+<title>MAAC Knowledge Graph — Deep Analysis</title>
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <style>
-  :root {
-    --bg-color: #0d1117; /* GitHub Dark */
-    --panel-bg: rgba(22, 27, 34, 0.9);
-    --text-primary: #E0E0E0;
-    --border-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  * { margin:0; padding:0; box-sizing:border-box; outline:none; -webkit-font-smoothing: antialiased; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg-color);
-    color: var(--text-primary);
-    overflow: hidden;
-  }
+:root {
+  --bg: #0d1117;
+  --panel: rgba(22,27,34,0.92);
+  --text1: #E6EDF3;
+  --text2: #8b949e;
+  --border: rgba(255,255,255,0.08);
+  --blue: #58A6FF;
+  --orange: #D29922;
+}
+*{margin:0;padding:0;box-sizing:border-box;outline:none;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text1);overflow:hidden}
+#graph-container{width:100vw;height:100vh}
 
-  #graph-container { width:100vw; height:100vh; background: #0d1117; }
+/* PANELS */
+.fp{position:fixed;z-index:100;background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,0.5);border-radius:14px}
 
-  /* FLOATING PANEL */
-  .floating-panel {
-    position: fixed; z-index: 100;
-    background: var(--panel-bg);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    border-radius: 14px;
-    transition: all 0.3s ease;
-  }
+/* TOP BAR */
+#top{top:16px;left:16px;right:16px;padding:10px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{font-weight:700;font-size:15px;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.logo span{font-weight:400;font-size:10px;opacity:.5;border:1px solid #444;padding:2px 6px;border-radius:4px}
+.search-box{position:relative;flex:1;max-width:280px;min-width:160px}
+.search-box input{width:100%;padding:7px 10px 7px 32px;border-radius:8px;border:1px solid #30363d;background:#0d1117;color:#fff;font-size:12px}
+.search-box input:focus{border-color:var(--blue)}
+.search-box::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.5}
+.fbtn{border:1px solid #30363d;background:transparent;padding:5px 12px;border-radius:16px;font-size:11px;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.fbtn:hover{border-color:var(--text2);color:#c9d1d9}
+.fbtn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.abtn{padding:6px 14px;border-radius:16px;border:none;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.abtn.green{background:#238636;color:#fff}.abtn.green:hover{background:#2ea043}
+.abtn.red{background:#6e1a1a;color:#ffb3b3}.abtn.red:hover{background:#8b2020}
 
-  /* TOP BAR */
-  #top-bar {
-    top: 20px; left: 20px; right: 20px;
-    padding: 12px 24px;
-    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
-    max-width: 1400px; margin: 0 auto;
-  }
-  
-  .app-title { font-weight: 700; color: #fff; font-size: 16px; display:flex; align-items:center; gap:8px; }
-  .app-title span { font-weight:400; font-size:12px; opacity:0.6; border:1px solid #555; padding:2px 6px; border-radius:4px; }
+/* LEGEND */
+#legend{bottom:20px;left:20px;padding:14px;width:180px}
+.lr{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;color:var(--text2)}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tri{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:10px solid;flex-shrink:0}
+.sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
 
-  /* Search */
-  .search-wrapper { position: relative; flex: 1; max-width: 320px; }
-  .search-wrapper input {
-    width: 100%; padding: 8px 12px 8px 36px;
-    border-radius: 8px; border: 1px solid #30363d;
-    background: #0d1117; color: #fff;
-    font-size: 13px;
-  }
-  .search-wrapper input:focus { border-color: #58a6ff; }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+/* STATS */
+#stats{bottom:20px;right:400px;padding:10px 16px;font-size:11px;color:var(--text2);display:flex;gap:16px}
+#stats b{color:var(--text1)}
 
-  /* Filters */
-  .filter-group { display: flex; gap: 8px; }
-  .filter-btn {
-    border: 1px solid #30363d; background: transparent; 
-    padding: 6px 14px; border-radius: 20px; font-size: 12px; color: #8b949e;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .filter-btn:hover { border-color: #8b949e; color: #c9d1d9; }
-  .filter-btn.active { background: #58a6ff; border-color: #58a6ff; color: #fff; }
-
-  /* Actions */
-  .action-btn {
-    padding: 8px 18px; border-radius: 20px; border: none;
-    font-size: 12px; font-weight: 600; cursor: pointer;
-    background: #238636; color: #fff;
-  }
-  .action-btn:hover { background: #2ea043; }
-  
-  /* LEGEND */
-  #legend {
-    bottom: 24px; left: 24px; padding: 16px; width: 180px;
-  }
-  .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 12px; }
-  .circle { width: 12px; height: 12px; border-radius: 50%; }
-
-  /* DETAIL PANEL */
-  #detail-panel {
-    top: 80px; right: 24px; bottom: 24px; width: 400px;
-    transform: translateX(120%); padding: 0; display: flex; flex-direction: column;
-    background: rgba(20, 20, 23, 0.95); /* Darker, more solid */
-    border: 1px solid rgba(255,255,255,0.15);
-  }
-  #detail-panel.open { transform: translateX(0); }
-  
-  .panel-header { padding: 24px 24px 0; }
-  .panel-title { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 8px; line-height: 1.3; }
-  .panel-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .badge { font-size: 10px; padding: 4px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #000; }
-  
-  /* TABS */
-  .panel-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0 24px; margin-top: 16px; }
-  .tab-btn {
-    background: transparent; border: none; color: #8b949e; 
-    padding: 12px 0; margin-right: 24px; font-size: 13px; font-weight: 600; 
-    cursor: pointer; position: relative; transition: color 0.2s;
-  }
-  .tab-btn:hover { color: #fff; }
-  .tab-btn.active { color: #58a6ff; }
-  .tab-btn.active::after {
-    content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #58a6ff;
-  }
-
-  .panel-body { flex: 1; overflow-y: auto; padding: 24px; }
-  
-  /* SECTIONS */
-  .section-title { font-size: 11px; text-transform: uppercase; color: #8b949e; margin-bottom: 12px; font-weight: 700; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
-  .section-title::after { content:''; height:1px; background:rgba(255,255,255,0.1); flex:1; }
-  
-  .def-box { 
-    background: rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; 
-    margin-bottom: 24px; border-left: 3px solid #58a6ff;
-  }
-  .def-text { font-size: 14px; line-height: 1.6; color: #e0e0e0; white-space: pre-line; }
-
-  /* METRICS GRID */
-  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-  .metric-card { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-  .metric-val { font-size: 20px; font-weight: 700; color: #fff; display: block; margin-bottom: 4px; }
-  .metric-label { font-size: 11px; color: #8b949e; text-transform: uppercase; }
-
-  /* RELATIONS LIST */
-  .flow-group { margin-bottom: 24px; }
-  .flow-header { font-size: 12px; color: #fff; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-  .flow-count { background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 8px; font-size: 10px; color: #aaa; }
-  
-  .rel-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
-    background: rgba(255,255,255,0.03); cursor: pointer; 
-    transition: all 0.2s; border: 1px solid transparent;
-  }
-  .rel-item:hover { background: rgba(88,166,255,0.1); border-color: rgba(88,166,255,0.3); transform: translateX(4px); }
-  .rel-dir { font-size: 10px; font-weight: 700; width: 24px; text-align: center; opacity: 0.7; }
-  .rel-name { font-size: 13px; color: #fff; flex: 1; }
-  .rel-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.3); color: #8b949e; }
-
-  /* RISK ALERT */
-  .risk-alert { 
-    background: rgba(255, 69, 58, 0.1); border: 1px solid rgba(255, 69, 58, 0.3);
-    color: #ff453a; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px;
-    display: flex; gap: 10px; align-items: start;
-  }
-
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-
+/* DETAIL PANEL */
+#dp{top:72px;right:20px;bottom:20px;width:380px;transform:translateX(120%);display:flex;flex-direction:column;transition:transform .3s ease}
+#dp.open{transform:translateX(0)}
+.dp-close{position:absolute;top:12px;right:14px;background:none;border:none;color:#fff;font-size:20px;cursor:pointer;z-index:1}
+.dp-hdr{padding:16px 18px;border-bottom:1px solid #30363d}
+.dp-badge{font-size:9px;padding:3px 7px;border-radius:4px;display:inline-block;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#000;margin-bottom:6px}
+.dp-title{font-size:18px;font-weight:700;color:#fff;line-height:1.3}
+.dp-body{flex:1;overflow-y:auto;padding:16px 18px}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tab{background:transparent;border:none;padding:8px 14px;color:var(--text2);cursor:pointer;font-size:12px;border-bottom:2px solid transparent;transition:all .2s}
+.tab.on{color:var(--text1);border-bottom-color:var(--blue)}
+.tc{display:none}.tc.on{display:block}
+.mc{background:rgba(255,255,255,.04);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.mc .l{font-size:11px;color:var(--text2)}.mc .v{font-size:16px;font-weight:600}
+.risk{background:#6e1a1a;color:#ffb3b3;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.desc{font-size:13px;line-height:1.6;color:var(--text2);margin-bottom:16px;white-space:pre-line}
+.desc a{color:var(--blue);text-decoration:none}
+.desc a:hover{text-decoration:underline}
+.fl-title{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.fl-title.in{color:var(--blue)}.fl-title.out{color:var(--orange)}
+.fl-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;margin-bottom:3px;background:rgba(255,255,255,.03);cursor:pointer;transition:background .2s;font-size:12px}
+.fl-item:hover{background:rgba(255,255,255,.08)}
+.fl-item .lbl{flex:1}.fl-item .tp{font-size:9px;padding:2px 5px;background:rgba(255,255,255,.1);border-radius:3px;color:var(--text2)}
+.asana-link{display:inline-flex;align-items:center;gap:4px;color:var(--blue);text-decoration:none;font-size:12px;padding:4px 8px;border-radius:6px;background:rgba(88,166,255,.1);margin-top:4px}
+.asana-link:hover{background:rgba(88,166,255,.2)}
+.section-title{font-size:12px;font-weight:600;color:var(--text1);margin:16px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
 </style>
 </head>
 <body>
-
-<div id="top-bar" class="floating-panel">
-  <div class="app-title">MAAC <span>Graph</span></div>
-  <div class="search-wrapper">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="search" placeholder="Search...">
-  </div>
-  <div class="filter-group">
-    <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="module">Modules</button>
-    <button class="filter-btn" data-filter="subfeature">Features</button>
-    <button class="filter-btn" data-filter="infra">Infra</button>
+<div id="top" class="fp">
+  <div class="logo">MAAC <span>Knowledge Graph v2</span></div>
+  <div class="search-box"><input type="text" id="search" placeholder="Search nodes..."></div>
+  <div id="filters" style="display:flex;gap:6px;flex-wrap:wrap">
+    <button class="fbtn on" data-f="all">All</button>
+    <button class="fbtn" data-f="module">Modules</button>
+    <button class="fbtn" data-f="subfeature">Features</button>
+    <button class="fbtn" data-f="infra">Infra</button>
+    <button class="fbtn" data-f="data">Data</button>
+    <button class="fbtn" data-f="issue">Issues</button>
+    <button class="fbtn" data-f="rootcause">Root Causes</button>
+    <button class="fbtn" data-f="spec">PRDs</button>
   </div>
   <div style="flex:1"></div>
-  <button class="action-btn" onclick="network.fit({animation:true})">Reset Zoom</button>
+  <button class="abtn green" onclick="resetView()">Reset</button>
+  <button class="abtn red" onclick="impactMode()">⚡ Impact Analysis</button>
 </div>
 
 <div id="graph-container"></div>
 
-<div id="legend" class="floating-panel">
-  <div class="legend-row"><div class="circle" style="background:#A371F7"></div> Platform</div>
-  <div class="legend-row"><div class="circle" style="background:#58A6FF"></div> Module</div>
-  <div class="legend-row"><div class="circle" style="background:#3FB950"></div> Feature</div>
-  <div class="legend-row"><div class="circle" style="background:#D29922"></div> Infra</div>
-  <div class="legend-row"><div class="circle" style="background:#F778BA"></div> Data</div>
+<div id="legend" class="fp">
+  <div class="lr"><div class="dot" style="background:#A371F7"></div>Platform</div>
+  <div class="lr"><div class="dot" style="background:#58A6FF"></div>Module</div>
+  <div class="lr"><div class="dot" style="background:#3FB950"></div>Feature</div>
+  <div class="lr"><div class="dot" style="background:#D29922"></div>Infrastructure</div>
+  <div class="lr"><div class="dot" style="background:#F778BA"></div>Data Entity</div>
+  <div class="lr"><div class="sq" style="background:#FF6B6B"></div>Issue / Ticket</div>
+  <div class="lr"><div class="sq" style="background:#FFA07A;transform:rotate(45deg)"></div>Root Cause</div>
+  <div class="lr"><div class="sq" style="background:#87CEEB"></div>PRD / Spec</div>
 </div>
 
-<div id="detail-panel" class="floating-panel">
-  <button onclick="document.getElementById('detail-panel').classList.remove('open')" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#fff;font-size:24px;cursor:pointer">×</button>
-  <div id="detail-content"></div>
+<div id="stats" class="fp">
+  <span>Nodes: <b id="st-nodes">0</b></span>
+  <span>Edges: <b id="st-edges">0</b></span>
+  <span>Issues: <b id="st-issues">0</b></span>
+</div>
+
+<div id="dp" class="fp">
+  <button class="dp-close" onclick="closePanel()">✕</button>
+  <div id="dc"></div>
 </div>
 
 <script>
-const RAW_DATA = {"nodes": [{"id": 1, "label": "MAAC Platform", "group": "platform", "title": "Marketing Automation & Analytics Center\nCrescendo Lab's core product platform", "size": 60}, {"id": 2, "label": "Contact\nManagement", "group": "module", "title": "聯絡人管理核心\n管理所有通路的聯絡人資料\n包含 LINE / FB / IG / Phone / Email", "size": 50}, {"id": 3, "label": "Segment", "group": "module", "title": "分眾引擎\n根據條件篩選聯絡人群組\n支援靜態/動態分眾", "size": 45}, {"id": 4, "label": "Tag\nManager", "group": "module", "title": "標籤系統\nTag CRUD、自動加標、標籤分析", "size": 45}, {"id": 5, "label": "Broadcast", "group": "module", "title": "推播中心\n排程推播、A/B 測試、多通路發送", "size": 50}, {"id": 6, "label": "Auto-reply", "group": "module", "title": "自動回覆\n關鍵字觸發、時間限制、重複控制", "size": 45}, {"id": 7, "label": "Customer\nJourney", "group": "module", "title": "自動化旅程\n多步驟自動化流程、觸發器、動作節點\n包含 EDM 整合", "size": 55}, {"id": 8, "label": "Rich Menu", "group": "module", "title": "LINE 圖文選單\n排程、分眾顯示、連結管理", "size": 40}, {"id": 9, "label": "Insight\n& Reports", "group": "module", "title": "數據分析\nTag 覆蓋率、獲客漏斗、訊息統計\n每日/每週報表", "size": 50}, {"id": 10, "label": "Deeplink", "group": "module", "title": "深度連結\nUTM 追蹤、獲客來源歸因", "size": 40}, {"id": 11, "label": "Tracelink", "group": "module", "title": "連結追蹤\n點擊分析、轉換追蹤", "size": 35}, {"id": 12, "label": "Prize\nManagement", "group": "module", "title": "獎品管理\n獎品池、兌換碼、抽獎系統", "size": 35}, {"id": 13, "label": "Template\nLibrary", "group": "module", "title": "範本庫\n訊息範本、可重用內容區塊", "size": 35}, {"id": 14, "label": "Contact\nProfile", "group": "subfeature", "title": "聯絡人檔案\n姓名、電話、Email、自訂欄位\n即時編輯與同步", "size": 25}, {"id": 15, "label": "Profile\nUnification", "group": "subfeature", "title": "跨通路合併\nLINE + SMS + Email 合併為單一聯絡人\n合併權重邏輯、欄位覆寫優先順序", "size": 30}, {"id": 16, "label": "Contact\nImport", "group": "subfeature", "title": "聯絡人匯入\nCSV / API 匯入、Key Value 匹配\n支援 line_uid / customer_id / phone / email", "size": 25}, {"id": 17, "label": "UID\nBinding", "group": "subfeature", "title": "身份綁定\nline_uid ↔ customer_id 對應\nBindlink 回呼、CID 綁定邏輯", "size": 25}, {"id": 18, "label": "Friend\nStatus", "group": "subfeature", "title": "LINE 好友狀態\nAuth / Following / Blocked\n根據 Webhook 事件追蹤", "size": 20}, {"id": 19, "label": "Display\nName", "group": "subfeature", "title": "顯示名稱邏輯\ndisplay_name vs original_name\n依賴 LINE Channel Token 同步", "size": 20}, {"id": 20, "label": "Contact\nFields", "group": "subfeature", "title": "聯絡人欄位\nname, phone, email, customer_id,\ntags, custom fields\n欄位更新規則：有值覆寫、空值保留", "size": 25}, {"id": 21, "label": "Filter\nConditions", "group": "subfeature", "title": "篩選條件引擎\nAND / OR 邏輯、Tag 篩選\n日期、互動、來源等多重條件", "size": 25}, {"id": 22, "label": "Dynamic\nSegment", "group": "subfeature", "title": "動態分眾\n條件變更時自動更新成員\n背景排程計算", "size": 20}, {"id": 23, "label": "Tag\nCRUD", "group": "subfeature", "title": "標籤管理\n建立、編輯、刪除標籤\n標籤名稱、排序", "size": 20}, {"id": 24, "label": "Auto-tag\nRules", "group": "subfeature", "title": "自動加標規則\n依事件/行為自動標記聯絡人", "size": 20}, {"id": 25, "label": "Message\nSend", "group": "subfeature", "title": "訊息發送引擎\n排程發送、即時發送\n多通路（LINE / SMS / Email）", "size": 25}, {"id": 26, "label": "A/B\nTesting", "group": "subfeature", "title": "A/B 測試\n多版本訊息比較\n自動選擇最佳版本", "size": 18}, {"id": 27, "label": "Audience\nTargeting", "group": "subfeature", "title": "受眾設定\n依 Segment 選擇推播對象", "size": 20}, {"id": 28, "label": "Keyword\nMatching", "group": "subfeature", "title": "關鍵字比對\n完全/部分匹配、正則\n觸發優先順序邏輯", "size": 20}, {"id": 29, "label": "Time & Reply\nLimits", "group": "subfeature", "title": "時間 & 次數限制\n冷卻時間、每人最大回覆次數\n重複訊息控制", "size": 20}, {"id": 30, "label": "Channel\nRestrictions", "group": "subfeature", "title": "通路限制\nMeta (FB/IG) 不支援新好友關鍵字回覆\nLINE / WhatsApp 支援", "size": 18}, {"id": 31, "label": "Trigger\nEngine", "group": "subfeature", "title": "觸發引擎\nEvent-Based：Webhook 事件驅動\nTime-Based：排程觸發 (Airflow)", "size": 30}, {"id": 32, "label": "Action\nNodes", "group": "subfeature", "title": "動作節點\nSend Message / Add Tag / Wait\nCondition Split / A/B Split", "size": 30}, {"id": 33, "label": "EDM / Email\nAction", "group": "subfeature", "title": "Email 發送節點\nMAAC → Epistola → SendGrid\nToken Exchange / iframe 編輯器", "size": 25}, {"id": 34, "label": "Member\nProgress", "group": "subfeature", "title": "成員進度追蹤\nREADY → RUNNING → WAITING → ENDED\n狀態機管理", "size": 20}, {"id": 35, "label": "Node\nPerformance", "group": "subfeature", "title": "節點績效指標\n每節點 send/open/click 率\nJourney 整體轉換漏斗", "size": 20}, {"id": 36, "label": "Tag\nCoverage", "group": "subfeature", "title": "標籤覆蓋率\n全品牌標籤使用統計\n依賴 Airflow 日報表", "size": 20}, {"id": 37, "label": "Acquisition\nFunnel", "group": "subfeature", "title": "獲客漏斗\n新聯絡人來源、轉換率\nDeeplink 報表", "size": 20}, {"id": 38, "label": "Message\nAnalytics", "group": "subfeature", "title": "訊息統計\n推播成效、開信率、點擊率\n自動回覆排名", "size": 20}, {"id": 39, "label": "Weekly\nReport", "group": "subfeature", "title": "每週報表\n自動寄送給客戶\n依賴 Airflow 排程", "size": 18}, {"id": 40, "label": "UTM\nTracking", "group": "subfeature", "title": "UTM 參數追蹤\n來源、媒介、活動歸因", "size": 18}, {"id": 41, "label": "Acquisition\nSource", "group": "subfeature", "title": "獲客來源追蹤\n新聯絡人歸因到 Deeplink", "size": 18}, {"id": 42, "label": "Menu\nScheduling", "group": "subfeature", "title": "排程管理\n按時間切換不同選單", "size": 18}, {"id": 43, "label": "Per-audience\nMenu", "group": "subfeature", "title": "分眾選單\n依標籤/分群顯示不同選單", "size": 18}, {"id": 44, "label": "Sender\nDomain", "group": "subfeature", "title": "Sender Domain 管理\nDNS 驗證：CNAME / DKIM1 / DKIM2 / DMARC\n透過 SendGrid API 驗證", "size": 20}, {"id": 45, "label": "Channel\nStatus", "group": "subfeature", "title": "Email 頻道狀態\nnot_set → connected → warning → suspended\nHard Bounce > 2% 或 Spam > 0.3% → warning", "size": 20}, {"id": 46, "label": "CDH", "group": "infra", "title": "Customer Data Hub\n統一客戶資料中心\n跨 MAAC / CAAC 同步聯絡人", "size": 35}, {"id": 47, "label": "CAAC", "group": "infra", "title": "Conversational Analytics\n& Automation Center\n客服對話平台", "size": 30}, {"id": 48, "label": "LINE\nAPI", "group": "infra", "title": "LINE Messaging API\nWebhook、Push/Reply Message\nProfile Sync、Friend Status", "size": 32}, {"id": 49, "label": "Meta\nAPI", "group": "infra", "title": "Facebook + Instagram API\n訊息收發、用戶資料\n有政策限制", "size": 28}, {"id": 50, "label": "SendGrid", "group": "infra", "title": "Email 發送服務\nSender Domain 驗證\nBounce / Spam Rate 監控", "size": 28}, {"id": 51, "label": "Airflow", "group": "infra", "title": "資料管線排程\n每日報表 Pipeline\n控制 Insight 資料更新", "size": 28}, {"id": 52, "label": "RabbitMQ", "group": "infra", "title": "訊息佇列\nJourney 事件分發\nWorker 任務排程", "size": 25}, {"id": 53, "label": "Rubato", "group": "infra", "title": "Journey 核心引擎\n觸發評估、節點執行\n進度管理", "size": 28}, {"id": 54, "label": "Epistola", "group": "infra", "title": "Email Extension Service\niframe 編輯器、訊息 CRUD\n與 MAAC Journey 整合", "size": 25}, {"id": 55, "label": "Cloud\nLogging", "group": "infra", "title": "GCP Cloud Logging\n事件日誌收集\nJourney 觸發事件來源", "size": 25}, {"id": 56, "label": "Contact\nEntity", "group": "data", "title": "聯絡人資料物件\nline_uid, customer_id, phone, email\nname, tags, custom_fields", "size": 28}, {"id": 57, "label": "Channel\nEntity", "group": "data", "title": "頻道實體\nLINE / Email / SMS / WhatsApp / FB / IG\nchannel_id, status, config", "size": 25}, {"id": 58, "label": "Tag\nEntity", "group": "data", "title": "標籤物件\ntag_id, name, source (maac/cdh)\n自動標 / 手動標", "size": 25}, {"id": 59, "label": "Message\nEntity", "group": "data", "title": "訊息物件\n推播/自動回覆/Journey 訊息\n範本、Rich Content", "size": 25}, {"id": 60, "label": "Event /\nWebhook", "group": "data", "title": "事件物件\nLINE Webhook, CDH Event\nFollow / Unfollow / Message / Tag Change", "size": 25}], "edges": [{"from": 1, "to": 2, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 3, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 4, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 5, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 6, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 7, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 8, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 9, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 10, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 11, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 12, "label": "", "edge_type": "hierarchy"}, {"from": 1, "to": 13, "label": "", "edge_type": "hierarchy"}, {"from": 2, "to": 14, "label": "", "edge_type": "contains"}, {"from": 2, "to": 15, "label": "", "edge_type": "contains"}, {"from": 2, "to": 16, "label": "", "edge_type": "contains"}, {"from": 2, "to": 17, "label": "", "edge_type": "contains"}, {"from": 2, "to": 18, "label": "", "edge_type": "contains"}, {"from": 2, "to": 19, "label": "", "edge_type": "contains"}, {"from": 2, "to": 20, "label": "", "edge_type": "contains"}, {"from": 3, "to": 21, "label": "", "edge_type": "contains"}, {"from": 3, "to": 22, "label": "", "edge_type": "contains"}, {"from": 4, "to": 23, "label": "", "edge_type": "contains"}, {"from": 4, "to": 24, "label": "", "edge_type": "contains"}, {"from": 5, "to": 25, "label": "", "edge_type": "contains"}, {"from": 5, "to": 26, "label": "", "edge_type": "contains"}, {"from": 5, "to": 27, "label": "", "edge_type": "contains"}, {"from": 6, "to": 28, "label": "", "edge_type": "contains"}, {"from": 6, "to": 29, "label": "", "edge_type": "contains"}, {"from": 6, "to": 30, "label": "", "edge_type": "contains"}, {"from": 7, "to": 31, "label": "", "edge_type": "contains"}, {"from": 7, "to": 32, "label": "", "edge_type": "contains"}, {"from": 7, "to": 33, "label": "", "edge_type": "contains"}, {"from": 7, "to": 34, "label": "", "edge_type": "contains"}, {"from": 7, "to": 35, "label": "", "edge_type": "contains"}, {"from": 9, "to": 36, "label": "", "edge_type": "contains"}, {"from": 9, "to": 37, "label": "", "edge_type": "contains"}, {"from": 9, "to": 38, "label": "", "edge_type": "contains"}, {"from": 9, "to": 39, "label": "", "edge_type": "contains"}, {"from": 10, "to": 40, "label": "", "edge_type": "contains"}, {"from": 10, "to": 41, "label": "", "edge_type": "contains"}, {"from": 8, "to": 42, "label": "", "edge_type": "contains"}, {"from": 8, "to": 43, "label": "", "edge_type": "contains"}, {"from": 7, "to": 44, "label": "", "edge_type": "contains"}, {"from": 7, "to": 45, "label": "", "edge_type": "contains"}, {"from": 2, "to": 3, "label": "提供聯絡人", "edge_type": "data_flow"}, {"from": 2, "to": 5, "label": "推播對象", "edge_type": "data_flow"}, {"from": 2, "to": 7, "label": "旅程成員", "edge_type": "data_flow"}, {"from": 2, "to": 6, "label": "回覆對象", "edge_type": "data_flow"}, {"from": 2, "to": 8, "label": "選單對象", "edge_type": "data_flow"}, {"from": 2, "to": 9, "label": "數據來源", "edge_type": "data_flow"}, {"from": 3, "to": 5, "label": "受眾篩選", "edge_type": "data_flow"}, {"from": 3, "to": 7, "label": "入口條件", "edge_type": "data_flow"}, {"from": 3, "to": 8, "label": "分眾顯示", "edge_type": "data_flow"}, {"from": 4, "to": 3, "label": "篩選條件", "edge_type": "data_flow"}, {"from": 4, "to": 2, "label": "標記聯絡人", "edge_type": "data_flow"}, {"from": 4, "to": 8, "label": "選單分群依據", "edge_type": "data_flow"}, {"from": 4, "to": 7, "label": "觸發/動作條件", "edge_type": "data_flow"}, {"from": 4, "to": 9, "label": "覆蓋率統計", "edge_type": "data_flow"}, {"from": 5, "to": 9, "label": "推播成效", "edge_type": "data_flow"}, {"from": 5, "to": 13, "label": "使用範本", "edge_type": "data_flow"}, {"from": 27, "to": 3, "label": "讀取分眾", "edge_type": "data_flow"}, {"from": 6, "to": 4, "label": "觸發自動加標", "edge_type": "data_flow"}, {"from": 6, "to": 9, "label": "回覆統計", "edge_type": "data_flow"}, {"from": 7, "to": 5, "label": "觸發推播", "edge_type": "data_flow"}, {"from": 7, "to": 4, "label": "加/移除標籤", "edge_type": "data_flow"}, {"from": 7, "to": 2, "label": "更新聯絡人", "edge_type": "data_flow"}, {"from": 7, "to": 12, "label": "獎品發放", "edge_type": "data_flow"}, {"from": 10, "to": 2, "label": "新聯絡人歸因", "edge_type": "data_flow"}, {"from": 10, "to": 9, "label": "Deeplink 報表", "edge_type": "data_flow"}, {"from": 11, "to": 9, "label": "點擊報表", "edge_type": "data_flow"}, {"from": 8, "to": 10, "label": "選單連結", "edge_type": "data_flow"}, {"from": 12, "to": 7, "label": "Journey 獎品節點", "edge_type": "data_flow"}, {"from": 12, "to": 5, "label": "推播中發獎", "edge_type": "data_flow"}, {"from": 48, "to": 2, "label": "Webhook 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 18, "label": "好友狀態事件", "edge_type": "infra_dep"}, {"from": 48, "to": 19, "label": "Profile 同步", "edge_type": "infra_dep"}, {"from": 48, "to": 6, "label": "接收訊息", "edge_type": "infra_dep"}, {"from": 48, "to": 5, "label": "Push Message", "edge_type": "infra_dep"}, {"from": 48, "to": 8, "label": "Rich Menu API", "edge_type": "infra_dep"}, {"from": 49, "to": 6, "label": "FB/IG 訊息", "edge_type": "infra_dep"}, {"from": 49, "to": 30, "label": "政策限制", "edge_type": "infra_dep"}, {"from": 50, "to": 33, "label": "Email 發送", "edge_type": "infra_dep"}, {"from": 50, "to": 44, "label": "DNS 驗證", "edge_type": "infra_dep"}, {"from": 50, "to": 45, "label": "Bounce/Spam 監控", "edge_type": "infra_dep"}, {"from": 51, "to": 9, "label": "日報表 Pipeline", "edge_type": "infra_dep"}, {"from": 51, "to": 36, "label": "Tag 覆蓋率計算", "edge_type": "infra_dep"}, {"from": 51, "to": 39, "label": "週報排程", "edge_type": "infra_dep"}, {"from": 51, "to": 31, "label": "Time-Based 觸發", "edge_type": "infra_dep"}, {"from": 46, "to": 15, "label": "統一 Profile", "edge_type": "infra_dep"}, {"from": 46, "to": 4, "label": "CDH Tag 同步", "edge_type": "infra_dep"}, {"from": 46, "to": 3, "label": "CDH 分眾規則", "edge_type": "infra_dep"}, {"from": 46, "to": 47, "label": "雙向同步", "edge_type": "infra_dep"}, {"from": 53, "to": 31, "label": "觸發評估", "edge_type": "infra_dep"}, {"from": 53, "to": 34, "label": "進度管理", "edge_type": "infra_dep"}, {"from": 52, "to": 53, "label": "任務佇列", "edge_type": "infra_dep"}, {"from": 55, "to": 53, "label": "事件日誌", "edge_type": "infra_dep"}, {"from": 54, "to": 33, "label": "Email 編輯/發送", "edge_type": "infra_dep"}, {"from": 47, "to": 2, "label": "客服對話資料", "edge_type": "infra_dep"}, {"from": 56, "to": 2, "label": "核心資料", "edge_type": "data_entity"}, {"from": 56, "to": 15, "label": "合併對象", "edge_type": "data_entity"}, {"from": 56, "to": 16, "label": "匯入目標", "edge_type": "data_entity"}, {"from": 57, "to": 2, "label": "通路資料", "edge_type": "data_entity"}, {"from": 57, "to": 7, "label": "頻道設定", "edge_type": "data_entity"}, {"from": 57, "to": 5, "label": "發送通路", "edge_type": "data_entity"}, {"from": 58, "to": 4, "label": "核心資料", "edge_type": "data_entity"}, {"from": 58, "to": 3, "label": "篩選依據", "edge_type": "data_entity"}, {"from": 58, "to": 46, "label": "CDH 同步", "edge_type": "data_entity"}, {"from": 59, "to": 5, "label": "訊息內容", "edge_type": "data_entity"}, {"from": 59, "to": 6, "label": "回覆內容", "edge_type": "data_entity"}, {"from": 59, "to": 13, "label": "範本來源", "edge_type": "data_entity"}, {"from": 59, "to": 7, "label": "Journey 訊息", "edge_type": "data_entity"}, {"from": 60, "to": 31, "label": "觸發事件", "edge_type": "data_entity"}, {"from": 60, "to": 18, "label": "狀態事件", "edge_type": "data_entity"}, {"from": 60, "to": 6, "label": "訊息事件", "edge_type": "data_entity"}, {"from": 60, "to": 48, "label": "Webhook", "edge_type": "data_entity"}]};
+const RAW={"nodes":[{"id":1,"label":"MAAC\nPlatform","group":"platform","title":"Marketing Automation & Analytics Center\nCrescendo Lab's core product platform\n340 pages of product specs\n105 investigation cases\n8 root cause patterns","size":65},{"id":2,"label":"Insight\n& Reports","group":"module","title":"數據分析與報表模組\n\n功能定義:\n• Tag 覆蓋率分析\n• 獲客漏斗報表\n• 訊息統計 (開信率/點擊率)\n• 每日/每週自動報表\n\n依賴:\n• Airflow Pipeline 驅動資料更新\n• BigQuery 作為資料來源\n• 與 LINE CMS 指標定義不同\n\n⚠️ 18 個歷史 Issue (含 P0/P1)\n最大風險: Airflow pipeline failure 導致零覆蓋率","size":55},{"id":3,"label":"Contact\nManagement","group":"module","title":"聯絡人管理核心模組\n\n功能定義:\n• 管理所有通路聯絡人資料\n• LINE / FB / IG / Phone / Email\n• Profile Unification 跨通路合併\n• CID 綁定邏輯\n\n依賴:\n• CDH 統一資料中心\n• LINE Webhook 同步\n• CAAC 客服對話資料\n\n影響範圍:\n• 所有下游模組依賴聯絡人資料","size":60},{"id":4,"label":"Segment\nEngine","group":"module","title":"分眾引擎模組\n\n功能定義:\n• 根據條件篩選聯絡人群組\n• 支援靜態/動態/AI 分眾\n• Smart Sending 最佳發送時間\n\n依賴:\n• Contact 提供聯絡人池\n• Tag 作為篩選條件\n• BigQuery 計算資料\n\n⚠️ 26 個歷史 Issue\n最大風險: Backfill 導致 segment 成員遺漏","size":55},{"id":5,"label":"Tag\nManager","group":"module","title":"標籤系統模組\n\n功能定義:\n• Tag CRUD (建立/編輯/刪除)\n• 自動加標規則\n• CDH Tag 同步\n• 標籤分析\n\n依賴:\n• CDH 雙向同步\n• PostgreSQL 儲存\n\n影響:\n• Segment 篩選條件\n• Journey 觸發條件\n• Rich Menu 分群依據\n\n⚠️ 10 個歷史 Issue","size":48},{"id":6,"label":"Broadcast\nCenter","group":"module","title":"推播中心模組\n\n功能定義:\n• 排程/即時推播\n• A/B 測試\n• 多通路發送 (LINE/SMS/Email)\n• 範本庫整合\n\n依賴:\n• Segment 受眾篩選\n• LINE API Push Message\n• Template Library\n\n⚠️ 1 個歷史 Issue","size":50},{"id":7,"label":"Auto-reply","group":"module","title":"自動回覆模組\n\n功能定義:\n• 關鍵字觸發回覆\n• 時間限制 & 冷卻\n• 重複控制\n• 多通路支援\n\n已知限制:\n• Meta (FB/IG) 不支援新好友關鍵字回覆\n• 名稱同步有 legacy bug\n\n⚠️ 20 個歷史 Issue","size":48},{"id":8,"label":"Customer\nJourney","group":"module","title":"自動化旅程模組\n\n功能定義:\n• 多步驟自動化流程\n• Event/Time Based 觸發器\n• Action Nodes (Send/Tag/Wait/Split)\n• EDM (Email) 整合\n\n核心架構:\n• Rubato 引擎驅動\n• RabbitMQ 任務佇列\n• Token Exchange for Epistola\n\n影響: 推播、標籤、聯絡人、獎品","size":58},{"id":9,"label":"Rich Menu","group":"module","title":"LINE 圖文選單模組\n\n功能定義:\n• 排程管理 (按時間切換)\n• 分眾顯示 (按標籤/分群)\n• 連結管理\n\n依賴:\n• LINE Rich Menu API\n• Segment 分眾資料\n• Tag 分群依據\n\n⚠️ 1 個歷史 Issue","size":40},{"id":10,"label":"Deeplink","group":"module","title":"深度連結模組\n\n功能定義:\n• UTM 追蹤\n• 獲客來源歸因\n• Smart Redirect Tool\n• LIFF 整合\n\n已知行為:\n• 聯絡人更新需 2-3 分鐘 (非同步)\n• Deeplink vs Insight 數據有差異\n\n⚠️ 15 個歷史 Issue","size":42},{"id":11,"label":"Tracelink","group":"module","title":"連結追蹤模組\n\n功能定義:\n• 點擊分析\n• 轉換追蹤\n• GA4 整合\n\n⚠️ 7 個歷史 Issue","size":35},{"id":12,"label":"Prize\nMgmt","group":"module","title":"獎品管理模組\n\n功能定義:\n• 獎品池管理\n• 兌換碼發放\n• 抽獎系統\n\n整合:\n• Journey 獎品節點\n• Broadcast 發獎\n\n⚠️ 7 個歷史 Issue","size":35},{"id":13,"label":"Template\nLibrary","group":"module","title":"範本庫\n\n功能定義:\n• 訊息範本\n• 可重用內容區塊\n• Broadcast / Journey 共用","size":32},{"id":14,"label":"Contact\nProfile","group":"subfeature","title":"聯絡人檔案\n姓名、電話、Email、自訂欄位\n即時編輯與同步","size":22},{"id":15,"label":"Profile\nUnification","group":"subfeature","title":"跨通路合併邏輯\nLINE+SMS+Email 合併為單一聯絡人\n合併權重邏輯、欄位覆寫優先順序\nKey: CID / line_uid / phone\nMAAC↔CAAC↔CDH 三方同步","size":32},{"id":16,"label":"Contact\nImport","group":"subfeature","title":"聯絡人匯入\nCSV / API 匯入\nKey Value 匹配\n支援 line_uid / customer_id / phone / email","size":22},{"id":17,"label":"UID\nBinding","group":"subfeature","title":"身份綁定\nline_uid ↔ customer_id 對應\nBindlink 回呼、CID 綁定邏輯","size":22},{"id":18,"label":"Friend\nStatus","group":"subfeature","title":"LINE 好友狀態\nAuth / Following / Blocked\nWebhook 事件追蹤\nfollow/unfollow event","size":20},{"id":19,"label":"Display\nName","group":"subfeature","title":"顯示名稱邏輯\ndisplay_name vs original_name\n依賴 LINE Channel Token 同步\nCDH sync delay 可能導致名稱缺失","size":20},{"id":20,"label":"Contact\nFields","group":"subfeature","title":"聯絡人欄位定義\nname, phone, email, customer_id\ntags, custom_fields\n更新規則: 有值覆寫、空值保留","size":22},{"id":21,"label":"Email\nChannel","group":"subfeature","title":"Email 頻道管理\nSender Domain 驗證\nDNS: CNAME/DKIM1/DKIM2/DMARC\n狀態機: not_set→connected→warning→suspended\nHard Bounce >2% 或 Spam >0.3% → warning","size":26},{"id":22,"label":"WhatsApp\nChannel","group":"subfeature","title":"WhatsApp 頻道\nMeta 政策限制\n格式驗證\n24小時訊息窗口","size":18},{"id":23,"label":"Filter\nConditions","group":"subfeature","title":"篩選條件引擎\nAND/OR 邏輯組合\nTag 篩選、日期、互動、來源\n多重條件組合","size":24},{"id":24,"label":"Dynamic\nSegment","group":"subfeature","title":"動態分眾\n條件變更時自動更新成員\n背景排程計算\n依賴 BigQuery","size":22},{"id":25,"label":"AI\nSegment","group":"subfeature","title":"AI 分眾\n機器學習預測高購買機率\nEC Feature 整合\nGA4 行為數據","size":22},{"id":26,"label":"Smart\nSending","group":"subfeature","title":"智慧發送\n自動選擇最佳發送時間\n依據歷史互動行為分析","size":20},{"id":27,"label":"Tag\nCRUD","group":"subfeature","title":"標籤管理\n建立、編輯、刪除標籤\n標籤名稱、排序","size":18},{"id":28,"label":"Auto-tag\nRules","group":"subfeature","title":"自動加標規則\n依事件/行為自動標記聯絡人\n觸發條件設定","size":18},{"id":29,"label":"CDH Tag\nSync","group":"subfeature","title":"CDH 標籤同步\ninherited tag vs normal tag\n跨平台標籤一致性\nCDH→MAAC 單向繼承","size":22},{"id":30,"label":"Message\nSend Engine","group":"subfeature","title":"訊息發送引擎\n排程/即時發送\n多通路 (LINE/SMS/Email)\n發送佇列管理","size":24},{"id":31,"label":"A/B\nTesting","group":"subfeature","title":"A/B 測試\n多版本訊息比較\n自動選擇最佳版本\n統計顯著性檢定","size":18},{"id":32,"label":"Audience\nTargeting","group":"subfeature","title":"受眾設定\n依 Segment 選擇推播對象\n排除邏輯\n預估人數","size":22},{"id":33,"label":"Keyword\nMatching","group":"subfeature","title":"關鍵字比對\n完全/部分匹配、正則\n觸發優先順序邏輯\n多語言支援","size":22},{"id":34,"label":"Time & Reply\nLimits","group":"subfeature","title":"時間 & 次數限制\n冷卻時間設定\n每人最大回覆次數\n重複訊息控制","size":20},{"id":35,"label":"Channel\nRestrictions","group":"subfeature","title":"通路限制\nMeta (FB/IG) 不支援新好友關鍵字回覆\nLINE / WhatsApp 支援\n已知限制","size":20},{"id":36,"label":"Trigger\nEngine","group":"subfeature","title":"觸發引擎\nEvent-Based: Webhook 事件驅動\nTime-Based: 排程觸發 (Airflow)\n觸發評估由 Rubato 執行","size":30},{"id":37,"label":"Action\nNodes","group":"subfeature","title":"動作節點\nSend Message / Add Tag / Wait\nCondition Split / A/B Split\nAPI Action / Webhook Action","size":28},{"id":38,"label":"EDM / Email\nAction","group":"subfeature","title":"Email 發送節點\nMAAC → Epistola → SendGrid\nToken Exchange / iframe 編輯器\n包含 Onboarding Contact Management","size":26},{"id":39,"label":"Member\nProgress","group":"subfeature","title":"成員進度追蹤\nREADY → RUNNING → WAITING → ENDED\n狀態機管理\n由 Rubato 引擎控制","size":22},{"id":40,"label":"Node\nPerformance","group":"subfeature","title":"節點績效指標\n每節點 send/open/click 率\nJourney 整體轉換漏斗\n數據追蹤","size":20},{"id":41,"label":"Token\nExchange","group":"subfeature","title":"Token Exchange 機制\nMAAC ↔ Epistola 認證\nBearer Token + Organization ID\n用於 Journey EDM 整合","size":18},{"id":42,"label":"Tag\nCoverage","group":"subfeature","title":"標籤覆蓋率\n全品牌標籤使用統計\n依賴 Airflow 日報表\n⚠️ 曾因 Airflow 故障顯示零覆蓋","size":22},{"id":43,"label":"Acquisition\nFunnel","group":"subfeature","title":"獲客漏斗\n新聯絡人來源、轉換率\nDeeplink 報表整合\nCID 綁定率統計","size":22},{"id":44,"label":"Message\nAnalytics","group":"subfeature","title":"訊息統計\n推播成效、開信率、點擊率\n自動回覆排名\n⚠️ 與 LINE CMS 計算邏輯不同","size":22},{"id":45,"label":"Weekly\nReport","group":"subfeature","title":"每週報表\n自動寄送給客戶\n依賴 Airflow 排程\n包含關鍵指標摘要","size":18},{"id":46,"label":"CID Binding\nRate","group":"subfeature","title":"Customer ID 綁定率\n會員綁定追蹤\n與 Deeplink 歸因整合","size":18},{"id":47,"label":"UTM\nTracking","group":"subfeature","title":"UTM 參數追蹤\n來源、媒介、活動歸因\n與 GA4 整合","size":18},{"id":48,"label":"Acquisition\nSource","group":"subfeature","title":"獲客來源追蹤\n新聯絡人歸因到 Deeplink\n與 Insight Acquisition 報表整合","size":18},{"id":49,"label":"Smart\nRedirect","group":"subfeature","title":"智慧導向工具\n依平台/裝置自動導向\nLIFF / In-app browser 支援","size":20},{"id":50,"label":"LIFF\nIntegration","group":"subfeature","title":"LINE Front-end Framework\nIn-app browser 體驗\nDeeplink LIFF redirect\nBindlink LIFF 綁定頁面","size":18},{"id":51,"label":"Menu\nScheduling","group":"subfeature","title":"排程管理\n按時間切換不同選單\n支援多時段設定","size":18},{"id":52,"label":"Per-audience\nMenu","group":"subfeature","title":"分眾選單\n依標籤/分群顯示不同選單\n個人化體驗","size":18},{"id":53,"label":"Click\nTracking","group":"subfeature","title":"點擊追蹤\n追蹤連結點擊次數\n用戶層級追蹤\nGA4 事件整合","size":18},{"id":54,"label":"Conversion\nTracking","group":"subfeature","title":"轉換追蹤\n追蹤點擊後轉換行為\n報表生成","size":18},{"id":55,"label":"Prize\nPool","group":"subfeature","title":"獎品池管理\n獎品數量、種類\n庫存追蹤","size":16},{"id":56,"label":"Redeem\nCode","group":"subfeature","title":"兌換碼\n唯一碼生成\n使用狀態追蹤","size":16},{"id":57,"label":"Lottery\nSystem","group":"subfeature","title":"抽獎系統\n機率設定\n中獎邏輯","size":16},{"id":58,"label":"CDH","group":"infra","title":"Customer Data Hub\n統一客戶資料中心\n跨 MAAC / CAAC 同步聯絡人\n標籤繼承 (inherited tag)\n\n已知問題:\n• 0.5-1秒同步延遲\n• CID 重複可能導致錯誤合併","size":36},{"id":59,"label":"CAAC","group":"infra","title":"Conversational Analytics & Automation Center\n客服對話平台\n與 MAAC 共享聯絡人\n透過 CDH 雙向同步","size":30},{"id":60,"label":"LINE\nAPI","group":"infra","title":"LINE Messaging API\n• Webhook 事件接收\n• Push/Reply Message\n• Profile Sync\n• Friend Status\n• Rich Menu API\n\n已知問題:\n• Webhook 轉發不穩定\n• Response >10s 可能 timeout","size":34},{"id":61,"label":"Meta\nAPI","group":"infra","title":"Facebook + Instagram API\n訊息收發、用戶資料\n\n已知限制:\n• FB/IG 不支援新好友關鍵字回覆\n• 24小時訊息窗口限制\n• WhatsApp 格式嚴格驗證","size":30},{"id":62,"label":"SendGrid","group":"infra","title":"Email 發送服務\n• Sender Domain 驗證\n• Bounce / Spam Rate 監控\n• Hard Bounce >2% → warning\n• Spam >0.3% → warning\n\n與 Epistola 整合","size":28},{"id":63,"label":"Airflow","group":"infra","title":"資料管線排程\n• 每日報表 Pipeline\n• Tag 覆蓋率計算\n• 週報排程\n• Time-Based Journey 觸發\n\n⚠️ 高風險:\n多個 P0/P1 因 Airflow DAG 故障","size":32},{"id":64,"label":"RabbitMQ","group":"infra","title":"訊息佇列\n• Journey 事件分發\n• Worker 任務排程\n• 與 Rubato 引擎整合","size":26},{"id":65,"label":"Rubato","group":"infra","title":"Journey 核心引擎\n• 觸發評估邏輯\n• 節點執行\n• 成員進度管理\n• 狀態機控制","size":30},{"id":66,"label":"Epistola","group":"infra","title":"Email Extension Service\n• iframe 編輯器\n• 訊息 CRUD\n• Token Exchange 認證\n• 與 MAAC Journey 整合","size":26},{"id":67,"label":"Cloud\nLogging","group":"infra","title":"GCP Cloud Logging\n事件日誌收集\nJourney 觸發事件來源\n除錯用","size":24},{"id":68,"label":"GA4","group":"infra","title":"Google Analytics 4\n點擊追蹤、轉換分析\nUTM 參數整合\nEC 行為數據收集","size":24},{"id":69,"label":"BigQuery","group":"infra","title":"Google BigQuery\n資料倉儲\n• Insight 報表資料來源\n• Segment 計算資料源\n• Airflow ETL 目標\n• AI Segment ML 模型資料","size":30},{"id":70,"label":"PostgreSQL","group":"infra","title":"主要資料庫\n聯絡人、標籤、訊息儲存\nAirflow upsert 目標\nCRUD 操作核心","size":26},{"id":71,"label":"API\nGateway","group":"infra","title":"API 入口\nRESTful API\n權限驗證、Rate Limiting\n外部整合入口","size":22},{"id":72,"label":"Redis\nCache","group":"infra","title":"快取層\nSession 管理\nRate Limiting\nFrequent Query Cache","size":22},{"id":73,"label":"Contact\nEntity","group":"data","title":"聯絡人資料物件\n• line_uid\n• customer_id\n• phone\n• email\n• name\n• tags[]\n• custom_fields{}\n\n是所有模組的核心資料","size":28},{"id":74,"label":"Channel\nEntity","group":"data","title":"頻道實體\nLINE / Email / SMS / WhatsApp / FB / IG\nchannel_id, status, config\n每頻道獨立設定","size":26},{"id":75,"label":"Tag\nEntity","group":"data","title":"標籤物件\ntag_id, name\nsource: maac / cdh\ntype: 自動標 / 手動標\n與 CDH inherited tag 區分","size":26},{"id":76,"label":"Message\nEntity","group":"data","title":"訊息物件\n推播/自動回覆/Journey 訊息\n範本、Rich Content\n支援多格式 (Text/Image/Flex)","size":26},{"id":77,"label":"Event /\nWebhook","group":"data","title":"事件物件\nLINE Webhook Events:\n• Follow / Unfollow\n• Message / Postback\nCDH Events:\n• Tag Change\n• Profile Update","size":26},{"id":78,"label":"Root Cause:\nAirflow\nPipeline Failure","group":"rootcause","title":"🔍 Airflow Pipeline 故障\n\n多個 P0/P1 issue 共同根因\nAirflow DAG 未正確執行\n導致報表資料缺失\n\n影響:\n• Tag Coverage 顯示零覆蓋率\n• Daily Report 缺少資料\n• Insight 整體數據不準確\n\n相關 Tickets:\n• Zero Tag Coverage (P1) - Asana 1213185386062836\n• Missing Data Dec 26-27 (P1) - Asana 1209213765843736\n• Tag Coverage Drop (P2)","size":28},{"id":79,"label":"Root Cause:\nData Backfill\nError","group":"rootcause","title":"🔍 Data Backfill 錯誤\n\n回填 deleted_at 欄位時產生錯誤\n導致 Segment 計算遺漏成員\n影響 Broadcast 受眾數量\n\n影響:\n• Segment 成員數下降\n• Broadcast 發送對象減少\n• 客戶投訴人數不足\n\n相關: P0 Segment issues","size":28},{"id":80,"label":"Root Cause:\nMetric Definition\nMismatch","group":"rootcause","title":"🔍 指標定義不一致\n\nMAAC vs LINE CMS 計算邏輯不同\n例: Message count 含 reply\nInsight 資料因定義差異產生偏差\n\n影響:\n• 客戶質疑數據準確性\n• Insight 報表與 LINE 後台數字不符\n\n多個 P2/P3 Insight ticket 根因","size":26},{"id":81,"label":"Root Cause:\nCDH Sync\nDelay","group":"rootcause","title":"🔍 CDH 同步延遲\n\n0.5-1秒同步延遲\n導致 Welcome message 發送時\n聯絡人名稱尚未同步\n\nCID 作為 unification key\n可能導致不同聯絡人被錯誤合併\n\n影響:\n• 新好友顯示名稱缺失\n• Profile merge 錯誤\n• 跨平台資料不一致","size":26},{"id":82,"label":"Root Cause:\nMeta Platform\nPolicy","group":"rootcause","title":"🔍 Meta 平台政策限制\n\n非 MAAC 系統問題，是平台方限制:\n• FB/IG 不支援新好友關鍵字回覆\n• WhatsApp 格式嚴格驗證\n• 24小時訊息窗口\n\n影響:\n• Auto-reply 功能受限\n• 客戶期望 vs 實際能力落差\n\n多個 P2 Auto-reply ticket","size":24},{"id":83,"label":"Root Cause:\nWebhook\nIssues","group":"rootcause","title":"🔍 Webhook 事件遺失\n\n客戶端 Webhook 轉發不穩定\nLINE follow 事件未接收\n導致聯絡人建立失敗\n\nMAAC webhook response >10s\n可能 timeout\n\n影響:\n• 新聯絡人未建立\n• Friend status 不正確\n• Journey 觸發遺漏","size":24},{"id":84,"label":"Root Cause:\nLegacy Code\nBugs","group":"rootcause","title":"🔍 舊版程式碼問題\n\nAuto-reply name 同步 bug\n頻道設定名稱未更新\nFrontend URL 設定錯誤\n\n影響:\n• Auto-reply 顯示舊名稱\n• Insight URL 設定不正確\n\n多個 P2 ticket 根因","size":22},{"id":85,"label":"Root Cause:\nAsync Processing\nDelay","group":"rootcause","title":"🔍 非同步處理延遲\n\nDeeplink 聯絡人更新需 2-3 分鐘\n背景處理完成前查詢顯示舊資料\n\n這是預期行為 (by design)\n非 bug，但客戶常誤解為問題\n\n影響:\n• Deeplink 報表數據延遲\n• Contact 資料更新延遲\n\n多個 Deeplink P2 ticket","size":22},{"id":86,"label":"PRD:\nProfile\nUnification","group":"spec","title":"📋 PRD — Contact Profile Unification\n\n定義 MAAC 跨通路合併邏輯:\n• 欄位覆寫優先順序\n• CID/line_uid/phone 作為 key\n• MAAC↔CAAC↔CDH 三方同步規則\n• 合併權重計算\n\n影響範圍: Contact, CDH, CAAC","size":22},{"id":87,"label":"PRD:\nJourney\nArchitecture","group":"spec","title":"📋 Journey Architecture & Design\n\n定義 Rubato 引擎:\n• Trigger → Action → Wait 流程\n• Token Exchange for EDM\n• 狀態機 (READY→RUNNING→ENDED)\n• Node Performance 指標\n\n影響: Journey, Epistola, SendGrid","size":22},{"id":88,"label":"PRD:\nEDM in\nJourney","group":"spec","title":"📋 EDM (Email) in Customer Journey\n\n• Architecture Overview\n• Token Exchange API\n• Onboarding Contact Management\n• Admin Center 設定\n• Sender Domain 驗證流程\n\n影響: Email Channel, SendGrid","size":22},{"id":89,"label":"PRD:\nCDH Tag\nJourney Rule","group":"spec","title":"📋 CDH Tag Journey Rule\n\n定義 CDH 標籤觸發 Journey 規則:\n• inherited tag 處理邏輯\n• 跨平台標籤一致性\n• Tag 變更事件觸發條件\n\n影響: Tag Sync, Journey, CDH","size":20},{"id":90,"label":"PRD:\nNode\nPerformance","group":"spec","title":"📋 Journey Node Performance\n\n定義每節點績效指標:\n• send/open/click 率計算\n• 漏斗分析邏輯\n• 資料聚合方式","size":18},{"id":91,"label":"PRD:\nCustomer\n360","group":"spec","title":"📋 CL Customer 360\n\n統一客戶視圖:\n• Group Profile / Contact Profile\n• 跨 MAAC-CAAC-CDH 整合\n• 360 度客戶資料整合","size":20},{"id":92,"label":"PRD:\nSmart Sending\nRedesign","group":"spec","title":"📋 Smart Sending Redesign\n\n重新設計智慧發送:\n• 最佳發送時間演算法\n• 歷史互動行為分析\n• 與 Segment 整合","size":18},{"id":93,"label":"🟠 Zero Tag Coverage in M","group":"issue","title":"🟠 P1 - Very High\n📋 Zero Tag Coverage in MAAC Data Insights\n\n📅 Date: 2026 -02-09\n🏢 Client: all brands\n👤 Owner: Gideon\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The 'report \\_membertrenddailyreport' table, which is updated via an Airflow job, did not  populate correctly, resulting in ze\n\n🔗 Asana: 1213185386062836\nURL: https://app.asana.com/1/1184020052539844/task/1213185386062836","size":14},{"id":94,"label":"🟠 Missing Data in Data I","group":"issue","title":"🟠 P1 - Very High\n📋 Missing Data in Data Insights Report for December 26 and 27\n\n📅 Date: 2025 -12-29\n🏢 Client: N/A\n👤 Owner: David\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The Airflow DAG responsible for upserting daily report data from BigQuery to PostgreSQL  either failed or did not run on Decem\n\n🔗 Asana: 1212601716064139\nURL: https://app.asana.com/1/1184020052539844/task/1212601716064139","size":14},{"id":95,"label":"🟡 Data Discrepancy in De","group":"issue","title":"🟡 P2\n📋 Data Discrepancy in Deeplink Reports\n\n📅 Date: 2025 -12-02\n🏢 Client: 長汎假期\n👤 Owner: Tracy\n📊 Result: Too costly\n\n🔍 Root Cause:\n* **Root Cause:**     * There is a known systemic data inconsistency within the MAAC \"Insight\" module. This  issue is due to a lack of resources for a\n\n🔗 Asana: 1212213023126579\nURL: https://app.asana.com/1/1184020052539844/task/1212213023126579","size":12},{"id":96,"label":"🟡 Discrepancy in Custome","group":"issue","title":"🟡 P2\n📋 Discrepancy in Customer ID Binding Rates\n\n📅 Date: 2025 -11-27\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * Internal system checks confirmed that the insight page and contact CID counts are  accurate and consistent. The discrepancy li\n\n🔗 Asana: 1212207562464141\nURL: https://app.asana.com/1/1184020052539844/task/1212207562464141","size":12},{"id":97,"label":"🟡 Data Discrepancy in MA","group":"issue","title":"🟡 P2\n📋 Data Discrepancy in MAAC Acquisition Dashboard\n\n📅 Date: 2025 -11-18\n🏢 Client: \\[REDACTED]\n👤 Owner: Jalex\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The discrepancy is due to the MAAC acquisition dashboard's complex and legacy data  pipeline, which incorrectly aggregates Dee\n\n🔗 Asana: 1211976775930269\nURL: https://app.asana.com/1/1184020052539844/task/1211976775930269","size":12},{"id":98,"label":"🟡 Unresponsive \"View Sen","group":"issue","title":"🟡 P2\n📋 Unresponsive \"View Send Record\" Button in MAAC SMS+ Insight\n\n📅 Date: 2025 -10-29\n🏢 Client: N/A\n👤 Owner: Jack Lee\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n**Root Cause:** The frontend URL for the \"View Send Record\" button was incorrectly  configured. This was an oversight from previous SMS+ API developme\n\n🔗 Asana: 1211780759562084\nURL: https://app.asana.com/1/1184020052539844/task/1211780759562084","size":12},{"id":99,"label":"🟡 Incorrect Auto -Reply ","group":"issue","title":"🟡 P2\n📋 Incorrect Auto -Reply Name in Weekly Report\n\n📅 Date: 2025 -10-21\n🏢 Client: \\[REDACTED]\n👤 Owner: Jack Lee, Jalex\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The issue was identified as a legacy synchronization bug. When the primary name of an  auto-reply was updated, its internal \"c\n\n🔗 Asana: 1211693894670618\nURL: https://app.asana.com/1/1184020052539844/task/1211693894670618","size":12},{"id":100,"label":"🟡 Non -Unique Click Coun","group":"issue","title":"🟡 P2\n📋 Non -Unique Click Counts in Broadcast Messages\n\n📅 Date: 2025 -10-01\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The unique clicks are tracked using GA4 and UTM parameters. The client used the same  UTM combination across different broadca\n\n🔗 Asana: 1211518421816701\nURL: https://app.asana.com/1/1184020052539844/task/1211518421816701","size":12},{"id":101,"label":"🟡 Zero Tag Coverage on I","group":"issue","title":"🟡 P2\n📋 Zero Tag Coverage on Insight Page for All Brands\n\n📅 Date: 2025 -09-22\n🏢 Client: all\n👤 Owner: Leo\n📊 Result: Limit information\n\n🔍 Root Cause:\n* **Root Cause:** An oversight occurred during a member health data pipeline rerun from  2025 -09-01 to 2025 -09-10, leading to incorrect historical T\n\n🔗 Asana: 1211426159186280\nURL: https://app.asana.com/1/1184020052539844/task/1211426159186280","size":12},{"id":102,"label":"🟡 Discrepancy in Custome","group":"issue","title":"🟡 P2\n📋 Discrepancy in Customer ID Binding Rate on MAAC LINE Overview\n\n📅 Date: 2025 -09-15\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * A bug in the MAAC Insight page caused incorrect reporting of the \"bound contacts\"  metric.   * **Solution:**     * The bug was\n\n🔗 Asana: 1211358426495869\nURL: https://app.asana.com/1/1184020052539844/task/1211358426495869","size":12},{"id":103,"label":"🟡 Membership Binding Ano","group":"issue","title":"🟡 P2\n📋 Membership Binding Anomalies in Data Insights\n\n📅 Date: 2025 -09-15\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Limit information\n\n🔍 Root Cause:\n* **Root Cause:**     * The \"bound contacts\" metric in Data Insights likely counts only \"valid/active contacts\" with  a customer \\_id. User blocks (un\n\n🔗 Asana: 1211356786872970\nURL: https://app.asana.com/1/1184020052539844/task/1211356786872970","size":12},{"id":104,"label":"🟡 Open Rate Hotspot Disc","group":"issue","title":"🟡 P2\n📋 Open Rate Hotspot Discrepancies in MAAC Insight\n\n📅 Date: 2025 -09-15\n🏢 Client: 台灣優衣庫有限公司 -UNIQLO （2025 ）\n👤 Owner: JY\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The anomaly was likely due to temporary data accumulation and calibration delays during  the early onboarding phase of a new M\n\n🔗 Asana: 1211353841908307\nURL: https://app.asana.com/1/1184020052539844/task/1211353841908307","size":12},{"id":105,"label":"🟡 Mapping Count Recognit","group":"issue","title":"🟡 P2\n📋 Mapping Count Recognition Failure for Customer ID\n\n📅 Date: 2025 -09-11\n🏢 Client: Fits corporation\n👤 Owner: Leo\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:** A minor bug was introduced during a recent Airflow optimization, affecting  the display of \"Customer ID binding rate\" on the MAAC in\n\n🔗 Asana: 1211314354463888\nURL: https://app.asana.com/1/1184020052539844/task/1211314354463888","size":12},{"id":106,"label":"🟡 Auto -Reply Ranking Di","group":"issue","title":"🟡 P2\n📋 Auto -Reply Ranking Display in Insight Reports\n\n📅 Date: 2025 -09-09\n🏢 Client: 長汎假期\n👤 Owner: Aaren\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The backend query for auto -reply engagement data incorrectly included message editor  settings. The API response lacked a uni\n\n🔗 Asana: 1211298009313561\nURL: https://app.asana.com/1/1184020052539844/task/1211298009313561","size":12},{"id":107,"label":"🟡 Message Discrepancy Be","group":"issue","title":"🟡 P2\n📋 Message Discrepancy Between MAAC and LINE CMS\n\n📅 Date: 2025 -09-08\n🏢 Client: Raipirab\n👤 Owner: David, Leo\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The discrepancy arises from a definitional difference. MAAC's \"Message Pushed\" metric  includes both push and reply messages, \n\n🔗 Asana: 1211285609853706\nURL: https://app.asana.com/1/1184020052539844/task/1211285609853706","size":12},{"id":108,"label":"🔴 Data Insights Display ","group":"issue","title":"🔴 P0 - Emergency\n📋 Data Insights Display Anomalies in Multi -Brand Segments\n\n📅 Date: 2026 -02-05\n🏢 Client: 東森得易購股份有限公司 -東森購物\n👤 Owner: David\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * Data errors occurred during the backfill of the `deleted_at` column, leading to missing  members in segment calculations that \n\n🔗 Asana: 1213131750073052\nURL: https://app.asana.com/1/1184020052539844/task/1213131750073052","size":16},{"id":109,"label":"🟠 Reduced Recipient Coun","group":"issue","title":"🟠 P1 - Very High\n📋 Reduced Recipient Count in Scheduled Smart Sending\n\n📅 Date: 2026 -02-05\n🏢 Client: \\[REDACTED]\n👤 Owner: David\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * A data backfill process introduced incorrect data, resulting in missing members from  audience segmentation calculations. This\n\n🔗 Asana: 1213115186501137\nURL: https://app.asana.com/1/1184020052539844/task/1213115186501137","size":14},{"id":110,"label":"🔴 Contact Discrepancy in","group":"issue","title":"🔴 P0 - Emergency\n📋 Contact Discrepancy in LINE Segment\n\n📅 Date: 2026 -02-05\n🏢 Client: Muang Thai Life\n👤 Owner: David\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:** A data backfill process introduced incorrect data, leading to some  members being excluded from audience segmentation calculations. \n\n🔗 Asana: 1213084606836149\nURL: https://app.asana.com/1/1184020052539844/task/1213084606836149","size":16},{"id":111,"label":"🟡 CID Field Data Discrep","group":"issue","title":"🟡 P2\n📋 CID Field Data Discrepancy in Segment Export\n\n📅 Date: 2026 -02-02\n🏢 Client: \\[REDACTED]\n👤 Owner: David\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * Users updated their CID status after the segment was calculated but before the broadcast  message was sent. Additionally, a fr\n\n🔗 Asana: 1213076444939189\nURL: https://app.asana.com/1/1184020052539844/task/1213076444939189","size":12},{"id":112,"label":"🟠 Segment Update Failure","group":"issue","title":"🟠 P1 - Very High\n📋 Segment Update Failure in MAAC\n\n📅 Date: 2026 -01-13\n🏢 Client: ホテラバ\n👤 Owner: JY\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:** An interface error corrupted parameter calls for manual updates on  segments containing exclusion conditions, preventing the API exe\n\n🔗 Asana: 1212760165483455\nURL: https://app.asana.com/1/1184020052539844/task/1212760165483455","size":14},{"id":113,"label":"🟡 Segment Update Failure","group":"issue","title":"🟡 P2\n📋 Segment Update Failure in MAAC System\n\n📅 Date: 2026 -01-13\n🏢 Client: \\[REDACTED]\n👤 Owner: JY\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The segment editing process was missing a critical internal parameter (import \\_key)  during the file re -upload, which interr\n\n🔗 Asana: 1212739151110360\nURL: https://app.asana.com/1/1184020052539844/task/1212739151110360","size":12},{"id":114,"label":"🟡 Identical Contact Numb","group":"issue","title":"🟡 P2\n📋 Identical Contact Numbers Across Different Segments\n\n📅 Date: 2026 -01-09\n🏢 Client: Tiffanyandco\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The segments were configured using \"any filter\" (OR) logic with a set of broad tags (PM,  PI, RM, Jewelry) that collectively c\n\n🔗 Asana: 1212714239759016\nURL: https://app.asana.com/1/1184020052539844/task/1212714239759016","size":12},{"id":115,"label":"🟡 Smart Sending Suspensi","group":"issue","title":"🟡 P2\n📋 Smart Sending Suspension Request\n\n📅 Date: 2026 -01-02\n🏢 Client: \\[REDACTED]\n👤 Owner: Gideon\n📊 Result: Task -Ticket\n\n🔍 Root Cause:\n* **Root Cause:**     * The broadcast was interrupted due to an unverified assumption by the client, which led to  an unnecessary pause.   * **Solutio\n\n🔗 Asana: 1212617985199028\nURL: https://app.asana.com/1/1184020052539844/task/1212617985199028","size":12},{"id":116,"label":"🟡 Zero Data in High Purc","group":"issue","title":"🟡 P2\n📋 Zero Data in High Purchase Probability LINE Contacts Segment\n\n📅 Date: 2025 -12-22\n🏢 Client: 台灣優衣庫有限公司 -UNIQLO\n👤 Owner: Aaren, David\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * Uniqlo's website redirect process drops the `utm_term` parameter, which includes the  `lm:member_id` for individual contact tr\n\n🔗 Asana: 1212543508010702\nURL: https://app.asana.com/1/1184020052539844/task/1212543508010702","size":12},{"id":117,"label":"🟡 Segment Data Export Fo","group":"issue","title":"🟡 P2\n📋 Segment Data Export Format Changes\n\n📅 Date: 2025 -12-17\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The segment \"251217 \\_Broadcast \\_SP+Product Recommendation\" was defined without  criteria to include phone contacts. Therefor\n\n🔗 Asana: 1212465993341273\nURL: https://app.asana.com/1/1184020052539844/task/1212465993341273","size":12},{"id":118,"label":"🟡 AI Segment Displaying ","group":"issue","title":"🟡 P2\n📋 AI Segment Displaying Zero Results\n\n📅 Date: 2025 -12-03\n🏢 Client: \\[REDACTED]\n👤 Owner: N/A\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The AI Segment dynamically selects its data sources. Currently, only the  TAG\\_AND \\_COMMENT source is fully implemented. The \n\n🔗 Asana: 1212277836186691\nURL: https://app.asana.com/1/1184020052539844/task/1212277836186691","size":12},{"id":119,"label":"🟡 GA Tracking Failure in","group":"issue","title":"🟡 P2\n📋 GA Tracking Failure in MAAC EC -Features\n\n📅 Date: 2025 -12-03\n🏢 Client: Test -Sunto Peerapol\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The MAAC system's GA4 authorization account ( \\[REDACTED \\_EMAIL]) lacked proper  permissions in the client's GA4 backend for \n\n🔗 Asana: 1212252476377404\nURL: https://app.asana.com/1/1184020052539844/task/1212252476377404","size":12},{"id":120,"label":"🟡 Audience Exclusion Lim","group":"issue","title":"🟡 P2\n📋 Audience Exclusion Limit Reached in MAAC -Segment\n\n📅 Date: 2025 -11-28\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * There was a misunderstanding regarding the segment exclusion depth limit. The system's  depth limit applies to sequential excl\n\n🔗 Asana: 1212212478568915\nURL: https://app.asana.com/1/1184020052539844/task/1212212478568915","size":12},{"id":121,"label":"🟡 Unexpected Segment Fil","group":"issue","title":"🟡 P2\n📋 Unexpected Segment Filtering Results\n\n📅 Date: 2025 -11-25\n🏢 Client: 星巴克 Starbucks\n👤 Owner: Jack Lee, George\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The issue was due to delayed or incomplete data synchronization for the segment. This  required manual intervention to supplem\n\n🔗 Asana: 1212086489143431\nURL: https://app.asana.com/1/1184020052539844/task/1212086489143431","size":12},{"id":122,"label":"🟠 Unexpected Segment Cal","group":"issue","title":"🟠 P1 - Very High\n📋 Unexpected Segment Calculation Results\n\n📅 Date: 2025 -11-25\n🏢 Client: FUJI 按摩椅\n👤 Owner: George, Jack Lee\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The issue was related to the development of the WhatsApp Segment (WA Segment)  feature. Adding reachability data triggered an \n\n🔗 Asana: 1212084549273717\nURL: https://app.asana.com/1/1184020052539844/task/1212084549273717","size":14},{"id":123,"label":"🟠 Unexpected MAAC Segmen","group":"issue","title":"🟠 P1 - Very High\n📋 Unexpected MAAC Segment Count Discrepancy\n\n📅 Date: 2025 -11-25\n🏢 Client: imager 37\n👤 Owner: George\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * During the development of the WhatsApp Segment (WA Segment) functionality, the  addition of reachability data inadvertently tr\n\n🔗 Asana: 1212084549273694\nURL: https://app.asana.com/1/1184020052539844/task/1212084549273694","size":14},{"id":124,"label":"🟡 Inaccurate AI Segment ","group":"issue","title":"🟡 P2\n📋 Inaccurate AI Segment Creation\n\n📅 Date: 2025 -11-20\n🏢 Client: TelemedicineSCH\n👤 Owner: Jack Lee\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The AI model adjustment on December 8 improved overall accuracy but failed to address  the specific issue of segment generatio\n\n🔗 Asana: 1212000598445419\nURL: https://app.asana.com/1/1184020052539844/task/1212000598445419","size":12},{"id":125,"label":"🟡 AI Segmentation Failur","group":"issue","title":"🟡 P2\n📋 AI Segmentation Failure in Broadcast\n\n📅 Date: 2025 -11-12\n🏢 Client: \\[REDACTED]\n👤 Owner: Jack Lee\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The AI segmentation relies on MAAC tags and notes as data sources. The prompt  \"Message input 111\" was too vague and did not m\n\n🔗 Asana: 1211919837362932\nURL: https://app.asana.com/1/1184020052539844/task/1211919837362932","size":12},{"id":126,"label":"🟡 Limited Broadcast Reac","group":"issue","title":"🟡 P2\n📋 Limited Broadcast Reach in MAAC System\n\n📅 Date: 2025 -11-03\n🏢 Client: BEIGY\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The client's LINE official account had reached its monthly message quota. This resulted in  a 429 status code (\"You have reach\n\n🔗 Asana: 1211818294292311\nURL: https://app.asana.com/1/1184020052539844/task/1211818294292311","size":12},{"id":127,"label":"🟡 Discrepancy in MAAC Se","group":"issue","title":"🟡 P2\n📋 Discrepancy in MAAC Segment Import Counts\n\n📅 Date: 2025 -10-28\n🏢 Client: MRM Japan/BOSS Japan\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:** The client's uploaded CSV file contained duplicate LINE UIDs. MAAC's  segment creation process correctly filters and counts only uni\n\n🔗 Asana: 1209226325083447\nURL: https://app.asana.com/1/1184020052539844/task/1209226325083447","size":12},{"id":128,"label":"🟡 AI Segment Results Dis","group":"issue","title":"🟡 P2\n📋 AI Segment Results Discrepancy in Insurverse Campaign\n\n📅 Date: 2025 -10-15\n🏢 Client: Insurverse\n👤 Owner: Ray\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:** The current system design of the CDH has a known limitation in real -time  synchronization of specific behavioral tags between MAAC \n\n🔗 Asana: 1211648131247953\nURL: https://app.asana.com/1/1184020052539844/task/1211648131247953","size":12},{"id":129,"label":"🟡 Anomalous Segment Coun","group":"issue","title":"🟡 P2\n📋 Anomalous Segment Count in MAAC -Segment\n\n📅 Date: 2025 -09-08\n🏢 Client: 主富服裝股份有限公司 - NET\n👤 Owner: Leo\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The issue appears to be related to a data integrity or calculation error within the MAAC  segmentation feature, affecting the \n\n🔗 Asana: 1211285615645748\nURL: https://app.asana.com/1/1184020052539844/task/1211285615645748","size":12},{"id":130,"label":"🟡 Upload Failure in MAAC","group":"issue","title":"🟡 P2\n📋 Upload Failure in MAAC -Segment\n\n📅 Date: 2025 -05-26\n🏢 Client: 酷澎\n👤 Owner: JY\n📊 Result: Limit information\n\n🔍 Root Cause:\n* **Root Cause:**     * The root cause remains undetermined. Internal testing with similar large files (199k  records) on the client's bot was success\n\n🔗 Asana: 1210376434573383\nURL: https://app.asana.com/1/1184020052539844/task/1210376434573383","size":12},{"id":131,"label":"🟡 Tagging Failure After ","group":"issue","title":"🟡 P2\n📋 Tagging Failure After Clicking Broadcast Message Card\n\n📅 Date: 2025 -12-05\n🏢 Client: 新莊典華\n👤 Owner: Jalex\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * A synchronization delay existed between the creation/modification of \"message \\_editor\"  settings and their associated tag dat\n\n🔗 Asana: 1212314620645881\nURL: https://app.asana.com/1/1184020052539844/task/1212314620645881","size":12},{"id":132,"label":"🟡 Tag Discrepancy Betwee","group":"issue","title":"🟡 P2\n📋 Tag Discrepancy Between MAAC and Emarsys\n\n📅 Date: 2025 -11-07\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The discrepancy arises because Emarsys's query includes a time -based filter, whereas  MAAC's tag count reflects all contacts \n\n🔗 Asana: 1211876667612502\nURL: https://app.asana.com/1/1184020052539844/task/1211876667612502","size":12},{"id":133,"label":"🟡 Irregular Tag Synchron","group":"issue","title":"🟡 P2\n📋 Irregular Tag Synchronization from CAAC to MAAC\n\n📅 Date: 2025 -10-31\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The manual replication of CAAC tag applications in the MAAC UI is due to a perceived  lack of automatic synchronization from C\n\n🔗 Asana: 1211802724129394\nURL: https://app.asana.com/1/1184020052539844/task/1211802724129394","size":12},{"id":134,"label":"🟡 Tag Reappearance in MA","group":"issue","title":"🟡 P2\n📋 Tag Reappearance in MAAC System\n\n📅 Date: 2025 -10-17\n🏢 Client: 全家便利商店股份有限公司 -全家 FamilyMart\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * System Design: Deleting a tag does not deactivate existing actions (e.g., from old  campaigns, pushes, or rich menu links) con\n\n🔗 Asana: 1211669157227422\nURL: https://app.asana.com/1/1184020052539844/task/1211669157227422","size":12},{"id":135,"label":"🟡 Discrepancy in Tag Lis","group":"issue","title":"🟡 P2\n📋 Discrepancy in Tag List and Deep Link Data\n\n📅 Date: 2025 -10-13\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Limit information\n\n🔍 Root Cause:\n* **Root Cause:**   --- PAGE 204 ---   * The discrepancy was due to the tag being applied through multiple client operations or  links, not solely via\n\n🔗 Asana: 1211622605919662\nURL: https://app.asana.com/1/1184020052539844/task/1211622605919662","size":12},{"id":136,"label":"🟡 Tag Addition Delay in ","group":"issue","title":"🟡 P2\n📋 Tag Addition Delay in MAAC Contact List\n\n📅 Date: 2025 -10-07\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n--- PAGE 205 ---   * **Root Cause:**     * The tagging operations are correctly recorded in the backend, as confirmed by audit logs.  The delay is due\n\n🔗 Asana: 1211575001403892\nURL: https://app.asana.com/1/1184020052539844/task/1211575001403892","size":12},{"id":137,"label":"🟡 Unexpected Tag Appeara","group":"issue","title":"🟡 P2\n📋 Unexpected Tag Appearance in MAAC\n\n📅 Date: 2025 -10-02\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The tag was created via a Messagelink action and immediately soft -deleted on 2025 -10- 02. It is suspected to be due to user \n\n🔗 Asana: 1211528743341634\nURL: https://app.asana.com/1/1184020052539844/task/1211528743341634","size":12},{"id":138,"label":"🟡 Extended Tag Deletion ","group":"issue","title":"🟡 P2\n📋 Extended Tag Deletion Time in MAAC -Tag\n\n📅 Date: 2025 -09-03\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Too costly\n\n🔍 Root Cause:\n* **Root Cause:** The system performs checks on all associated contacts when a tag is  deleted. For accounts with a large contact base, this process i\n\n🔗 Asana: 1211222283206634\nURL: https://app.asana.com/1/1184020052539844/task/1211222283206634","size":12},{"id":139,"label":"🟡 Tag Disappearance Afte","group":"issue","title":"🟡 P2\n📋 Tag Disappearance After Name Change in Message Module\n\n📅 Date: 2025 -06-26\n🏢 Client: N/A\n👤 Owner: Xander\n📊 Result: Limit information\n\n🔍 Root Cause:\n--- PAGE 208 --- * **Root Cause:** The root cause is currently under investigation. An initial assessment by  the engineering team suggests a general \n\n🔗 Asana: 1210638961172045\nURL: https://app.asana.com/1/1184020052539844/task/1210638961172045","size":12},{"id":140,"label":"🟡 Broadcast Delivery Fai","group":"issue","title":"🟡 P2\n📋 Broadcast Delivery Failure to Active Contacts\n\n📅 Date: 2025 -10-06\n🏢 Client: IXION - みんカラ\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The user ultimately confirmed receipt of the broadcast. The initial report of non -receipt  was inaccurate or based on a misun\n\n🔗 Asana: 1211557302787615\nURL: https://app.asana.com/1/1184020052539844/task/1211557302787615","size":12},{"id":141,"label":"🟡 Incorrect Rich Menu Ta","group":"issue","title":"🟡 P2\n📋 Incorrect Rich Menu Tagging After Contact Import via API\n\n📅 Date: 2025 -10-31\n🏢 Client: Advance Medical Clinic\n👤 Owner: David\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n--- PAGE 212 ---   * **Root Cause:**     * The MAAC system logs do not indicate any internal unlinking of Rich Menus. Engineering  monitoring confirme\n\n🔗 Asana: 1211803131074457\nURL: https://app.asana.com/1/1184020052539844/task/1211803131074457","size":12},{"id":142,"label":"🟡 Auto -Reply Trigger Fa","group":"issue","title":"🟡 P2\n📋 Auto -Reply Trigger Failure on Facebook Messenger\n\n📅 Date: 2026 -02-06\n🏢 Client: N/A\n👤 Owner: Kade\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:** The MAAC system design, in compliance with Meta's policy, blocks  keyword auto -replies for new contacts. The recipient type \"New Fr\n\n🔗 Asana: 1213145171671763\nURL: https://app.asana.com/1/1184020052539844/task/1213145171671763","size":12},{"id":143,"label":"🟡 Keyword Case Sensitivi","group":"issue","title":"🟡 P2\n📋 Keyword Case Sensitivity Issue in MAAC Auto -Reply\n\n📅 Date: 2026 -02-04\n🏢 Client: \\[REDACTED]\n👤 Owner: Jack Lee\n📊 Result: Task -Ticket\n\n🔍 Root Cause:\n* **Root Cause:** The current keyword mechanism in MAAC lacks support for case  sensitivity, leading to automatic conversion to lowercase.   * **Solut\n\n🔗 Asana: 1213109852110296\nURL: https://app.asana.com/1/1184020052539844/task/1213109852110296","size":12},{"id":144,"label":"🟡 Auto -Reply Delays and","group":"issue","title":"🟡 P2\n📋 Auto -Reply Delays and Failures in Specific Time Intervals\n\n📅 Date: 2026 -01-15\n🏢 Client: Deanston \\[REDACTED]\n👤 Owner: JY\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The LINE channel access token for the client's MAAC organization expired prematurely.  This was due to either another system o\n\n🔗 Asana: 1212806889218671\nURL: https://app.asana.com/1/1184020052539844/task/1212806889218671","size":12},{"id":145,"label":"🟡 Keyword Auto -Reply Tr","group":"issue","title":"🟡 P2\n📋 Keyword Auto -Reply Trigger Issue on Instagram\n\n📅 Date: 2026 -01-13\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:** The MAAC's Meta channel keyword auto -reply feature does not support  sending messages to new contacts. The system classifies the fi\n\n🔗 Asana: 1212740607334933\nURL: https://app.asana.com/1/1184020052539844/task/1212740607334933","size":12},{"id":146,"label":"🟡 Image Carousel Additio","group":"issue","title":"🟡 P2\n📋 Image Carousel Addition Failure in Auto -Reply\n\n📅 Date: 2025 -12-19\n🏢 Client: Panpuri\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The root cause is undetermined as the issue is not reproducible by the Engineering team.   * **Solution:**     * A temporary w\n\n🔗 Asana: 1212516260073008\nURL: https://app.asana.com/1/1184020052539844/task/1212516260073008","size":12},{"id":147,"label":"🟡 Auto -Reply Failure on","group":"issue","title":"🟡 P2\n📋 Auto -Reply Failure on Instagram\n\n📅 Date: 2025 -12-03\n🏢 Client: creammm.t\n👤 Owner: Jalex\n📊 Result: Too costly\n\n🔍 Root Cause:\n* **Root Cause:** The MAAC system's logic for Meta channels does not support sending  keyword -triggered auto -replies to \"new contacts.\" The system d\n\n🔗 Asana: 1212278988595118\nURL: https://app.asana.com/1/1184020052539844/task/1212278988595118","size":12},{"id":148,"label":"🟡 Anomalous Data in Auto","group":"issue","title":"🟡 P2\n📋 Anomalous Data in Auto Reply Feature\n\n📅 Date: 2025 -11-28\n🏢 Client: Vitabox 維他盒子\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The MAAC system aggregates performance metrics for the \"send message\" component  based on message text content rather than the\n\n🔗 Asana: 1212207746495315\nURL: https://app.asana.com/1/1184020052539844/task/1212207746495315","size":12},{"id":149,"label":"🟡 Auto -Reply Editing Fa","group":"issue","title":"🟡 P2\n📋 Auto -Reply Editing Failure in MAAC System\n\n📅 Date: 2025 -11-25\n🏢 Client: \\[REDACTED]\n👤 Owner: Jalex\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:**     * The legacy auto -reply data contained parameters with empty URL strings. The current  frontend validation requires valid URLs,\n\n🔗 Asana: 1212084549446863\nURL: https://app.asana.com/1/1184020052539844/task/1212084549446863","size":12},{"id":150,"label":"🟡 Error Code and Content","group":"issue","title":"🟡 P2\n📋 Error Code and Content Loss During Editing\n\n📅 Date: 2025 -11-19\n🏢 Client: 法國在台協會\n👤 Owner: Tracy\n📊 Result: Too costly\n\n🔍 Root Cause:\n* **Root Cause:**     * The exact root cause was not definitively identified. It appears to be an intermittent client - side or API error, as refreshi\n\n🔗 Asana: 1211990876371633\nURL: https://app.asana.com/1/1184020052539844/task/1211990876371633","size":12},{"id":151,"label":"🟡 Display Name Issue for","group":"issue","title":"🟡 P2\n📋 Display Name Issue for New OA Contacts\n\n📅 Date: 2025 -11-18\n🏢 Client: Vertex Clinic\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The issue arises when users do not grant third -party service permission via a LIFF page.  The LINE API restricts access to th\n\n🔗 Asana: 1211975651294654\nURL: https://app.asana.com/1/1184020052539844/task/1211975651294654","size":12},{"id":152,"label":"🟡 Unexpected Automated R","group":"issue","title":"🟡 P2\n📋 Unexpected Automated Reply in MAAC System\n\n📅 Date: 2025 -10-23\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:** The automated reply was configured in an external Content Management  System (CMS), which was not initially checked.   --- PAGE 228 \n\n🔗 Asana: 1211730242249302\nURL: https://app.asana.com/1/1184020052539844/task/1211730242249302","size":12},{"id":153,"label":"🟡 Image Display Issue in","group":"issue","title":"🟡 P2\n📋 Image Display Issue in MAAC Auto -Reply on Specific Device\n\n📅 Date: 2025 -10-16\n🏢 Client: BABI\n👤 Owner: Tracy\n📊 Result: Not our issue\n\n🔍 Root Cause:\n* **Root Cause:**     * The issue is likely client -side, possibly due to an outdated version of the LINE Desktop  application. There are unofficial r\n\n🔗 Asana: 1211658874580570\nURL: https://app.asana.com/1/1184020052539844/task/1211658874580570","size":12},{"id":154,"label":"🟡 Google Maps Link Displ","group":"issue","title":"🟡 P2\n📋 Google Maps Link Display Issue in MAAC Auto -Reply\n\n📅 Date: 2025 -10-02\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**   --- PAGE 230 ---   * The issue stems from complex Google Maps URLs with coordinates being corrupted due  to encoding issues when p\n\n🔗 Asana: 1211529952491962\nURL: https://app.asana.com/1/1184020052539844/task/1211529952491962","size":12},{"id":155,"label":"🟡 Keyword Auto -Reply Fa","group":"issue","title":"🟡 P2\n📋 Keyword Auto -Reply Failure in MAAC System\n\n📅 Date: 2025 -10-01\n🏢 Client: Hotel Lovers\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n--- PAGE 231 ---   * **Root Cause:** The client's LINE Developers Webhook URL was changed or removed,  and it was not pointing to Crescendo Lab. As a \n\n🔗 Asana: 1211518547270482\nURL: https://app.asana.com/1/1184020052539844/task/1211518547270482","size":12},{"id":156,"label":"🟡 Auto -Reply Discrepanc","group":"issue","title":"🟡 P2\n📋 Auto -Reply Discrepancy in MAAC Settings\n\n📅 Date: 2025 -09-19\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The client's LINE webhook forwards messages to their middleware (e.g., Cyberbiz). The  auto-reply originated from the client's\n\n🔗 Asana: 1211405329420293\nURL: https://app.asana.com/1/1184020052539844/task/1211405329420293","size":12},{"id":157,"label":"🟡 Missing Tag Applicatio","group":"issue","title":"🟡 P2\n📋 Missing Tag Application for New Contacts in Auto -Reply System\n\n📅 Date: 2025 -09-17\n🏢 Client: \\[REDACTED]\n👤 Owner: JY\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The MAAC system did not receive the LINE follow events for these users. The user  profiles were created through subsequent mes\n\n🔗 Asana: 1211383189088844\nURL: https://app.asana.com/1/1184020052539844/task/1211383189088844","size":12},{"id":158,"label":"🟡 Image Display Issues i","group":"issue","title":"🟡 P2\n📋 Image Display Issues in Facebook Messenger Card Messages\n\n📅 Date: 2025 -09-08\n🏢 Client: N/A\n👤 Owner: Jack Lee\n📊 Result: Not our issue\n\n🔍 Root Cause:\n* **Root Cause:** The issue is currently not reproducible by ProductOps or Engineering.  Initial investigation showed the image displaying correctly. \n\n🔗 Asana: 1211289255692411\nURL: https://app.asana.com/1/1184020052539844/task/1211289255692411","size":12},{"id":159,"label":"🟡 Deeplink Redirection F","group":"issue","title":"🟡 P2\n📋 Deeplink Redirection Failure in Meta Auto -reply\n\n📅 Date: 2025 -07-24\n🏢 Client: Org 1 Test Account\n👤 Owner: Tracy\n📊 Result: Too costly\n\n🔍 Root Cause:\n--- PAGE 235 --- * **Root Cause:** The issue arises from the behavior of MAAC's short URL (LIFF) when  opened in the iOS Messenger in -app browser. Th\n\n🔗 Asana: 1210875549357676\nURL: https://app.asana.com/1/1184020052539844/task/1210875549357676","size":12},{"id":160,"label":"🟡 Auto Reply Functionali","group":"issue","title":"🟡 P2\n📋 Auto Reply Functionality Failure\n\n📅 Date: 2025 -07-12\n🏢 Client: Demo \\_Thailand\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The auto -reply issue has been resolved, but the specific cause was not specified.     * The Facebook Quick Reply auto -taggin\n\n🔗 Asana: 1210776362195812\nURL: https://app.asana.com/1/1184020052539844/task/1210776362195812","size":12},{"id":161,"label":"🟡 Deeplink Redirection I","group":"issue","title":"🟡 P2\n📋 Deeplink Redirection Issue on Facebook App\n\n📅 Date: 2026 -02-02\n🏢 Client: \\[REDACTED]\n👤 Owner: N/A\n📊 Result: Not our issue\n\n🔍 Root Cause:\n* **Root Cause:**     * The Facebook mobile application modifies the casing of Deeplink URLs, which affects  case -sensitive parameters and leads to i\n\n🔗 Asana: 1213079624870420\nURL: https://app.asana.com/1/1184020052539844/task/1213079624870420","size":12},{"id":162,"label":"🟡 CLID Missing During De","group":"issue","title":"🟡 P2\n📋 CLID Missing During Deep Link Transitions\n\n📅 Date: 2026 -01-30\n🏢 Client: A10Lab\n👤 Owner: David\n📊 Result: Not our issue\n\n🔍 Root Cause:\n* **Root Cause:** The investigation confirmed that the MAAC system consistently appended  the CLID parameter during all redirections from the Deep Lin\n\n🔗 Asana: 1213035004023053\nURL: https://app.asana.com/1/1184020052539844/task/1213035004023053","size":12},{"id":163,"label":"🟡 Message Delivery Failu","group":"issue","title":"🟡 P2\n📋 Message Delivery Failure in Customer Journey\n\n📅 Date: 2025 -11-21\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:** The root cause was identified as the depletion of message credits on the  customer's LINE official account. This was not due to a de\n\n🔗 Asana: 1212011516046540\nURL: https://app.asana.com/1/1184020052539844/task/1212011516046540","size":12},{"id":164,"label":"🟡 Missing Coupon Deliver","group":"issue","title":"🟡 P2\n📋 Missing Coupon Delivery via Deeplink\n\n📅 Date: 2025 -11-03\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Limit information\n\n🔍 Root Cause:\n* **Root Cause:**     * MAAC logs confirm the deeplink was triggered, but there is no record of the message  being sent in the line \\_messagerecord. T\n\n🔗 Asana: 1211818239155742\nURL: https://app.asana.com/1/1184020052539844/task/1211818239155742","size":12},{"id":165,"label":"🟡 Deep Link Failure in F","group":"issue","title":"🟡 P2\n📋 Deep Link Failure in Facebook Environment\n\n📅 Date: 2025 -10-16\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Too costly\n\n🔍 Root Cause:\n* **Root Cause:**     * The deep link implementation incorrectly forced the opening of an external browser, which  conflicted with Meta's in -app brow\n\n🔗 Asana: 1211658876963521\nURL: https://app.asana.com/1/1184020052539844/task/1211658876963521","size":12},{"id":166,"label":"🟡 Deeplink Redirect Fail","group":"issue","title":"🟡 P2\n📋 Deeplink Redirect Failure in Facebook Messenger\n\n📅 Date: 2025 -09-26\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Too costly\n\n🔍 Root Cause:\n* **Root Cause:** The issue arises because the MAAC deeplink functionality does not  enforce opening in an external browser. Facebook Messenger's inte\n\n🔗 Asana: 1211476033978693\nURL: https://app.asana.com/1/1184020052539844/task/1211476033978693","size":12},{"id":167,"label":"🟡 Archived Deep Link Con","group":"issue","title":"🟡 P2\n📋 Archived Deep Link Content Display for New Friends\n\n📅 Date: 2025 -09-16\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The system design allows archived deep links to remain active and clickable. Data  confirmed that the two users clicked the sp\n\n🔗 Asana: 1211368444546388\nURL: https://app.asana.com/1/1184020052539844/task/1211368444546388","size":12},{"id":168,"label":"🟡 Android Incompatibilit","group":"issue","title":"🟡 P2\n📋 Android Incompatibility with MAAC Referral Link\n\n📅 Date: 2025 -09-15\n🏢 Client: 酷遊天國際旅行社股份有限公司 -KKday\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:** The issue is an interaction problem between a third -party application and  the Android operating system, not a fault of the MAAC pl\n\n🔗 Asana: 1211356153706723\nURL: https://app.asana.com/1/1184020052539844/task/1211356153706723","size":12},{"id":169,"label":"🟡 Deeplink Functionality","group":"issue","title":"🟡 P2\n📋 Deeplink Functionality in TikTok Ads\n\n📅 Date: 2025 -09-09\n🏢 Client: Krungsri Auto\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The behavior is attributed to TikTok's in -app browser mechanism. TikTok's in -app browser  opens LINE Universal Links within \n\n🔗 Asana: 1211292942830085\nURL: https://app.asana.com/1/1184020052539844/task/1211292942830085","size":12},{"id":170,"label":"🟡 Reauthorization Proces","group":"issue","title":"🟡 P2\n📋 Reauthorization Process for Existing LINE Users in MAAC Tracelink\n\n📅 Date: 2025 -11-05\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Task -Ticket\n\n🔍 Root Cause:\n* **Root Cause:** The internal cookie check within the MAAC tracelink mechanism prevents  previously authorized users from being redirected to the LIN\n\n🔗 Asana: 1211847487255320\nURL: https://app.asana.com/1/1184020052539844/task/1211847487255320","size":12},{"id":171,"label":"🟡 Inconsistent Page Redi","group":"issue","title":"🟡 P2\n📋 Inconsistent Page Redirection in MAAC Rich Menu\n\n📅 Date: 2025 -10-22\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The TraceLink URL (<https://maac.io/4Kh26>) correctly redirects to the client's configured  URL. The discrepancy arises from t\n\n🔗 Asana: 1211713182842659\nURL: https://app.asana.com/1/1184020052539844/task/1211713182842659","size":12},{"id":172,"label":"🟡 Safari Incompatibility","group":"issue","title":"🟡 P2\n📋 Safari Incompatibility with MAAC Tracking Links on iOS\n\n📅 Date: 2025 -09-17\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Not our issue\n\n🔍 Root Cause:\n* **Root Cause:**     * The issue is suspected to be an incompatibility between Safari on iOS 18.7 and MAAC's  redirect mechanism. It may also involve\n\n🔗 Asana: 1211379820597016\nURL: https://app.asana.com/1/1184020052539844/task/1211379820597016","size":12},{"id":173,"label":"🟠 Prize Management Editi","group":"issue","title":"🟠 P1 - Very High\n📋 Prize Management Editing Issue\n\n📅 Date: 2026 -01-16\n🏢 Client: N/A\n👤 Owner: Jack Lee\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:** A recent code deployment introduced a regression that caused the edit  functionality/icon for unexpired prizes to disappear.   * **S\n\n🔗 Asana: 1212834391682490\nURL: https://app.asana.com/1/1184020052539844/task/1212834391682490","size":14},{"id":174,"label":"🟡 \"Limit Reached\" Messag","group":"issue","title":"🟡 P2\n📋 \"Limit Reached\" Message and Prize Non -receipt in MAAC Lottery Poetry\n\n📅 Date: 2026 -01-09\n🏢 Client: ホテラバ\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * System Design: Game logs confirm the user did not win a prize, likely due to insufficient  or depleted prizes in the campaign.\n\n🔗 Asana: 1212713603195744\nURL: https://app.asana.com/1/1184020052539844/task/1212713603195744","size":12},{"id":175,"label":"🟡 Repeated Prize Redempt","group":"issue","title":"🟡 P2\n📋 Repeated Prize Redemption in JCB Event\n\n📅 Date: 2025 -11-26\n🏢 Client: JCB\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n--- PAGE 276 --- **Root Cause:** The client's system logic incorrectly assessed prize eligibility and API call  frequency, resulting in repeated API c\n\n🔗 Asana: 1212148507497017\nURL: https://app.asana.com/1/1184020052539844/task/1212148507497017","size":12},{"id":176,"label":"🟡 Unresponsive Redemptio","group":"issue","title":"🟡 P2\n📋 Unresponsive Redemption Voucher Click in MAAC -Prize Management\n\n📅 Date: 2025 -10-02\n🏢 Client: \\[REDACTED]\n👤 Owner: Tracy\n📊 Result: Clarify (Meet product expectation)\n\n🔍 Root Cause:\n* **Root Cause:**     * The root cause remains undetermined as the issue could not be reproduced by the CSM.  The specific reason for the redemption f\n\n🔗 Asana: 1211530080882418\nURL: https://app.asana.com/1/1184020052539844/task/1211530080882418","size":12},{"id":177,"label":"🟡 Prize Stock Alert Noti","group":"issue","title":"🟡 P2\n📋 Prize Stock Alert Notifications Despite High Inventory Levels\n\n📅 Date: 2025 -09-10\n🏢 Client: \\[REDACTED]\n👤 Owner: Yio\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:** The system's prize stock check job was running too frequently in relation  to the asynchronous prize import process. While prize set\n\n🔗 Asana: 1211310614292818\nURL: https://app.asana.com/1/1184020052539844/task/1211310614292818","size":12},{"id":178,"label":"🟠 Prize Delivery Failure","group":"issue","title":"🟠 P1 - Very High\n📋 Prize Delivery Failure in Rapid Referral Campaign\n\n📅 Date: 2025 -09-05\n🏢 Client: NA Bakery\n👤 Owner: Jack Lee\n📊 Result: Fix Problems\n\n🔍 Root Cause:\n* **Root Cause:** The prize message template for Rapid Referral campaigns incorrectly  included an empty 'hero' section (missing image URL and aspect \n\n🔗 Asana: 1211256941142756\nURL: https://app.asana.com/1/1184020052539844/task/1211256941142756","size":14}],"edges":[{"from":1,"to":2,"label":"","edge_type":"hierarchy"},{"from":1,"to":3,"label":"","edge_type":"hierarchy"},{"from":1,"to":4,"label":"","edge_type":"hierarchy"},{"from":1,"to":5,"label":"","edge_type":"hierarchy"},{"from":1,"to":6,"label":"","edge_type":"hierarchy"},{"from":1,"to":7,"label":"","edge_type":"hierarchy"},{"from":1,"to":8,"label":"","edge_type":"hierarchy"},{"from":1,"to":9,"label":"","edge_type":"hierarchy"},{"from":1,"to":10,"label":"","edge_type":"hierarchy"},{"from":1,"to":11,"label":"","edge_type":"hierarchy"},{"from":1,"to":12,"label":"","edge_type":"hierarchy"},{"from":1,"to":13,"label":"","edge_type":"hierarchy"},{"from":3,"to":14,"label":"","edge_type":"contains"},{"from":3,"to":15,"label":"","edge_type":"contains"},{"from":3,"to":16,"label":"","edge_type":"contains"},{"from":3,"to":17,"label":"","edge_type":"contains"},{"from":3,"to":18,"label":"","edge_type":"contains"},{"from":3,"to":19,"label":"","edge_type":"contains"},{"from":3,"to":20,"label":"","edge_type":"contains"},{"from":3,"to":21,"label":"","edge_type":"contains"},{"from":3,"to":22,"label":"","edge_type":"contains"},{"from":4,"to":23,"label":"","edge_type":"contains"},{"from":4,"to":24,"label":"","edge_type":"contains"},{"from":4,"to":25,"label":"","edge_type":"contains"},{"from":4,"to":26,"label":"","edge_type":"contains"},{"from":5,"to":27,"label":"","edge_type":"contains"},{"from":5,"to":28,"label":"","edge_type":"contains"},{"from":5,"to":29,"label":"","edge_type":"contains"},{"from":6,"to":30,"label":"","edge_type":"contains"},{"from":6,"to":31,"label":"","edge_type":"contains"},{"from":6,"to":32,"label":"","edge_type":"contains"},{"from":7,"to":33,"label":"","edge_type":"contains"},{"from":7,"to":34,"label":"","edge_type":"contains"},{"from":7,"to":35,"label":"","edge_type":"contains"},{"from":8,"to":36,"label":"","edge_type":"contains"},{"from":8,"to":37,"label":"","edge_type":"contains"},{"from":8,"to":38,"label":"","edge_type":"contains"},{"from":8,"to":39,"label":"","edge_type":"contains"},{"from":8,"to":40,"label":"","edge_type":"contains"},{"from":8,"to":41,"label":"","edge_type":"contains"},{"from":2,"to":42,"label":"","edge_type":"contains"},{"from":2,"to":43,"label":"","edge_type":"contains"},{"from":2,"to":44,"label":"","edge_type":"contains"},{"from":2,"to":45,"label":"","edge_type":"contains"},{"from":2,"to":46,"label":"","edge_type":"contains"},{"from":10,"to":47,"label":"","edge_type":"contains"},{"from":10,"to":48,"label":"","edge_type":"contains"},{"from":10,"to":49,"label":"","edge_type":"contains"},{"from":10,"to":50,"label":"","edge_type":"contains"},{"from":9,"to":51,"label":"","edge_type":"contains"},{"from":9,"to":52,"label":"","edge_type":"contains"},{"from":11,"to":53,"label":"","edge_type":"contains"},{"from":11,"to":54,"label":"","edge_type":"contains"},{"from":12,"to":55,"label":"","edge_type":"contains"},{"from":12,"to":56,"label":"","edge_type":"contains"},{"from":12,"to":57,"label":"","edge_type":"contains"},{"from":3,"to":4,"label":"提供聯絡人","edge_type":"data_flow"},{"from":3,"to":6,"label":"推播對象","edge_type":"data_flow"},{"from":3,"to":8,"label":"旅程成員","edge_type":"data_flow"},{"from":3,"to":7,"label":"回覆對象","edge_type":"data_flow"},{"from":3,"to":9,"label":"選單對象","edge_type":"data_flow"},{"from":3,"to":2,"label":"數據來源","edge_type":"data_flow"},{"from":4,"to":6,"label":"受眾篩選","edge_type":"data_flow"},{"from":4,"to":8,"label":"入口條件","edge_type":"data_flow"},{"from":4,"to":9,"label":"分眾顯示","edge_type":"data_flow"},{"from":5,"to":4,"label":"篩選條件","edge_type":"data_flow"},{"from":5,"to":3,"label":"標記聯絡人","edge_type":"data_flow"},{"from":5,"to":9,"label":"選單分群","edge_type":"data_flow"},{"from":5,"to":8,"label":"觸發/動作","edge_type":"data_flow"},{"from":5,"to":2,"label":"覆蓋率統計","edge_type":"data_flow"},{"from":6,"to":2,"label":"推播成效","edge_type":"data_flow"},{"from":6,"to":13,"label":"使用範本","edge_type":"data_flow"},{"from":32,"to":4,"label":"讀取分眾","edge_type":"data_flow"},{"from":7,"to":5,"label":"觸發加標","edge_type":"data_flow"},{"from":7,"to":2,"label":"回覆統計","edge_type":"data_flow"},{"from":8,"to":6,"label":"觸發推播","edge_type":"data_flow"},{"from":8,"to":5,"label":"加/移除標籤","edge_type":"data_flow"},{"from":8,"to":3,"label":"更新聯絡人","edge_type":"data_flow"},{"from":8,"to":12,"label":"獎品發放","edge_type":"data_flow"},{"from":10,"to":3,"label":"新聯絡人歸因","edge_type":"data_flow"},{"from":10,"to":2,"label":"Deeplink 報表","edge_type":"data_flow"},{"from":11,"to":2,"label":"點擊報表","edge_type":"data_flow"},{"from":9,"to":10,"label":"選單連結","edge_type":"data_flow"},{"from":12,"to":8,"label":"獎品節點","edge_type":"data_flow"},{"from":12,"to":6,"label":"推播發獎","edge_type":"data_flow"},{"from":26,"to":4,"label":"讀取分眾","edge_type":"data_flow"},{"from":25,"to":69,"label":"ML 模型資料","edge_type":"data_flow"},{"from":50,"to":17,"label":"綁定頁面","edge_type":"data_flow"},{"from":41,"to":66,"label":"認證","edge_type":"data_flow"},{"from":60,"to":3,"label":"Webhook 同步","edge_type":"infra_dep"},{"from":60,"to":18,"label":"好友狀態事件","edge_type":"infra_dep"},{"from":60,"to":19,"label":"Profile 同步","edge_type":"infra_dep"},{"from":60,"to":7,"label":"接收訊息","edge_type":"infra_dep"},{"from":60,"to":6,"label":"Push Message","edge_type":"infra_dep"},{"from":60,"to":9,"label":"Rich Menu API","edge_type":"infra_dep"},{"from":61,"to":7,"label":"FB/IG 訊息","edge_type":"infra_dep"},{"from":61,"to":35,"label":"政策限制","edge_type":"infra_dep"},{"from":61,"to":22,"label":"WhatsApp API","edge_type":"infra_dep"},{"from":62,"to":38,"label":"Email 發送","edge_type":"infra_dep"},{"from":62,"to":21,"label":"DNS 驗證","edge_type":"infra_dep"},{"from":63,"to":2,"label":"日報表 Pipeline","edge_type":"infra_dep"},{"from":63,"to":42,"label":"覆蓋率計算","edge_type":"infra_dep"},{"from":63,"to":45,"label":"週報排程","edge_type":"infra_dep"},{"from":63,"to":36,"label":"Time-Based 觸發","edge_type":"infra_dep"},{"from":58,"to":15,"label":"統一 Profile","edge_type":"infra_dep"},{"from":58,"to":5,"label":"CDH Tag 同步","edge_type":"infra_dep"},{"from":58,"to":4,"label":"CDH 分眾規則","edge_type":"infra_dep"},{"from":58,"to":59,"label":"雙向同步","edge_type":"infra_dep"},{"from":65,"to":36,"label":"觸發評估","edge_type":"infra_dep"},{"from":65,"to":39,"label":"進度管理","edge_type":"infra_dep"},{"from":64,"to":65,"label":"任務佇列","edge_type":"infra_dep"},{"from":67,"to":65,"label":"事件日誌","edge_type":"infra_dep"},{"from":66,"to":38,"label":"Email 編輯/發送","edge_type":"infra_dep"},{"from":59,"to":3,"label":"客服對話資料","edge_type":"infra_dep"},{"from":68,"to":11,"label":"點擊追蹤","edge_type":"infra_dep"},{"from":68,"to":25,"label":"EC 行為數據","edge_type":"infra_dep"},{"from":69,"to":2,"label":"報表資料源","edge_type":"infra_dep"},{"from":69,"to":4,"label":"Segment 計算","edge_type":"infra_dep"},{"from":69,"to":63,"label":"ETL Pipeline","edge_type":"infra_dep"},{"from":70,"to":3,"label":"聯絡人儲存","edge_type":"infra_dep"},{"from":70,"to":5,"label":"標籤儲存","edge_type":"infra_dep"},{"from":70,"to":63,"label":"Upsert 目標","edge_type":"infra_dep"},{"from":71,"to":3,"label":"CRUD API","edge_type":"infra_dep"},{"from":71,"to":5,"label":"Tag API","edge_type":"infra_dep"},{"from":71,"to":6,"label":"Send API","edge_type":"infra_dep"},{"from":72,"to":71,"label":"rate limit","edge_type":"infra_dep"},{"from":72,"to":36,"label":"event dedup","edge_type":"infra_dep"},{"from":73,"to":3,"label":"核心資料","edge_type":"data_entity"},{"from":73,"to":15,"label":"合併對象","edge_type":"data_entity"},{"from":73,"to":16,"label":"匯入目標","edge_type":"data_entity"},{"from":74,"to":3,"label":"通路資料","edge_type":"data_entity"},{"from":74,"to":8,"label":"頻道設定","edge_type":"data_entity"},{"from":74,"to":6,"label":"發送通路","edge_type":"data_entity"},{"from":75,"to":5,"label":"核心資料","edge_type":"data_entity"},{"from":75,"to":4,"label":"篩選依據","edge_type":"data_entity"},{"from":75,"to":58,"label":"CDH 同步","edge_type":"data_entity"},{"from":76,"to":6,"label":"訊息內容","edge_type":"data_entity"},{"from":76,"to":7,"label":"回覆內容","edge_type":"data_entity"},{"from":76,"to":13,"label":"範本來源","edge_type":"data_entity"},{"from":76,"to":8,"label":"Journey 訊息","edge_type":"data_entity"},{"from":77,"to":36,"label":"觸發事件","edge_type":"data_entity"},{"from":77,"to":18,"label":"狀態事件","edge_type":"data_entity"},{"from":77,"to":7,"label":"訊息事件","edge_type":"data_entity"},{"from":77,"to":60,"label":"Webhook","edge_type":"data_entity"},{"from":78,"to":63,"label":"pipeline failure","edge_type":"root_cause"},{"from":78,"to":42,"label":"zero data","edge_type":"root_cause"},{"from":78,"to":2,"label":"report gap","edge_type":"root_cause"},{"from":79,"to":4,"label":"missing members","edge_type":"root_cause"},{"from":79,"to":69,"label":"backfill error","edge_type":"root_cause"},{"from":79,"to":6,"label":"reduced recipients","edge_type":"root_cause"},{"from":80,"to":2,"label":"定義差異","edge_type":"root_cause"},{"from":80,"to":44,"label":"計算邏輯","edge_type":"root_cause"},{"from":81,"to":58,"label":"sync delay","edge_type":"root_cause"},{"from":81,"to":15,"label":"merge error","edge_type":"root_cause"},{"from":81,"to":19,"label":"name missing","edge_type":"root_cause"},{"from":82,"to":61,"label":"policy constraint","edge_type":"root_cause"},{"from":82,"to":35,"label":"channel limit","edge_type":"root_cause"},{"from":82,"to":22,"label":"format rules","edge_type":"root_cause"},{"from":83,"to":60,"label":"event loss","edge_type":"root_cause"},{"from":83,"to":3,"label":"contact missing","edge_type":"root_cause"},{"from":83,"to":18,"label":"status wrong","edge_type":"root_cause"},{"from":84,"to":7,"label":"sync bug","edge_type":"root_cause"},{"from":84,"to":2,"label":"URL error","edge_type":"root_cause"},{"from":85,"to":10,"label":"processing delay","edge_type":"root_cause"},{"from":85,"to":3,"label":"data lag","edge_type":"root_cause"},{"from":86,"to":15,"label":"defines logic","edge_type":"spec_link"},{"from":86,"to":58,"label":"integration spec","edge_type":"spec_link"},{"from":87,"to":8,"label":"defines flow","edge_type":"spec_link"},{"from":87,"to":65,"label":"engine spec","edge_type":"spec_link"},{"from":88,"to":38,"label":"defines email","edge_type":"spec_link"},{"from":88,"to":21,"label":"channel spec","edge_type":"spec_link"},{"from":88,"to":62,"label":"delivery spec","edge_type":"spec_link"},{"from":89,"to":29,"label":"tag rules","edge_type":"spec_link"},{"from":89,"to":8,"label":"trigger rules","edge_type":"spec_link"},{"from":90,"to":40,"label":"defines metrics","edge_type":"spec_link"},{"from":91,"to":58,"label":"platform spec","edge_type":"spec_link"},{"from":91,"to":15,"label":"unify spec","edge_type":"spec_link"},{"from":92,"to":26,"label":"defines logic","edge_type":"spec_link"},{"from":92,"to":4,"label":"integration","edge_type":"spec_link"},{"from":2,"to":93,"label":"issue","edge_type":"issue_link"},{"from":2,"to":94,"label":"issue","edge_type":"issue_link"},{"from":2,"to":95,"label":"issue","edge_type":"issue_link"},{"from":2,"to":96,"label":"issue","edge_type":"issue_link"},{"from":2,"to":97,"label":"issue","edge_type":"issue_link"},{"from":2,"to":98,"label":"issue","edge_type":"issue_link"},{"from":2,"to":99,"label":"issue","edge_type":"issue_link"},{"from":2,"to":100,"label":"issue","edge_type":"issue_link"},{"from":2,"to":101,"label":"issue","edge_type":"issue_link"},{"from":2,"to":102,"label":"issue","edge_type":"issue_link"},{"from":2,"to":103,"label":"issue","edge_type":"issue_link"},{"from":2,"to":104,"label":"issue","edge_type":"issue_link"},{"from":2,"to":105,"label":"issue","edge_type":"issue_link"},{"from":2,"to":106,"label":"issue","edge_type":"issue_link"},{"from":2,"to":107,"label":"issue","edge_type":"issue_link"},{"from":4,"to":108,"label":"issue","edge_type":"issue_link"},{"from":4,"to":109,"label":"issue","edge_type":"issue_link"},{"from":4,"to":110,"label":"issue","edge_type":"issue_link"},{"from":4,"to":111,"label":"issue","edge_type":"issue_link"},{"from":4,"to":112,"label":"issue","edge_type":"issue_link"},{"from":4,"to":113,"label":"issue","edge_type":"issue_link"},{"from":4,"to":114,"label":"issue","edge_type":"issue_link"},{"from":4,"to":115,"label":"issue","edge_type":"issue_link"},{"from":4,"to":116,"label":"issue","edge_type":"issue_link"},{"from":4,"to":117,"label":"issue","edge_type":"issue_link"},{"from":4,"to":118,"label":"issue","edge_type":"issue_link"},{"from":4,"to":119,"label":"issue","edge_type":"issue_link"},{"from":4,"to":120,"label":"issue","edge_type":"issue_link"},{"from":4,"to":121,"label":"issue","edge_type":"issue_link"},{"from":4,"to":122,"label":"issue","edge_type":"issue_link"},{"from":4,"to":123,"label":"issue","edge_type":"issue_link"},{"from":4,"to":124,"label":"issue","edge_type":"issue_link"},{"from":4,"to":125,"label":"issue","edge_type":"issue_link"},{"from":4,"to":126,"label":"issue","edge_type":"issue_link"},{"from":4,"to":127,"label":"issue","edge_type":"issue_link"},{"from":4,"to":128,"label":"issue","edge_type":"issue_link"},{"from":4,"to":129,"label":"issue","edge_type":"issue_link"},{"from":4,"to":130,"label":"issue","edge_type":"issue_link"},{"from":5,"to":131,"label":"issue","edge_type":"issue_link"},{"from":5,"to":132,"label":"issue","edge_type":"issue_link"},{"from":5,"to":133,"label":"issue","edge_type":"issue_link"},{"from":5,"to":134,"label":"issue","edge_type":"issue_link"},{"from":5,"to":135,"label":"issue","edge_type":"issue_link"},{"from":5,"to":136,"label":"issue","edge_type":"issue_link"},{"from":5,"to":137,"label":"issue","edge_type":"issue_link"},{"from":5,"to":138,"label":"issue","edge_type":"issue_link"},{"from":5,"to":139,"label":"issue","edge_type":"issue_link"},{"from":6,"to":140,"label":"issue","edge_type":"issue_link"},{"from":9,"to":141,"label":"issue","edge_type":"issue_link"},{"from":7,"to":142,"label":"issue","edge_type":"issue_link"},{"from":7,"to":143,"label":"issue","edge_type":"issue_link"},{"from":7,"to":144,"label":"issue","edge_type":"issue_link"},{"from":7,"to":145,"label":"issue","edge_type":"issue_link"},{"from":7,"to":146,"label":"issue","edge_type":"issue_link"},{"from":7,"to":147,"label":"issue","edge_type":"issue_link"},{"from":7,"to":148,"label":"issue","edge_type":"issue_link"},{"from":7,"to":149,"label":"issue","edge_type":"issue_link"},{"from":7,"to":150,"label":"issue","edge_type":"issue_link"},{"from":7,"to":151,"label":"issue","edge_type":"issue_link"},{"from":7,"to":152,"label":"issue","edge_type":"issue_link"},{"from":7,"to":153,"label":"issue","edge_type":"issue_link"},{"from":7,"to":154,"label":"issue","edge_type":"issue_link"},{"from":7,"to":155,"label":"issue","edge_type":"issue_link"},{"from":7,"to":156,"label":"issue","edge_type":"issue_link"},{"from":7,"to":157,"label":"issue","edge_type":"issue_link"},{"from":7,"to":158,"label":"issue","edge_type":"issue_link"},{"from":7,"to":159,"label":"issue","edge_type":"issue_link"},{"from":7,"to":160,"label":"issue","edge_type":"issue_link"},{"from":10,"to":161,"label":"issue","edge_type":"issue_link"},{"from":10,"to":162,"label":"issue","edge_type":"issue_link"},{"from":10,"to":163,"label":"issue","edge_type":"issue_link"},{"from":10,"to":164,"label":"issue","edge_type":"issue_link"},{"from":10,"to":165,"label":"issue","edge_type":"issue_link"},{"from":10,"to":166,"label":"issue","edge_type":"issue_link"},{"from":10,"to":167,"label":"issue","edge_type":"issue_link"},{"from":10,"to":168,"label":"issue","edge_type":"issue_link"},{"from":10,"to":169,"label":"issue","edge_type":"issue_link"},{"from":11,"to":170,"label":"issue","edge_type":"issue_link"},{"from":11,"to":171,"label":"issue","edge_type":"issue_link"},{"from":11,"to":172,"label":"issue","edge_type":"issue_link"},{"from":12,"to":173,"label":"issue","edge_type":"issue_link"},{"from":12,"to":174,"label":"issue","edge_type":"issue_link"},{"from":12,"to":175,"label":"issue","edge_type":"issue_link"},{"from":12,"to":176,"label":"issue","edge_type":"issue_link"},{"from":12,"to":177,"label":"issue","edge_type":"issue_link"},{"from":12,"to":178,"label":"issue","edge_type":"issue_link"}]};
 
-// COLOR PALETTE (Vibrant on Dark)
-const COLORS = {
-  platform:   { bg: '#A371F7', border: '#A371F7' }, // Purple
-  module:     { bg: '#58A6FF', border: '#58A6FF' }, // Blue
-  subfeature: { bg: '#3FB950', border: '#3FB950' }, // Green
-  infra:      { bg: '#D29922', border: '#D29922' }, // Orange
-  data:       { bg: '#F778BA', border: '#F778BA' }, // Pink
+const C={
+  platform:{bg:'#A371F7',border:'#A371F7',shape:'circle'},
+  module:{bg:'#58A6FF',border:'#58A6FF',shape:'circle'},
+  subfeature:{bg:'#3FB950',border:'#3FB950',shape:'circle'},
+  infra:{bg:'#D29922',border:'#D29922',shape:'circle'},
+  data:{bg:'#F778BA',border:'#F778BA',shape:'circle'},
+  issue:{bg:'#FF6B6B',border:'#FF4444',shape:'box'},
+  rootcause:{bg:'#FFA07A',border:'#FF8C69',shape:'diamond'},
+  spec:{bg:'#87CEEB',border:'#5F9EA0',shape:'box'}
 };
 
-// 1. Process Nodes (Circles with Text Inside)
-const nodes = RAW_DATA.nodes.map(n => {
-  const c = COLORS[n.group] || COLORS.module;
-  const size = n.size < 30 ? 35 : n.size; // Ensure minimum size for text
-  
-  return {
-    id: n.id,
-    label: n.label, // Vis.js handles \n automatically
-    group: n.group,
-    title: n.title,
-    shape: 'circle', // Circle shape
-    widthConstraint: { minimum: size, maximum: size + 30 }, // Force circle size
-    color: {
-      background: c.bg,
-      border: c.border,
-      highlight: { background: '#fff', border: '#fff' },
-      hover: { background: '#fff', border: '#fff' }
-    },
-    font: {
-      color: '#000000', // Black text for contrast
-      size: 12,
-      face: 'Segoe UI, sans-serif',
-      bold: true,
-      multi: true
-    },
-    borderWidth: 2,
-    margin: 10,
-    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10 }
+const nodes=RAW.nodes.map(n=>{
+  const c=C[n.group]||C.module;
+  let sz=n.size||20;
+  const isSmall=n.group==='issue'||n.group==='rootcause'||n.group==='spec';
+  return{
+    id:n.id,label:n.label,group:n.group,title:n.title,
+    shape:c.shape,
+    size:isSmall?sz:Math.max(sz,30),
+    widthConstraint:c.shape==='circle'?{minimum:sz,maximum:sz+30}:
+      c.shape==='box'?{minimum:60,maximum:140}:{minimum:sz,maximum:sz+20},
+    color:{background:c.bg,border:c.border,
+      highlight:{background:'#fff',border:'#fff'},
+      hover:{background:'#fff',border:'#fff'}},
+    font:{color:'#000',size:isSmall?9:11,face:'Segoe UI,sans-serif',bold:!isSmall,multi:true},
+    borderWidth:isSmall?1:2,
+    margin:isSmall?5:8,
+    shadow:{enabled:!isSmall,color:'rgba(0,0,0,0.4)',size:8}
   };
 });
 
-// 2. Process Edges (Straight lines with labels)
-const edges = RAW_DATA.edges.map((e, i) => {
-  const isContains = e.edge_type === 'hierarchy' || e.edge_type === 'contains';
-  return {
-    id: i, from: e.from, to: e.to,
-    label: isContains ? '' : (e.label || ''),
-    color: { color: isContains ? '#30363d' : '#8b949e', opacity: isContains ? 0.4 : 0.8 },
-    arrows: isContains ? '' : 'to',
-    width: isContains ? 1 : 1.5,
-    font: { size: 10, color: '#8b949e', background: '#0d1117', strokeWidth: 0, align: 'middle' },
-    smooth: { type: 'continuous' } // Straighter lines
+const edges=RAW.edges.map((e,i)=>{
+  const isH=e.edge_type==='hierarchy'||e.edge_type==='contains';
+  const isIssue=e.edge_type==='issue_link';
+  const isRC=e.edge_type==='root_cause';
+  const isSpec=e.edge_type==='spec_link';
+  let col='#8b949e',w=1.5,dash=false;
+  if(isH){col='#30363d';w=1;}
+  else if(isIssue){col='#FF6B6B';w=0.8;dash=true;}
+  else if(isRC){col='#FFA07A';w=2;dash=false;}
+  else if(isSpec){col='#87CEEB';w=1.2;dash=true;}
+  return{
+    id:i,from:e.from,to:e.to,
+    label:isH||isIssue?'':(e.label||''),
+    color:{color:col,opacity:isH?0.3:isIssue?0.4:0.7},
+    arrows:isH?'':'to',width:w,
+    dashes:dash,
+    font:{size:9,color:'#8b949e',background:'#0d1117',strokeWidth:0,align:'middle'},
+    smooth:{type:'continuous'}
   };
 });
 
-// 3. Init Network
-const container = document.getElementById('graph-container');
-const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
-const options = {
-  physics: {
-    forceAtlas2Based: {
-      gravitationalConstant: -120,
-      centralGravity: 0.01,
-      springLength: 180,
-      springConstant: 0.08,
-      damping: 0.4
-    },
-    maxVelocity: 50,
-    solver: 'forceAtlas2Based',
-    timestep: 0.35,
-    stabilization: { iterations: 150 }
+const container=document.getElementById('graph-container');
+const data={nodes:new vis.DataSet(nodes),edges:new vis.DataSet(edges)};
+const options={
+  physics:{
+    forceAtlas2Based:{gravitationalConstant:-80,centralGravity:0.008,springLength:160,springConstant:0.06,damping:0.4},
+    maxVelocity:50,solver:'forceAtlas2Based',timestep:0.35,stabilization:{iterations:200}
   },
-  interaction: { hover: true, tooltipDelay: 200, hideEdgesOnDrag: true },
-  layout: { improvedLayout: true }
+  interaction:{hover:true,tooltipDelay:300,hideEdgesOnDrag:true,multiselect:true},
+  layout:{improvedLayout:true}
 };
-const network = new vis.Network(container, data, options);
+const network=new vis.Network(container,data,options);
 
-// 4. Interaction
-network.on('click', p => {
-  if (p.nodes.length) {
-    const nid = p.nodes[0];
-    showDetail(nid);
-  } else {
-    document.getElementById('detail-panel').classList.remove('open');
-  }
+// Stats
+document.getElementById('st-nodes').textContent=nodes.length;
+document.getElementById('st-edges').textContent=edges.length;
+document.getElementById('st-issues').textContent=nodes.filter(n=>n.group==='issue').length;
+
+// Click
+network.on('click',p=>{
+  if(p.nodes.length){showDetail(p.nodes[0])}
+  else{closePanel()}
 });
 
-function showDetail(nid) {
-  const n = data.nodes.get(nid);
-  const c = COLORS[n.group] || COLORS.module;
-  
-  // ANALYZE CONNECTIONS
-  const conns = network.getConnectedEdges(nid).map(eid => {
-    const e = data.edges.get(eid);
-    const isSrc = e.from === nid;
-    const neighbor = data.nodes.get(isSrc ? e.to : e.from);
-    return { 
-      name: neighbor.label.replace('\\n',' '), 
-      type: e.label, 
-      dir: isSrc ? 'out' : 'in', 
-      id: neighbor.id,
-      group: neighbor.group
+function closePanel(){document.getElementById('dp').classList.remove('open')}
+
+function showDetail(nid){
+  const n=data.nodes.get(nid);
+  if(!n)return;
+  const c=C[n.group]||C.module;
+  const allEdges=network.getConnectedEdges(nid);
+  const inE=allEdges.filter(eid=>{const e=data.edges.get(eid);return e&&e.to===nid;});
+  const outE=allEdges.filter(eid=>{const e=data.edges.get(eid);return e&&e.from===nid;});
+
+  // Role & Risk
+  let role='General',risk='Low';
+  if(n.group==='platform'){role='Core Platform';risk='Critical';}
+  else if(n.group==='infra'){role='Infrastructure';risk='High';}
+  else if(n.group==='rootcause'){role='Root Cause Pattern';risk='High';}
+  else if(n.group==='issue'){role='Investigation Case';risk='Medium';}
+  else if(n.group==='spec'){role='System Design Doc';risk='Low';}
+  else if(n.group==='module'){role='Product Module';risk=outE.length>10?'High':'Medium';}
+  else if(n.group==='subfeature'){role='Sub-feature';risk='Low';}
+  else if(n.group==='data'){role='Data Entity';risk='Medium';}
+  if(outE.length>15)risk='Critical';
+
+  // Parse description — make Asana URLs clickable
+  let desc=n.title||'No description';
+  desc=desc.replace(/(https:\/\/app\.asana\.com\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">🔗 Open in Asana</a>');
+  desc=desc.replace(/Asana: (\d+)/g,'Asana ID: <code style="background:rgba(255,255,255,.1);padding:1px 4px;border-radius:3px">$1</code>');
+
+  const riskHtml=(risk==='High'||risk==='Critical')?
+    '<div class="risk">⚠️ '+risk+' Risk — Modifying impacts '+outE.length+' downstream elements</div>':'';
+
+  const html=`
+    <div class="dp-hdr">
+      <div class="dp-badge" style="background:${c.bg}">${n.group}</div>
+      <div class="dp-title">${n.label.replace(/\n/g,' ')}</div>
+    </div>
+    <div class="dp-body">
+      <div class="tabs">
+        <button class="tab on" data-t="ov">Overview</button>
+        <button class="tab" data-t="df">Data Flow</button>
+        ${n.group==='issue'?'<button class="tab" data-t="tk">Ticket</button>':''}
+      </div>
+
+      <div id="ov" class="tc on">
+        ${riskHtml}
+        <div class="mc"><span class="l">Role</span><span class="v" style="font-size:13px">${role}</span></div>
+        <div class="mc"><span class="l">Incoming</span><span class="v">${inE.length}</span></div>
+        <div class="mc"><span class="l">Outgoing</span><span class="v">${outE.length}</span></div>
+        <div class="section-title">Description</div>
+        <div class="desc">${desc}</div>
+      </div>
+
+      <div id="df" class="tc">
+        <div style="margin-bottom:16px">
+          <div class="fl-title in">↙ Incoming (${inE.length})</div>
+          ${inE.map(eid=>{
+            const e=data.edges.get(eid);if(!e)return'';
+            const nb=data.nodes.get(e.from);if(!nb)return'';
+            return '<div class="fl-item" onclick="focusNode('+nb.id+')"><span class="lbl">'+nb.label.replace(/\n/g,' ')+'</span><span class="tp">'+(e.label||'→')+'</span></div>';
+          }).join('')||'<p style="font-size:12px;color:var(--text2)">None</p>'}
+        </div>
+        <div>
+          <div class="fl-title out">↗ Outgoing (${outE.length})</div>
+          ${outE.map(eid=>{
+            const e=data.edges.get(eid);if(!e)return'';
+            const nb=data.nodes.get(e.to);if(!nb)return'';
+            return '<div class="fl-item" onclick="focusNode('+nb.id+')"><span class="lbl">'+nb.label.replace(/\n/g,' ')+'</span><span class="tp">'+(e.label||'→')+'</span></div>';
+          }).join('')||'<p style="font-size:12px;color:var(--text2)">None</p>'}
+        </div>
+      </div>
+
+      ${n.group==='issue'?`<div id="tk" class="tc">
+        <div class="section-title">Asana Ticket</div>
+        <div class="desc">${desc}</div>
+      </div>`:''}
+    </div>`;
+
+  document.getElementById('dc').innerHTML=html;
+  document.getElementById('dp').classList.add('open');
+
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick=function(){
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+      this.classList.add('on');
+      document.querySelectorAll('.tc').forEach(c=>c.classList.remove('on'));
+      document.getElementById(this.dataset.t).classList.add('on');
     };
   });
-
-  const incoming = conns.filter(x => x.dir === 'in');
-  const outgoing = conns.filter(x => x.dir === 'out');
-  
-  // DETERMINE ROLE
-  let role = "Standard Node";
-  if (outgoing.length > 5) role = "Core Provider";
-  else if (incoming.length > 5) role = "Major Consumer";
-  else if (outgoing.length === 0 && incoming.length > 0) role = "Leaf Feature";
-  else if (n.group === 'infra') role = "Infrastructure";
-
-  // RISK ASSESSMENT
-  let riskLevel = "Low";
-  let riskMsg = "";
-  if (outgoing.length > 8) {
-    riskLevel = "Critical";
-    riskMsg = `High Impact: Modifications affect ${outgoing.length} downstream components.`;
-  } else if (outgoing.length > 3) {
-    riskLevel = "Medium";
-    riskMsg = `Moderate Impact: Affects ${outgoing.length} components.`;
-  }
-
-  const html = `
-    <div class="panel-header">
-      <div class="panel-badges">
-        <span class="badge" style="background:${c.bg}">${n.group}</span>
-        <span class="badge" style="background:#333;color:#fff;border:1px solid #555">${role}</span>
-      </div>
-      <div class="panel-title">${n.label.replace('\\n',' ')}</div>
-    </div>
-
-    <div class="panel-tabs">
-      <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
-      <button class="tab-btn" onclick="switchTab('flow')">Data Flow</button>
-    </div>
-
-    <div class="panel-body">
-      
-      <!-- OVERVIEW TAB -->
-      <div id="tab-overview" class="tab-content active">
-        ${riskMsg ? `<div class="risk-alert"><span>⚠️</span> <div><strong>${riskLevel} Risk</strong><br>${riskMsg}</div></div>` : ''}
-        
-        <div class="section-title">Functional Definition</div>
-        <div class="def-box">
-          <div class="def-text">${n.title || 'No definition available.'}</div>
-        </div>
-
-        <div class="section-title">Connectivity Metrics</div>
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <span class="metric-val" style="color:#58a6ff">${incoming.length}</span>
-            <span class="metric-label">Dependencies</span>
-          </div>
-          <div class="metric-card">
-            <span class="metric-val" style="color:#ff9f0a">${outgoing.length}</span>
-            <span class="metric-label">Downstream Impacts</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- FLOW TAB -->
-      <div id="tab-flow" class="tab-content">
-        
-        <div class="flow-group">
-          <div class="flow-header">
-            <span style="color:#58a6ff">↙</span> Incoming (Dependencies) <span class="flow-count">${incoming.length}</span>
-          </div>
-          ${incoming.length ? incoming.map(cn => `
-            <div class="rel-item" onclick="network.focus(${cn.id}, {scale:1.5, animation:true}); showDetail(${cn.id})">
-              <span class="rel-dir" style="color:#58a6ff">IN</span>
-              <span class="rel-name">${cn.name}</span>
-              <span class="rel-tag">${cn.type || 'use'}</span>
-            </div>
-          `).join('') : '<div style="font-size:12px;color:#666;padding:8px">No dependencies.</div>'}
-        </div>
-
-        <div class="flow-group">
-          <div class="flow-header">
-            <span style="color:#ff9f0a">↗</span> Outgoing (Impacts) <span class="flow-count">${outgoing.length}</span>
-          </div>
-          ${outgoing.length ? outgoing.map(cn => `
-            <div class="rel-item" onclick="network.focus(${cn.id}, {scale:1.5, animation:true}); showDetail(${cn.id})">
-              <span class="rel-dir" style="color:#ff9f0a">OUT</span>
-              <span class="rel-name">${cn.name}</span>
-              <span class="rel-tag">${cn.type || 'impacts'}</span>
-            </div>
-          `).join('') : '<div style="font-size:12px;color:#666;padding:8px">No downstream impact.</div>'}
-        </div>
-
-      </div>
-
-      <button class="action-btn btn-impact" style="width:100%;margin-top:20px" onclick="enterImpact(${nid})">⚡ Run Full Impact Analysis</button>
-    </div>
-  `;
-  document.getElementById('detail-content').innerHTML = html;
-  document.getElementById('detail-panel').classList.add('open');
 }
 
-window.switchTab = function(tabName) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  
-  event.target.classList.add('active');
-  document.getElementById('tab-' + tabName).classList.add('active');
+function focusNode(id){
+  network.focus(id,{scale:1.2,animation:true});
+  showDetail(id);
 }
 
 // Search
-document.getElementById('search').addEventListener('input', e => {
-  const val = e.target.value.toLowerCase();
-  const matches = data.nodes.get().filter(n => n.label.toLowerCase().includes(val));
-  const ids = matches.map(n => n.id);
-  data.nodes.forEach(n => {
-    data.nodes.update({ id: n.id, opacity: ids.length && !ids.includes(n.id) ? 0.1 : 1 });
+document.getElementById('search').addEventListener('input',e=>{
+  const v=e.target.value.toLowerCase();
+  if(!v){data.nodes.forEach(n=>data.nodes.update({id:n.id,opacity:1}));return;}
+  const ids=data.nodes.get().filter(n=>
+    n.label.toLowerCase().includes(v)||(n.title&&n.title.toLowerCase().includes(v))
+  ).map(n=>n.id);
+  data.nodes.forEach(n=>{
+    data.nodes.update({id:n.id,opacity:ids.includes(n.id)?1:0.05});
   });
 });
 
-// Filter
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', e => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
-    const grp = e.target.dataset.filter;
-    data.nodes.forEach(n => {
-      const visible = grp === 'all' || n.group === grp || n.group === 'platform';
-      data.nodes.update({ id: n.id, opacity: visible ? 1 : 0.05 });
+// Filters
+document.querySelectorAll('.fbtn').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+    e.target.classList.add('on');
+    const f=e.target.dataset.f;
+    data.nodes.forEach(n=>{
+      let vis=true;
+      if(f!=='all'){
+        vis=n.group===f||n.group==='platform';
+        // Also show parent modules for subfeatures/issues
+        if(f==='subfeature'||f==='issue'||f==='rootcause'||f==='spec')vis=vis||n.group==='module';
+      }
+      data.nodes.update({id:n.id,opacity:vis?1:0.03});
     });
   });
 });
 
+function resetView(){
+  data.nodes.forEach(n=>{
+    const c=C[n.group]||C.module;
+    data.nodes.update({id:n.id,opacity:1,color:{background:c.bg,border:c.border,highlight:{background:'#fff',border:'#fff'},hover:{background:'#fff',border:'#fff'}},font:{color:'#000'}});
+  });
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.fbtn[data-f="all"]').classList.add('on');
+  network.fit({animation:true});
+}
+
+function impactMode(){
+  const sid=prompt("Enter Node ID for impact analysis (hover over a node to see its ID):");
+  if(!sid)return;
+  const startId=parseInt(sid);
+  if(!data.nodes.get(startId)){alert("Node not found");return;}
+
+  // BFS
+  const q=[{id:startId,d:0}];
+  const visited=new Set();
+  const impact=new Map();
+  while(q.length){
+    const{id,d}=q.shift();
+    if(visited.has(id))continue;
+    visited.add(id);impact.set(id,d);
+    if(d<4){
+      network.getConnectedEdges(id).forEach(eid=>{
+        const e=data.edges.get(eid);
+        if(e&&e.from===id&&!visited.has(e.to))q.push({id:e.to,d:d+1});
+      });
+    }
+  }
+
+  const depthColors=['#FF0000','#FF4500','#FFA500','#FFD700','#FFFF99'];
+  data.nodes.forEach(n=>{
+    const d=impact.get(n.id);
+    const c=C[n.group]||C.module;
+    if(d!==undefined){
+      const col=depthColors[Math.min(d,4)];
+      data.nodes.update({id:n.id,color:{background:col,border:col},font:{color:d<2?'#fff':'#000'},opacity:1});
+    }else{
+      data.nodes.update({id:n.id,opacity:0.05});
+    }
+  });
+  network.focus(startId,{scale:0.8,animation:true});
+  alert("Impact analysis complete.\n🔴 Start → 🟠 Direct → 🟡 Secondary → 🟨 Tertiary");
+}
 </script>
 </body>
 </html>
