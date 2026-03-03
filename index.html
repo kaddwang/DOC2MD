@@ -167,40 +167,30 @@ function init() {
   vE = new vis.DataSet(allE);
 
   network = new vis.Network(document.getElementById("net"), { nodes: vN, edges: vE }, {
-    physics: { enabled: false },
+    physics: {
+      enabled: true,
+      solver: "forceAtlas2Based",
+      forceAtlas2Based: {
+        gravitationalConstant: -30,
+        centralGravity: 0.003,
+        springLength: 120,
+        springConstant: 0.01,
+        damping: 0.85,
+        avoidOverlap: 0.8,
+      },
+      stabilization: { enabled: true, iterations: 80, fit: false },
+      maxVelocity: 25,
+      minVelocity: 0.3,
+      timestep: 0.4,
+    },
     interaction: {
       hover: true,
       tooltipDelay: 150,
       zoomView: true,
       dragView: true,
       dragNodes: true,
-      navigationButtons: false,
-      keyboard: false,
     },
     layout: { improvedLayout: false },
-  });
-
-  // Ensure all nodes are unfixed so they can be dragged
-  vN.forEach(n => { vN.update({ id: n.id, fixed: false }); });
-
-  // Gentle micro-physics: only on dragEnd, very brief, very damped
-  // so connected nodes nudge slightly but nothing flies around
-  network.on("dragEnd", (params) => {
-    if (params.nodes.length === 0) return;
-    network.setOptions({ physics: {
-      enabled: true,
-      solver: "forceAtlas2Based",
-      forceAtlas2Based: {
-        gravitationalConstant: -8,
-        centralGravity: 0.0,
-        springLength: 200,
-        springConstant: 0.003,
-        damping: 0.95,
-        avoidOverlap: 0.9,
-      },
-      stabilization: false,
-    }});
-    setTimeout(() => network.setOptions({ physics: { enabled: false } }), 200);
   });
 
   document.getElementById("sN").textContent = allN.length;
