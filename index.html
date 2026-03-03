@@ -10,7 +10,7 @@
 :root{--bg:#0a0a12;--surface:#12121e;--surface2:#1a1a2e;--border:#2a2a40;--text:#e0e0f0;--text2:#9090b0;--accent:#6c63ff}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh}
-#net{width:100%;height:100vh}
+#net{width:100%;height:100vh;position:relative;z-index:0}
 
 /* Top bar */
 .topbar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,18,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100;gap:16px}
@@ -168,9 +168,20 @@ function init() {
 
   network = new vis.Network(document.getElementById("net"), { nodes: vN, edges: vE }, {
     physics: { enabled: false },
-    interaction: { hover:true, tooltipDelay:150, zoomView:true, dragView:true, dragNodes:true },
+    interaction: {
+      hover: true,
+      tooltipDelay: 150,
+      zoomView: true,
+      dragView: true,
+      dragNodes: true,
+      navigationButtons: false,
+      keyboard: false,
+    },
     layout: { improvedLayout: false },
   });
+
+  // Ensure all nodes are unfixed so they can be dragged
+  vN.forEach(n => { vN.update({ id: n.id, fixed: false }); });
 
   // Gentle micro-physics: only on dragEnd, very brief, very damped
   // so connected nodes nudge slightly but nothing flies around
