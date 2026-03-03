@@ -1,799 +1,918 @@
-# Crescendo Lab — Knowledge Graph (LLM-Optimized)
+# Crescendo Lab — Code Architecture Knowledge Graph (LLM-Optimized)
 
-> Auto-generated on 2026-03-03 12:10
-> Nodes: 189 | Edges: 319
-> Purpose: Provide LLMs a flattened, structured representation of the CL product suite's
->          architecture, dependencies, root causes, and issue attribution.
+> Auto-generated from source code analysis on 2026-03-03 15:03
+> Repos: rubato (MAAC BE), Grazioso (MAAC FE), cantata (CAAC BE), Zeffiroso (CAAC FE), bebop (DAAC), polyrhythmic (CDH)
+> Nodes: 137 | Edges: 495
+> Purpose: Verified architecture map from actual import analysis — for LLM impact analysis & attribution.
 
 ---
 
-## 1. Product Suite Overview
-
-### MAAC
-- MAAC
-- Marketing Automation
-- & Analytics Cloud
-- Core marketing automation platform — LINE/FB/IG/SMS messaging, automation, analytics
-
-**Cross-product relationships:**
-- MAAC ←shares contacts→ CAAC
-- MAAC ←unifies contacts→ CDH
-- MAAC ←provides data→ DAAC
+## 1. Product Suite
 
 ### CAAC
-- CAAC
-- Conversation Automation
-- & Analytics Cloud
-- Real-time chat and conversation management — agent inbox, chatbot, AI assist
+- **CAAC**: Conversation Automation & Analytics Cloud
+- Title: CAAC — Conversation Automation & Analytics Cloud
+Tech: Go (Cantata) + React (Zeffiroso/TS)
+Repos: {'backend': 'cantata (Go)', 'frontend': 'Zeffiroso (React/TS)'}
 
-**Cross-product relationships:**
-- CAAC ←unifies contacts→ CDH
-- CAAC ←shares contacts→ MAAC
-
-### DAAC
-- DAAC
-- Data Automation
-- & Analytics Cloud
-- Data analytics engine — Audience360, predictive models, data enrichment
-
-**Cross-product relationships:**
-- DAAC ←provides data→ MAAC
-- DAAC ←enriches data→ CDH
+**Cross-product connections:**
+- → MAAC: MAAC_URL (REST API)
+- → CDH: CDH_INTERNAL_URL (Unification V2)
 
 ### CDH
-- CDH
-- Customer Data Hub
-- Cross-platform data unification — profile merging, segment engine, data exchange
+- **CDH**: Customer Data Hub — Unified Contact Profile
+- Title: CDH — Customer Data Hub — Unified Contact Profile
+Tech: Python + Go (Polyrhythmic)
+Repos: {'backend': 'polyrhythmic (Python+Go)', 'frontend': 'N/A (API-only)'}
 
-**Cross-product relationships:**
-- CDH ←unifies contacts→ MAAC
-- CDH ←unifies contacts→ CAAC
-- CDH ←enriches data→ DAAC
+**Cross-product connections:**
+- → MAAC: RUBATO_HOST + RUBATO_DB_DSN
+- → CAAC: CANTATA_HOST + CANTATA_DB_DSN
+
+### DAAC
+- **DAAC**: Data Automation & Analytics Cloud
+- Title: DAAC — Data Automation & Analytics Cloud
+Tech: Python (FastAPI) + React + AI Agent
+Repos: {'backend': 'bebop (Python/FastAPI)', 'frontend': 'bebop/frontend (React/TS)'}
+
+**Cross-product connections:**
+- → MAAC: MAAC_GCP_PROJECT_ID (BigQuery)
+- → CAAC: CAAC_GCP_PROJECT_ID (BigQuery)
+
+### MAAC
+- **MAAC**: Marketing Automation & Analytics Cloud
+- Title: MAAC — Marketing Automation & Analytics Cloud
+Tech: Django 3.2 + React 19 (TypeScript)
+Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
+
+**Cross-product connections:**
+- → CAAC: CAAC_CANTATA_URL (REST API)
+- → DAAC: DAAC_API_URL (REST API)
 
 ## 2. Module Architecture
 
+### CAAC Modules
+
+| Module | Description | Dependencies (imports) |
+|--------|-------------|----------------------|
+| **aistrategy** | AI strategy configuration — model selection, prompts |  |
+| **aitask** | AI task execution — auto-reply suggestions, summarization | aistrategy, aiusage, chat |
+| **aiusage** | AI usage tracking — token consumption, quota |  |
+| **auth** | Authentication & authorization — SSO, 2FA |  |
+| **cat** | CAT (Contact Attribution Tracking) — member journey tracking |  |
+| **cdp** | CDP integration — unified contact view within CAAC |  |
+| **chat** | Core 1-on-1 chat — message routing, conversation lifecycle | aistrategy, aiusage, cdp, organization, tag |
+| **dashboard** | CAAC analytics dashboard — conversation metrics, team performance |  |
+| **longrunningtask** | Long-running operations — bulk exports, data migration | chat |
+| **openapi** | CAAC public API for external integrations |  |
+| **organization** | Organization management — channels, users, roles, AI features | aitask |
+| **tag** | Contact tagging within CAAC conversations |  |
+| **workertask** | Background worker tasks — message processing, sync jobs | aiusage |
+
+### CDH Modules
+
+| Module | Description | Dependencies (imports) |
+|--------|-------------|----------------------|
+| **broadcast** | CDH broadcast coordination — cross-product message dispatch |  |
+| **channel_entity_comment** | Channel entity commenting — AI-powered contact annotations |  |
+| **contact** | Unified contact profile — cross-product contact view | unification |
+| **custom_field** | Custom contact fields — user-defined attributes |  |
+| **engagement_history** | Engagement history — cross-channel interaction tracking |  |
+| **member** | Member management — import/export, profile enrichment | tag, unification |
+| **richmenu** | LINE Rich Menu management via CDH |  |
+| **segment** | Cross-product audience segmentation via SQL/LLM |  |
+| **tag** | Cross-product tag synchronization | member |
+| **task** | Background task execution — unification, sync, export jobs |  |
+| **unification** | Contact unification graph — merge/split profiles across channels | member, tag |
+
+### DAAC Modules
+
+| Module | Description | Dependencies (imports) |
+|--------|-------------|----------------------|
+| **agent_v2** | AI Agent — natural language data querying (OpenAI/Gemini) | session |
+| **auth** | Authentication via Arioso SSO + Interlude |  |
+| **dashboard** | Custom analytics dashboards — user-created visualizations | organization |
+| **dbt** | dbt pipeline management — data transformation & modeling | organization |
+| **file** | File management — upload/download for analysis results |  |
+| **infra** | Infrastructure provisioning — Terraform client setup | organization |
+| **journey** | Journey analysis — customer path analysis via AI | session |
+| **organization** | Org management — workspace, dbt config, Terraform infra | auth |
+| **session** | AI analysis session — conversation state, context management | auth, organization |
+
 ### MAAC Modules
 
-| Module | Sub-features | Issues | Infra Dependencies |
-|--------|-------------|--------|-------------------|
-| **Auto-reply** | Keyword Auto-reply, Web Chat Auto-reply, Auto-reply Scheduling, New Friend Welcome, Reply Limit & Dedup | 20 | LINE API, Meta API |
-| **Broadcast** | LINE Broadcast, Broadcast Scheduling, Broadcast Report | 0 | LINE API |
-| **Contacts** | Contact Profile, Profile Unification, Contact Import/Export, Email Channel, Contact Fields | 0 | LINE API, PostgreSQL |
-| **Customer Journey** | Journey Editor, Journey Triggers, Journey Actions, Journey Conditions, Journey Report, EDM Integration | 0 | SendGrid, Airflow |
-| **Deeplink** | Deeplink Generator, UTM Tracking, Deeplink Report, Deeplink QR Code | 15 | LIFF |
-| **Insight** | Data Overview, Deeplink Report, Acquisition Analytics, Open Rate Hotspot, Message Analytics | 18 | Airflow, BigQuery, PostgreSQL |
-| **Prize Management** | Prize Setup, Rapid Referral, Prize Messages | 7 | LINE API |
-| **Rich Menu** | Rich Menu Editor, Rich Menu Scheduling | 1 | LINE API |
-| **Segment** | AI Segment, Segment Filters, Segment Tag Ops | 26 | BigQuery |
-| **Smart redirect tool** | Smart Redirect | 0 | — |
-| **Tag Manager** | Tag CRUD, Auto Tagging, Tag Coverage | 10 | PostgreSQL |
-| **Template Library** | Message Templates | 1 | — |
-| **Tracelink** | Tracelink Short URL, LIFF Integration, CLID Tracking | 8 | LIFF, Redis |
+| Module | Description | Dependencies (imports) |
+|--------|-------------|----------------------|
+| **accounts** | User authentication, SSO, 2FA, session management | audience, caac, channel, journey, line, notification, organization, sms |
+| **ai_generation** | AI content generation — copywriting, image generation | organization, system |
+| **audience** | Contact management, segments, filters, ad platform audiences | accounts, cdp, google_analytics, line, organization, sms, system, tag |
+| **auto_reply** | Keyword auto-reply across LINE/FB/WhatsApp channels | accounts, channel, fb, google_analytics, line, organization, tag, whatsapp |
+| **broadcast** | Push messaging (LINE/SMS/WhatsApp), scheduling, A/B test | accounts, audience, channel, google_analytics, line, message, organization, report... |
+| **caac** | CAAC integration bridge — connects Rubato to Cantata | accounts, line, organization |
+| **campaign** | Campaign orchestration — multi-channel campaign management | accounts, channel, journey |
+| **cdp** | Customer Data Platform — profile unification, data sync | accounts, audience, journey, line, organization, tag |
+| **channel** | Multi-channel management (LINE/FB/IG/WhatsApp/Email/SMS) | accounts, line, message, notification, openapi, organization, sms, system |
+| **cyberbiz** | Cyberbiz e-commerce integration | accounts, line |
+| **email_channel** | Email campaign delivery via SendGrid, bounce handling | accounts, channel, journey, line, organization, sms, system |
+| **extension** | MAAC extension plugins — custom action nodes | accounts, channel, google_analytics, journey, line, organization |
+| **fb** | Facebook/Instagram messaging, comment auto-reply | accounts, auto_reply, channel, google_analytics, line, organization, tag |
+| **form** | SurveyCake form integration, response tracking | line, tag, webhook |
+| **google_analytics** | GA4/UTM tracking integration for campaigns | accounts, line, organization, report, system |
+| **journey** | Customer journey automation (triggers, actions, conditions) | accounts, audience, cdp, channel, email_channel, google_analytics, line, organization... |
+| **line** | Core LINE integration — messaging, rich menu, Flex, LIFF | accounts, audience, auto_reply, caac, cdp, channel, email_channel, fb... |
+| **message** | Message rendering engine — builds LINE/FB/SMS/Email messages | channel, google_analytics, line, organization, system |
+| **nine_one_app** | 91App e-commerce integration | accounts, line, openapi, organization, payment, system, tag, webhook |
+| **notification** | In-app notification system for admin users | accounts |
+| **openapi** | Public OpenAPI — external developer API endpoints | accounts, audience, auto_reply, channel, email_channel, google_analytics, line, notification... |
+| **organization** | Org/tenant management, billing, feature control, RBAC | accounts, audience, caac, channel, google_analytics, journey, line, notification... |
+| **payment** | Payment & billing — subscription, invoice management | line, notification, organization |
+| **prize** | Prize/reward management, lottery, coupon distribution | accounts, google_analytics, line, notification, openapi, organization, report, sforzando... |
+| **receipt** | Receipt registration campaign for loyalty programs | line, openapi, organization, prize, system, webhook |
+| **referral** | Rapid Referral — MGM campaigns, invitation tracking | accounts, line, organization, prize, system, tag |
+| **report** | Analytics & reporting — campaign performance, member stats | google_analytics, line, openapi, payment, sms_plus, system, tag |
+| **sforzando** | Prize fulfillment partner integration | accounts, line, organization, prize, system, tag |
+| **shopify** | Shopify e-commerce integration | accounts, line, system |
+| **shopline** | Shopline e-commerce integration | accounts, line, openapi, organization, payment, system, tag, webhook |
+| **sms** | SMS delivery — domestic/international SMS campaigns | audience, channel, google_analytics, journey, line, openapi, organization, payment... |
+| **sms_plus** | SMS Plus — enhanced SMS features, message records | line, notification, openapi, organization, payment, sms, whatsapp |
+| **system** | System-wide utilities — campaign tracking, feature flags | accounts, audience, google_analytics, line, message, notification, referral, tag |
+| **tag** | Tag management — contact tagging, auto-tagging rules | accounts, audience, cdp, journey, line, organization, report, system |
+| **webhook** | Webhook delivery — event push to external systems | line, openapi, prize, receipt, system, tag |
+| **whatsapp** | WhatsApp Business messaging, template management | auto_reply, channel, line, message, openapi, organization, tag |
 
 ## 3. Module Details
 
-### Auto-reply
-- MAAC Module: Auto-reply
-- Known issues: 20
+### CAAC/aistrategy
+- **Product**: CAAC
+- **Description**: AI strategy configuration — model selection, prompts
+- **Imported by**: aitask, chat
+- **Frontend pages**: AI Settings
 
-**Sub-features:**
-- **Keyword Auto-reply**: Keyword Auto-reply — Trigger replies based on keyword matching
-- **Web Chat Auto-reply**: Web Chat Auto-reply — Auto-reply for web chat channels
-- **Auto-reply Scheduling**: Auto-reply Scheduling — Time-based auto-reply activation
-- **New Friend Welcome**: New Friend Welcome — Greeting for new contacts
-- **Reply Limit & Dedup**: Reply Limit & Dedup — Rate limiting and deduplication
+### CAAC/aitask
+- **Product**: CAAC
+- **Description**: AI task execution — auto-reply suggestions, summarization
+- **Imports from**: aistrategy, aiusage, chat
+- **Imported by**: organization
+- **Frontend pages**: AI Settings, Chat
 
-**Data flows:**
-- Auto-reply → Contacts (creates contacts)
-- Template Library → Auto-reply (provides templates)
+### CAAC/aiusage
+- **Product**: CAAC
+- **Description**: AI usage tracking — token consumption, quota
+- **Imported by**: aitask, chat, workertask
+- **Frontend pages**: AI Settings
 
-**Infrastructure dependencies:**
-- LINE API
-- Meta API
+### CAAC/auth
+- **Product**: CAAC
+- **Description**: Authentication & authorization — SSO, 2FA
+- **Frontend pages**: Settings
 
-**Issues (20):** P2: 19, P3: 1
+### CAAC/cat
+- **Product**: CAAC
+- **Description**: CAT (Contact Attribution Tracking) — member journey tracking
 
-### Broadcast
-- MAAC Module: Broadcast
+### CAAC/cdp
+- **Product**: CAAC
+- **Description**: CDP integration — unified contact view within CAAC
+- **Imported by**: chat
 
-**Sub-features:**
-- **LINE Broadcast**: LINE Broadcast — Push messages to LINE contacts
-- **Broadcast Scheduling**: Broadcast Scheduling — Schedule future broadcast sends
-- **Broadcast Report**: Broadcast Report — Post-send analytics and delivery stats
+### CAAC/chat
+- **Product**: CAAC
+- **Description**: Core 1-on-1 chat — message routing, conversation lifecycle
+- **Imports from**: aistrategy, aiusage, cdp, organization, tag
+- **Imported by**: aitask, longrunningtask
+- **Frontend pages**: Broadcast, Chat, Quick Template
 
-**Data flows:**
-- Broadcast → Insight (feeds metrics)
-- Segment → Broadcast (filters audience)
-- Template Library → Broadcast (provides templates)
-- Customer Journey → Broadcast (sends messages)
+### CAAC/dashboard
+- **Product**: CAAC
+- **Description**: CAAC analytics dashboard — conversation metrics, team performance
+- **Frontend pages**: Insights
 
-**Infrastructure dependencies:**
-- LINE API
+### CAAC/longrunningtask
+- **Product**: CAAC
+- **Description**: Long-running operations — bulk exports, data migration
+- **Imports from**: chat
 
-### Contacts
-- MAAC Module: Contacts
+### CAAC/openapi
+- **Product**: CAAC
+- **Description**: CAAC public API for external integrations
 
-**Sub-features:**
-- **Contact Profile**: Contact Profile — Unified contact profile with LINE UID, CID, phone, email
-- **Profile Unification**: Profile Unification — Merge contacts across channels using matching logic
-- **Contact Import/Export**: Contact Import/Export — Bulk import/export contacts via CSV or API
-- **Email Channel**: Email Channel — Email contact management and sender domain setup
-- **Contact Fields**: Contact Fields — Custom and system fields on contact profiles
+### CAAC/organization
+- **Product**: CAAC
+- **Description**: Organization management — channels, users, roles, AI features
+- **Imports from**: aitask
+- **Imported by**: chat
+- **Frontend pages**: Settings
 
-**Data flows:**
-- Contacts → Segment (provides data)
-- Contacts → Customer Journey (enters journey)
-- Tag Manager → Contacts (labels contacts)
-- Deeplink → Contacts (acquires contacts)
-- Auto-reply → Contacts (creates contacts)
+### CAAC/tag
+- **Product**: CAAC
+- **Description**: Contact tagging within CAAC conversations
+- **Imported by**: chat
 
-**Infrastructure dependencies:**
-- LINE API
-- PostgreSQL
+### CAAC/workertask
+- **Product**: CAAC
+- **Description**: Background worker tasks — message processing, sync jobs
+- **Imports from**: aiusage
 
-### Customer Journey
-- MAAC Module: Customer Journey
+### CDH/broadcast
+- **Product**: CDH
+- **Description**: CDH broadcast coordination — cross-product message dispatch
 
-**Sub-features:**
-- **Journey Editor**: Journey Editor — Visual flow canvas for journey design
-- **Journey Triggers**: Journey Triggers — Event-based triggers (tag, GA, time)
-- **Journey Actions**: Journey Actions — Message send, tag ops, wait nodes
-- **Journey Conditions**: Journey Conditions — Yes/No branch and filter conditions
-- **Journey Report**: Journey Report — Per-node analytics and conversion
-- **EDM Integration**: EDM Integration — Email channel in journey via SendGrid
+### CDH/channel_entity_comment
+- **Product**: CDH
+- **Description**: Channel entity commenting — AI-powered contact annotations
 
-**Data flows:**
-- Customer Journey → Broadcast (sends messages)
-- Customer Journey → Tag Manager (applies tags)
-- Customer Journey → Segment (uses segments)
-- Contacts → Customer Journey (enters journey)
+### CDH/contact
+- **Product**: CDH
+- **Description**: Unified contact profile — cross-product contact view
+- **Imports from**: unification
 
-**Infrastructure dependencies:**
-- SendGrid
-- Airflow
+### CDH/custom_field
+- **Product**: CDH
+- **Description**: Custom contact fields — user-defined attributes
 
-### Deeplink
-- MAAC Module: Deeplink
-- Known issues: 15
+### CDH/engagement_history
+- **Product**: CDH
+- **Description**: Engagement history — cross-channel interaction tracking
 
-**Sub-features:**
-- **Deeplink Generator**: Deeplink Generator — Create trackable deeplinks for LINE
-- **UTM Tracking**: UTM Tracking — UTM parameter support for deeplinks
-- **Deeplink Report**: Deeplink Report — Click and conversion analytics
-- **Deeplink QR Code**: Deeplink QR Code — QR code generation for deeplinks
+### CDH/member
+- **Product**: CDH
+- **Description**: Member management — import/export, profile enrichment
+- **Imports from**: tag, unification
+- **Imported by**: tag, unification
 
-**Data flows:**
-- Deeplink → Contacts (acquires contacts)
-- Deeplink → Insight (feeds analytics)
-- Tracelink → Deeplink (wraps URLs)
-- Rich Menu → Deeplink (links to deeplinks)
+### CDH/richmenu
+- **Product**: CDH
+- **Description**: LINE Rich Menu management via CDH
 
-**Infrastructure dependencies:**
-- LIFF
+### CDH/segment
+- **Product**: CDH
+- **Description**: Cross-product audience segmentation via SQL/LLM
 
-**Issues (15):** P2: 13, P4: 2
+### CDH/tag
+- **Product**: CDH
+- **Description**: Cross-product tag synchronization
+- **Imports from**: member
+- **Imported by**: member, unification
 
-### Insight
-- MAAC Module: Insight
-- Known issues: 18
+### CDH/task
+- **Product**: CDH
+- **Description**: Background task execution — unification, sync, export jobs
 
-**Sub-features:**
-- **Data Overview**: Data Overview — Dashboard with LINE overview, tag coverage, CID binding
-- **Deeplink Report**: Deeplink Report — Tracks new contacts acquired via deeplinks
-- **Acquisition Analytics**: Acquisition Analytics — New contact acquisition metrics and sources
-- **Open Rate Hotspot**: Open Rate Hotspot — Heatmap of message open rates by day/time
-- **Message Analytics**: Message Analytics — Track messages sent across channels
+### CDH/unification
+- **Product**: CDH
+- **Description**: Contact unification graph — merge/split profiles across channels
+- **Imports from**: member, tag
+- **Imported by**: contact, member
 
-**Data flows:**
-- Deeplink → Insight (feeds analytics)
-- Broadcast → Insight (feeds metrics)
+### DAAC/agent_v2
+- **Product**: DAAC
+- **Description**: AI Agent — natural language data querying (OpenAI/Gemini)
+- **Imports from**: session
 
-**Infrastructure dependencies:**
-- Airflow
-- BigQuery
-- PostgreSQL
+### DAAC/auth
+- **Product**: DAAC
+- **Description**: Authentication via Arioso SSO + Interlude
+- **Imported by**: organization, session
 
-**Issues (18):** P1: 2, P2: 13, P3: 2, P4: 1
+### DAAC/dashboard
+- **Product**: DAAC
+- **Description**: Custom analytics dashboards — user-created visualizations
+- **Imports from**: organization
 
-### Prize Management
-- MAAC Module: Prize Management
-- Known issues: 7
+### DAAC/dbt
+- **Product**: DAAC
+- **Description**: dbt pipeline management — data transformation & modeling
+- **Imports from**: organization
 
-**Sub-features:**
-- **Prize Setup**: Prize Setup — Configure prizes for campaigns
-- **Rapid Referral**: Rapid Referral — Referral campaign prize distribution
-- **Prize Messages**: Prize Messages — LINE Flex Message prize notifications
+### DAAC/file
+- **Product**: DAAC
+- **Description**: File management — upload/download for analysis results
 
-**Infrastructure dependencies:**
-- LINE API
+### DAAC/infra
+- **Product**: DAAC
+- **Description**: Infrastructure provisioning — Terraform client setup
+- **Imports from**: organization
 
-**Issues (7):** P1: 2, P2: 4, P4: 1
+### DAAC/journey
+- **Product**: DAAC
+- **Description**: Journey analysis — customer path analysis via AI
+- **Imports from**: session
 
-### Rich Menu
-- MAAC Module: Rich Menu
-- Known issues: 1
+### DAAC/organization
+- **Product**: DAAC
+- **Description**: Org management — workspace, dbt config, Terraform infra
+- **Imports from**: auth
+- **Imported by**: dashboard, dbt, infra, session
 
-**Sub-features:**
-- **Rich Menu Editor**: Rich Menu Editor — Visual editor for LINE rich menus
-- **Rich Menu Scheduling**: Rich Menu Scheduling — Schedule rich menu activation
+### DAAC/session
+- **Product**: DAAC
+- **Description**: AI analysis session — conversation state, context management
+- **Imports from**: auth, organization
+- **Imported by**: agent_v2, journey
 
-**Data flows:**
-- Rich Menu → Deeplink (links to deeplinks)
+### MAAC/accounts
+- **Product**: MAAC
+- **Description**: User authentication, SSO, 2FA, session management
+- **Imports from**: audience, caac, channel, journey, line, notification, organization, sms
+- **Imported by**: audience, auto_reply, broadcast, caac, campaign, cdp, channel, cyberbiz, email_channel, extension, fb, google_analytics, journey, line, nine_one_app, notification, openapi, organization, prize, referral, sforzando, shopify, shopline, system, tag
+- **Frontend pages**: Organization Settings
 
-**Infrastructure dependencies:**
-- LINE API
+### MAAC/ai_generation
+- **Product**: MAAC
+- **Description**: AI content generation — copywriting, image generation
+- **Imports from**: organization, system
 
-**Issues (1):** P2: 1
+### MAAC/audience
+- **Product**: MAAC
+- **Description**: Contact management, segments, filters, ad platform audiences
+- **Imports from**: accounts, cdp, google_analytics, line, organization, sms, system, tag
+- **Imported by**: accounts, broadcast, cdp, journey, line, openapi, organization, sms, system, tag
+- **Frontend pages**: Members, Retarget, Segment
 
-### Segment
-- MAAC Module: Segment
-- Known issues: 26
+### MAAC/auto_reply
+- **Product**: MAAC
+- **Description**: Keyword auto-reply across LINE/FB/WhatsApp channels
+- **Imports from**: accounts, channel, fb, google_analytics, line, organization, tag, whatsapp
+- **Imported by**: fb, line, openapi, whatsapp
+- **Frontend pages**: Auto Reply
 
-**Sub-features:**
-- **AI Segment**: AI Segment — NL prompt-based audience segmentation
-- **Segment Filters**: Segment Filters — Rule-based segmentation with include/exclude
-- **Segment Tag Ops**: Segment Tag Ops — Batch tag operations on segments
+### MAAC/broadcast
+- **Product**: MAAC
+- **Description**: Push messaging (LINE/SMS/WhatsApp), scheduling, A/B test
+- **Imports from**: accounts, audience, channel, google_analytics, line, message, organization, report, system, tag
+- **Frontend pages**: Broadcast
 
-**Data flows:**
-- Segment → Broadcast (filters audience)
-- Contacts → Segment (provides data)
-- Tag Manager → Segment (tags for filtering)
-- Customer Journey → Segment (uses segments)
+### MAAC/caac
+- **Product**: MAAC
+- **Description**: CAAC integration bridge — connects Rubato to Cantata
+- **Imports from**: accounts, line, organization
+- **Imported by**: accounts, line, organization
 
-**Infrastructure dependencies:**
-- BigQuery
+### MAAC/campaign
+- **Product**: MAAC
+- **Description**: Campaign orchestration — multi-channel campaign management
+- **Imports from**: accounts, channel, journey
 
-**Issues (26):** P0: 2, P1: 4, P2: 17, P3: 2, P4: 1
+### MAAC/cdp
+- **Product**: MAAC
+- **Description**: Customer Data Platform — profile unification, data sync
+- **Imports from**: accounts, audience, journey, line, organization, tag
+- **Imported by**: audience, journey, line, tag
+- **Frontend pages**: Members
 
-### Smart redirect tool
-- MAAC Module: Smart redirect tool
+### MAAC/channel
+- **Product**: MAAC
+- **Description**: Multi-channel management (LINE/FB/IG/WhatsApp/Email/SMS)
+- **Imports from**: accounts, line, message, notification, openapi, organization, sms, system
+- **Imported by**: accounts, auto_reply, broadcast, campaign, email_channel, extension, fb, journey, line, message, openapi, organization, sms, whatsapp
+- **Frontend pages**: Channel Settings
 
-**Sub-features:**
-- **Smart Redirect**: Smart Redirect — Intelligent URL redirection logic
+### MAAC/cyberbiz
+- **Product**: MAAC
+- **Description**: Cyberbiz e-commerce integration
+- **Imports from**: accounts, line
 
-### Tag Manager
-- MAAC Module: Tag Manager
-- Known issues: 10
+### MAAC/email_channel
+- **Product**: MAAC
+- **Description**: Email campaign delivery via SendGrid, bounce handling
+- **Imports from**: accounts, channel, journey, line, organization, sms, system
+- **Imported by**: journey, line, openapi
+- **Frontend pages**: Journey
 
-**Sub-features:**
-- **Tag CRUD**: Tag CRUD — Create, read, update, delete tags
-- **Auto Tagging**: Auto Tagging — Rule-based automatic tag assignment
-- **Tag Coverage**: Tag Coverage — Analytics on tag usage across contacts
+### MAAC/extension
+- **Product**: MAAC
+- **Description**: MAAC extension plugins — custom action nodes
+- **Imports from**: accounts, channel, google_analytics, journey, line, organization
 
-**Data flows:**
-- Tag Manager → Segment (tags for filtering)
-- Tag Manager → Contacts (labels contacts)
-- Customer Journey → Tag Manager (applies tags)
+### MAAC/fb
+- **Product**: MAAC
+- **Description**: Facebook/Instagram messaging, comment auto-reply
+- **Imports from**: accounts, auto_reply, channel, google_analytics, line, organization, tag
+- **Imported by**: auto_reply, line
+- **Frontend pages**: Auto Reply, Retarget
 
-**Infrastructure dependencies:**
-- PostgreSQL
+### MAAC/form
+- **Product**: MAAC
+- **Description**: SurveyCake form integration, response tracking
+- **Imports from**: line, tag, webhook
+- **Imported by**: line
+- **Frontend pages**: SurveyCake (Form)
 
-**Issues (10):** P2: 9, P3: 1
+### MAAC/google_analytics
+- **Product**: MAAC
+- **Description**: GA4/UTM tracking integration for campaigns
+- **Imports from**: accounts, line, organization, report, system
+- **Imported by**: audience, auto_reply, broadcast, extension, fb, journey, line, message, openapi, organization, prize, report, sms, system
+- **Frontend pages**: Insight (Dashboard), Tracelink
 
-### Template Library
-- MAAC Module: Template Library
-- Known issues: 1
+### MAAC/journey
+- **Product**: MAAC
+- **Description**: Customer journey automation (triggers, actions, conditions)
+- **Imports from**: accounts, audience, cdp, channel, email_channel, google_analytics, line, organization, report, sms, system, tag
+- **Imported by**: accounts, campaign, cdp, email_channel, extension, line, organization, sms, tag
+- **Frontend pages**: Journey
 
-**Sub-features:**
-- **Message Templates**: Message Templates — Reusable LINE Flex Message templates
+### MAAC/line
+- **Product**: MAAC
+- **Description**: Core LINE integration — messaging, rich menu, Flex, LIFF
+- **Imports from**: accounts, audience, auto_reply, caac, cdp, channel, email_channel, fb, form, google_analytics, journey, message, notification, openapi, organization, prize, receipt, referral, report, sms, system, tag, webhook, whatsapp
+- **Imported by**: accounts, audience, auto_reply, broadcast, caac, cdp, channel, cyberbiz, email_channel, extension, fb, form, google_analytics, journey, message, nine_one_app, openapi, organization, payment, prize, receipt, referral, report, sforzando, shopify, shopline, sms, sms_plus, system, tag, webhook, whatsapp
+- **Frontend pages**: Beacon, Bindlink, DPM, Deeplink, Interaction Games, Rich Menu, Template Library, Widget
 
-**Data flows:**
-- Template Library → Broadcast (provides templates)
-- Template Library → Auto-reply (provides templates)
+### MAAC/message
+- **Product**: MAAC
+- **Description**: Message rendering engine — builds LINE/FB/SMS/Email messages
+- **Imports from**: channel, google_analytics, line, organization, system
+- **Imported by**: broadcast, channel, line, system, whatsapp
+- **Frontend pages**: Broadcast, Template Library
 
-**Issues (1):** P2: 1
+### MAAC/nine_one_app
+- **Product**: MAAC
+- **Description**: 91App e-commerce integration
+- **Imports from**: accounts, line, openapi, organization, payment, system, tag, webhook
 
-### Tracelink
-- MAAC Module: Tracelink
-- Known issues: 8
+### MAAC/notification
+- **Product**: MAAC
+- **Description**: In-app notification system for admin users
+- **Imports from**: accounts
+- **Imported by**: accounts, channel, line, openapi, organization, payment, prize, sms_plus, system
 
-**Sub-features:**
-- **Tracelink Short URL**: Tracelink Short URL — Short URL generation with tracking
-- **LIFF Integration**: LIFF Integration — LINE Front-end Framework integration
-- **CLID Tracking**: CLID Tracking — Cross-domain customer ID tracking
+### MAAC/openapi
+- **Product**: MAAC
+- **Description**: Public OpenAPI — external developer API endpoints
+- **Imports from**: accounts, audience, auto_reply, channel, email_channel, google_analytics, line, notification, organization, payment, prize, report, sms, system, tag, webhook, whatsapp
+- **Imported by**: channel, line, nine_one_app, organization, prize, receipt, report, shopline, sms, sms_plus, webhook, whatsapp
+- **Frontend pages**: API Token
 
-**Data flows:**
-- Tracelink → Deeplink (wraps URLs)
+### MAAC/organization
+- **Product**: MAAC
+- **Description**: Org/tenant management, billing, feature control, RBAC
+- **Imports from**: accounts, audience, caac, channel, google_analytics, journey, line, notification, openapi, payment
+- **Imported by**: accounts, ai_generation, audience, auto_reply, broadcast, caac, cdp, channel, email_channel, extension, fb, google_analytics, journey, line, message, nine_one_app, openapi, payment, prize, receipt, referral, sforzando, shopline, sms, sms_plus, tag, whatsapp
+- **Frontend pages**: Organization Settings
 
-**Infrastructure dependencies:**
-- LIFF
-- Redis
+### MAAC/payment
+- **Product**: MAAC
+- **Description**: Payment & billing — subscription, invoice management
+- **Imports from**: line, notification, organization
+- **Imported by**: nine_one_app, openapi, organization, report, shopline, sms, sms_plus
 
-**Issues (8):** P2: 4, P3: 2, P4: 2
+### MAAC/prize
+- **Product**: MAAC
+- **Description**: Prize/reward management, lottery, coupon distribution
+- **Imports from**: accounts, google_analytics, line, notification, openapi, organization, report, sforzando, system, tag, webhook
+- **Imported by**: line, openapi, receipt, referral, sforzando, webhook
+- **Frontend pages**: Interaction Games, Prize
 
-## 4. Cross-Module Dependency Map
+### MAAC/receipt
+- **Product**: MAAC
+- **Description**: Receipt registration campaign for loyalty programs
+- **Imports from**: line, openapi, organization, prize, system, webhook
+- **Imported by**: line, webhook
+- **Frontend pages**: Receipt Register
 
-This section maps how modules depend on and feed data to each other.
-Use this to understand impact when changing a module.
+### MAAC/referral
+- **Product**: MAAC
+- **Description**: Rapid Referral — MGM campaigns, invitation tracking
+- **Imports from**: accounts, line, organization, prize, system, tag
+- **Imported by**: line, system
+- **Frontend pages**: Referral V2
 
-```
-FROM                  → TO                    RELATIONSHIP
-─────────────────────────────────────────────────────────────
-CDH                    → MAAC                   unifies contacts
-CDH                    → CAAC                   unifies contacts
-DAAC                   → MAAC                   provides data
-DAAC                   → CDH                    enriches data
-MAAC                   → CAAC                   shares contacts
-Contacts               → Segment                provides data
-Segment                → Broadcast              filters audience
-Template Library       → Broadcast              provides templates
-Template Library       → Auto-reply             provides templates
-Tag Manager            → Segment                tags for filtering
-Tag Manager            → Contacts               labels contacts
-Deeplink               → Contacts               acquires contacts
-Deeplink               → Insight                feeds analytics
-Tracelink              → Deeplink               wraps URLs
-Broadcast              → Insight                feeds metrics
-Customer Journey       → Broadcast              sends messages
-Customer Journey       → Tag Manager            applies tags
-Customer Journey       → Segment                uses segments
-Auto-reply             → Contacts               creates contacts
-Rich Menu              → Deeplink               links to deeplinks
-Contacts               → Customer Journey       enters journey
-CDH                    → Contacts               unifies profiles
-DAAC                   → Segment                feeds AI Segment
-```
+### MAAC/report
+- **Product**: MAAC
+- **Description**: Analytics & reporting — campaign performance, member stats
+- **Imports from**: google_analytics, line, openapi, payment, sms_plus, system, tag
+- **Imported by**: broadcast, google_analytics, journey, line, openapi, prize, sms, tag
+- **Frontend pages**: Insight (Dashboard)
+
+### MAAC/sforzando
+- **Product**: MAAC
+- **Description**: Prize fulfillment partner integration
+- **Imports from**: accounts, line, organization, prize, system, tag
+- **Imported by**: prize
+- **Frontend pages**: Prize
+
+### MAAC/shopify
+- **Product**: MAAC
+- **Description**: Shopify e-commerce integration
+- **Imports from**: accounts, line, system
+
+### MAAC/shopline
+- **Product**: MAAC
+- **Description**: Shopline e-commerce integration
+- **Imports from**: accounts, line, openapi, organization, payment, system, tag, webhook
+
+### MAAC/sms
+- **Product**: MAAC
+- **Description**: SMS delivery — domestic/international SMS campaigns
+- **Imports from**: audience, channel, google_analytics, journey, line, openapi, organization, payment, report, system
+- **Imported by**: accounts, audience, channel, email_channel, journey, line, openapi, sms_plus
+- **Frontend pages**: Broadcast, SMS Plus
+
+### MAAC/sms_plus
+- **Product**: MAAC
+- **Description**: SMS Plus — enhanced SMS features, message records
+- **Imports from**: line, notification, openapi, organization, payment, sms, whatsapp
+- **Imported by**: report
+- **Frontend pages**: SMS Plus
+
+### MAAC/system
+- **Product**: MAAC
+- **Description**: System-wide utilities — campaign tracking, feature flags
+- **Imports from**: accounts, audience, google_analytics, line, message, notification, referral, tag
+- **Imported by**: ai_generation, audience, broadcast, channel, email_channel, google_analytics, journey, line, message, nine_one_app, openapi, prize, receipt, referral, report, sforzando, shopify, shopline, sms, tag, webhook
+
+### MAAC/tag
+- **Product**: MAAC
+- **Description**: Tag management — contact tagging, auto-tagging rules
+- **Imports from**: accounts, audience, cdp, journey, line, organization, report, system
+- **Imported by**: audience, auto_reply, broadcast, cdp, fb, form, journey, line, nine_one_app, openapi, prize, referral, report, sforzando, shopline, system, webhook, whatsapp
+- **Frontend pages**: Members, Tag Manager
+
+### MAAC/webhook
+- **Product**: MAAC
+- **Description**: Webhook delivery — event push to external systems
+- **Imports from**: line, openapi, prize, receipt, system, tag
+- **Imported by**: form, line, nine_one_app, openapi, prize, receipt, shopline
+- **Frontend pages**: Webhook
+
+### MAAC/whatsapp
+- **Product**: MAAC
+- **Description**: WhatsApp Business messaging, template management
+- **Imports from**: auto_reply, channel, line, message, openapi, organization, tag
+- **Imported by**: auto_reply, line, openapi, sms_plus
+- **Frontend pages**: Auto Reply
+
+## 4. Frontend → Backend Mapping
+
+### MAAC Frontend Pages
+
+| Page | Calls Backend Modules |
+|------|----------------------|
+| API Token | openapi |
+| Auto Reply | auto_reply, fb, whatsapp |
+| Beacon | line |
+| Bindlink | line |
+| Broadcast | broadcast, message, sms |
+| Channel Settings | channel |
+| DPM | line |
+| Deeplink | line |
+| Insight (Dashboard) | report, google_analytics |
+| Interaction Games | prize, line |
+| Journey | journey, email_channel |
+| Members | audience, cdp, tag |
+| Organization Settings | organization, accounts |
+| Prize | prize, sforzando |
+| Receipt Register | receipt |
+| Referral V2 | referral |
+| Retarget | audience, fb |
+| Rich Menu | line |
+| SMS Plus | sms_plus, sms |
+| Segment | audience |
+| SurveyCake (Form) | form |
+| Tag Manager | tag |
+| Template Library | message, line |
+| Tracelink | google_analytics |
+| Webhook | webhook |
+| Widget | line |
+
+### CAAC Frontend Pages
+
+| Page | Calls Backend Modules |
+|------|----------------------|
+| AI Settings | aistrategy, aitask, aiusage |
+| Broadcast | chat |
+| Chat | chat, aitask |
+| Insights | dashboard |
+| Quick Template | chat |
+| Settings | organization, auth |
 
 ## 5. Infrastructure Dependencies
 
-### Airflow
-- Infrastructure: Airflow
-- Apache Airflow for ETL pipelines
-- **Used by:** Insight, Customer Journey
-
-### BigQuery
-- Infrastructure: BigQuery
-- Google BigQuery data warehouse
-- **Used by:** Insight, Segment
-
-### Django Admin
-- Infrastructure: Django Admin
-- Admin panel for config management
-
-### LIFF
-- Infrastructure: LIFF
-- LINE Front-end Framework
-- **Used by:** Deeplink, Tracelink
-
-### LINE API
-- Infrastructure: LINE API
-- LINE Messaging API, LIFF, Rich Menu API
-- **Used by:** Contacts, Broadcast, Auto-reply, Prize Management, Rich Menu
-
-### Meta API
-- Infrastructure: Meta API
-- Facebook & Instagram messaging APIs
-- **Used by:** Auto-reply
-
-### PostgreSQL
-- Infrastructure: PostgreSQL
-- Primary relational database
-- **Used by:** Insight, Contacts, Tag Manager
-
-### Redis
-- Infrastructure: Redis
-- Cache layer for session/state
-- **Used by:** Tracelink
-
-### SendGrid
-- Infrastructure: SendGrid
-- Email delivery service
-- **Used by:** Customer Journey
-
-## 6. Root Cause Taxonomy
-
-Root causes are clustered from 106 investigation tickets.
-Each cluster represents a systemic pattern that recurs across modules.
-
-### Other Root Cause (33 tickets)
-- Root Cause: Other Root Cause
-- Other root causes not fitting major categories
-- Affected: 33 tickets
-
-**Affected modules:**
-- Segment: 11 tickets
-- Auto-reply: 8 tickets
-- Prize Management: 5 tickets
-- Insight: 2 tickets
-- Deeplink: 2 tickets
-- Tracelink: 2 tickets
-- Tag Manager: 1 tickets
-
-### Config / Permission (13 tickets)
-- Root Cause: Config / Permission
-- Missing permissions or disabled settings
-- Affected: 13 tickets
-
-**Affected modules:**
-- Auto-reply: 4 tickets
-- Segment: 3 tickets
-- Insight: 2 tickets
-- Tag Manager: 1 tickets
-- Deeplink: 1 tickets
-- Tracelink: 1 tickets
-
-**Related infrastructure:** Django Admin
-
-### Data Inconsistency (12 tickets)
-- Root Cause: Data Inconsistency
-- Mismatched metrics between reports/dashboards
-- Affected: 12 tickets
-
-**Affected modules:**
-- Insight: 4 tickets
-- Segment: 4 tickets
-- Tag Manager: 3 tickets
-- Tracelink: 1 tickets
-
-### External API Dep (11 tickets)
-- Root Cause: External API Dep
-- LINE/Meta/SendGrid API changes, rate limits, or policy restrictions
-- Affected: 11 tickets
-
-**Affected modules:**
-- Deeplink: 6 tickets
-- Auto-reply: 3 tickets
-- Segment: 1 tickets
-- Rich Menu: 1 tickets
-
-**Related infrastructure:** LINE API, Meta API
-
-### Data Pipeline Failure (10 tickets)
-- Root Cause: Data Pipeline Failure
-- Airflow DAG failures, BigQuery sync issues, ETL errors causing missing report data
-- Affected: 10 tickets
-
-**Affected modules:**
-- Insight: 7 tickets
-- Segment: 3 tickets
-
-**Related infrastructure:** Airflow, BigQuery
-
-### Webhook / Sync Delay (10 tickets)
-- Root Cause: Webhook / Sync Delay
-- Event processing timing, race conditions
-- Affected: 10 tickets
-
-**Affected modules:**
-- Tag Manager: 3 tickets
-- Insight: 2 tickets
-- Segment: 2 tickets
-- Auto-reply: 2 tickets
-- Prize Management: 1 tickets
-
-### User Misunderstanding (5 tickets)
-- Root Cause: User Misunderstanding
-- Customer misunderstanding resolved by documentation
-- Affected: 5 tickets
-
-**Affected modules:**
-- Segment: 1 tickets
-- Tag Manager: 1 tickets
-- Template Library: 1 tickets
-- Auto-reply: 1 tickets
-
-### By Design (3 tickets)
-- Root Cause: By Design
-- Behavior working as designed but misaligned with user expectations
-- Affected: 3 tickets
-
-**Affected modules:**
-- Insight: 1 tickets
-- Tag Manager: 1 tickets
-- Tracelink: 1 tickets
-
-### Quota / Limit (3 tickets)
-- Root Cause: Quota / Limit
-- System or API quota/rate limit exceeded
-- Affected: 3 tickets
-
-**Affected modules:**
-- Deeplink: 5 tickets
-- Segment: 1 tickets
-- Auto-reply: 1 tickets
-
-### Encoding / Format (3 tickets)
-- Root Cause: Encoding / Format
-- Character encoding, emoji, or template format issues
-- Affected: 3 tickets
-
-**Affected modules:**
-- Auto-reply: 1 tickets
-- Tracelink: 1 tickets
-- Prize Management: 1 tickets
-
-### Cache / State Issue (2 tickets)
-- Root Cause: Cache / State Issue
-- Stale cache, cookies, or session data
-- Affected: 2 tickets
-
-**Affected modules:**
-- Tracelink: 2 tickets
-
-**Related infrastructure:** Redis
-
-### Resource Constraint (1 tickets)
-- Root Cause: Resource Constraint
-- Issues too costly to fix; accepted technical debt
-- Affected: 1 tickets
-
-**Affected modules:**
-- Deeplink: 1 tickets
-
-## 7. Issue Catalog — Attribution Table
-
-Each issue is linked to its module, root cause cluster, and Asana ticket.
-
-### P0 Issues (2)
-
-| Issue | Module | Root Cause | Asana |
-|-------|--------|-----------|-------|
-| Data Insights Display Anomalies in Multi | Segment | Data Pipeline Failure | [1213131750073052](https://app.asana.com/1/1184020052539844/task/1213131750073052) |
-| Contact Discrepancy in LINE Segment | Segment | Data Inconsistency | [1213084606836149](https://app.asana.com/1/1184020052539844/task/1213084606836149) |
-
-### P1 Issues (8)
-
-| Issue | Module | Root Cause | Asana |
-|-------|--------|-----------|-------|
-| Zero Tag Coverage in MAAC Data Insights | Insight | Data Pipeline Failure | [1213185386062836](https://app.asana.com/1/1184020052539844/task/1213185386062836) |
-| Missing Data in Data Insights Report for | Insight | Data Pipeline Failure | [1212601716064139](https://app.asana.com/1/1184020052539844/task/1212601716064139) |
-| Prize Management Editing Issue | Prize Management | Other Root Cause | [1212834391682490](https://app.asana.com/1/1184020052539844/task/1212834391682490) |
-| Prize Delivery Failure in Rapid Referral | Prize Management | Encoding / Format | [1211256941142756](https://app.asana.com/1/1184020052539844/task/1211256941142756) |
-| Reduced Recipient Count in Scheduled Sma | Segment | Data Inconsistency | [1213115186501137](https://app.asana.com/1/1184020052539844/task/1213115186501137) |
-| Segment Update Failure in MAAC | Segment | Other Root Cause | [1212760165483455](https://app.asana.com/1/1184020052539844/task/1212760165483455) |
-| Unexpected Segment Calculation Results | Segment | Other Root Cause | [1212084549273717](https://app.asana.com/1/1184020052539844/task/1212084549273717) |
-| Unexpected MAAC Segment Count Discrepanc | Segment | Other Root Cause | [1212084549273694](https://app.asana.com/1/1184020052539844/task/1212084549273694) |
-
-### P2 Issues (81)
-
-| Issue | Module | Root Cause | Asana |
-|-------|--------|-----------|-------|
-| Auto-Reply Trigger Failure on Facebook M | Auto-reply | Config / Permission | [1213145171671763](https://app.asana.com/1/1184020052539844/task/1213145171671763) |
-| Keyword Case Sensitivity Issue in MAAC A | Auto-reply | Other Root Cause | [1213109852110296](https://app.asana.com/1/1184020052539844/task/1213109852110296) |
-| Auto-Reply Delays and Failures in Specif | Auto-reply | Other Root Cause | [1212806889218671](https://app.asana.com/1/1184020052539844/task/1212806889218671) |
-| Keyword Auto-Reply Trigger Issue on Inst | Auto-reply | Config / Permission | [1212740607334933](https://app.asana.com/1/1184020052539844/task/1212740607334933) |
-| Image Carousel Addition Failure in Auto- | Auto-reply | Config / Permission | [1212516260073008](https://app.asana.com/1/1184020052539844/task/1212516260073008) |
-| Auto-Reply Failure on Instagram | Auto-reply | User Misunderstanding | [1212278988595118](https://app.asana.com/1/1184020052539844/task/1212278988595118) |
-| Anomalous Data in Auto Reply Feature | Auto-reply | Other Root Cause | [1212207746495315](https://app.asana.com/1/1184020052539844/task/1212207746495315) |
-| Auto-Reply Editing Failure in MAAC Syste | Auto-reply | Other Root Cause | [1212084549446863](https://app.asana.com/1/1184020052539844/task/1212084549446863) |
-| Error Code and Content Loss During Editi | Auto-reply | Other Root Cause | [1211990876371633](https://app.asana.com/1/1184020052539844/task/1211990876371633) |
-| Display Name Issue for New OA Contacts | Auto-reply | External API Dep | [1211975651294654](https://app.asana.com/1/1184020052539844/task/1211975651294654) |
-| Unexpected Automated Reply in MAAC Syste | Auto-reply | External API Dep | [1211730242249302](https://app.asana.com/1/1184020052539844/task/1211730242249302) |
-| Image Display Issue in MAAC Auto-Reply o | Auto-reply | Other Root Cause | [1211658874580570](https://app.asana.com/1/1184020052539844/task/1211658874580570) |
-| Google Maps Link Display Issue in MAAC A | Auto-reply | Encoding / Format | [1211529952491962](https://app.asana.com/1/1184020052539844/task/1211529952491962) |
-| Keyword Auto-Reply Failure in MAAC Syste | Auto-reply | Webhook / Sync Delay | [1211518547270482](https://app.asana.com/1/1184020052539844/task/1211518547270482) |
-| Auto-Reply Discrepancy in MAAC Settings | Auto-reply | Webhook / Sync Delay | [1211405329420293](https://app.asana.com/1/1184020052539844/task/1211405329420293) |
-| Missing Tag Application for New Contacts | Auto-reply | Other Root Cause | [1211383189088844](https://app.asana.com/1/1184020052539844/task/1211383189088844) |
-| Image Display Issues in Facebook Messeng | Auto-reply | Other Root Cause | [1211289255692411](https://app.asana.com/1/1184020052539844/task/1211289255692411) |
-| Deeplink Redirection Failure in Meta Aut | Auto-reply | Quota / Limit | [1210875549357676](https://app.asana.com/1/1184020052539844/task/1210875549357676) |
-| Auto Reply Functionality Failure | Auto-reply | External API Dep | [1210776362195812](https://app.asana.com/1/1184020052539844/task/1210776362195812) |
-| Deeplink Redirection Issue on Facebook A | Deeplink | External API Dep | [1213079624870420](https://app.asana.com/1/1184020052539844/task/1213079624870420) |
-| CLID Missing During Deep Link Transition | Deeplink | External API Dep | [1213035004023053](https://app.asana.com/1/1184020052539844/task/1213035004023053) |
-| Message Delivery Failure in Customer Jou | Deeplink | Quota / Limit | [1212011516046540](https://app.asana.com/1/1184020052539844/task/1212011516046540) |
-| Missing Coupon Delivery via Deeplink | Deeplink | Other Root Cause | [1211818239155742](https://app.asana.com/1/1184020052539844/task/1211818239155742) |
-| Message Delivery Failure in Customer Jou | Deeplink | Quota / Limit | [1211728764247261](https://app.asana.com/1/1184020052539844/task/1211728764247261) |
-| Deep Link Failure in Facebook Environmen | Deeplink | External API Dep | [1211658876963521](https://app.asana.com/1/1184020052539844/task/1211658876963521) |
-| Deeplink Redirect Failure in Facebook Me | Deeplink | External API Dep | [1211476033978693](https://app.asana.com/1/1184020052539844/task/1211476033978693) |
-| Message Delivery Failure in Customer Jou | Deeplink | Quota / Limit | [1211405329420306](https://app.asana.com/1/1184020052539844/task/1211405329420306) |
-| Archived Deep Link Content Display for N | Deeplink | External API Dep | [1211368444546388](https://app.asana.com/1/1184020052539844/task/1211368444546388) |
-| Message Delivery Failure in Customer Jou | Deeplink | Quota / Limit | [1211368348898205](https://app.asana.com/1/1184020052539844/task/1211368348898205) |
-| Android Incompatibility with MAAC Referr | Deeplink | External API Dep | [1211356153706723](https://app.asana.com/1/1184020052539844/task/1211356153706723) |
-| Deeplink Functionality in TikTok Ads | Deeplink | Resource Constraint | [1211292942830085](https://app.asana.com/1/1184020052539844/task/1211292942830085) |
-| Message Delivery Failure in Customer Jou | Deeplink | Quota / Limit | [1211168364860701](https://app.asana.com/1/1184020052539844/task/1211168364860701) |
-| Data Discrepancy in Deeplink Reports | Insight | Data Inconsistency | [1212213023126579](https://app.asana.com/1/1184020052539844/task/1212213023126579) |
-| Discrepancy in Customer ID Binding Rates | Insight | Data Inconsistency | [1212207562464141](https://app.asana.com/1/1184020052539844/task/1212207562464141) |
-| Data Discrepancy in MAAC Acquisition Das | Insight | Data Pipeline Failure | [1211976775930269](https://app.asana.com/1/1184020052539844/task/1211976775930269) |
-| Unresponsive "View Send Record" Button i | Insight | Config / Permission | [1211780759562084](https://app.asana.com/1/1184020052539844/task/1211780759562084) |
-| Incorrect Auto-Reply Name in Weekly Repo | Insight | Webhook / Sync Delay | [1211693894670618](https://app.asana.com/1/1184020052539844/task/1211693894670618) |
-| Non-Unique Click Counts in Broadcast Mes | Insight | By Design | [1211518421816701](https://app.asana.com/1/1184020052539844/task/1211518421816701) |
-| Zero Tag Coverage on Insight Page for Al | Insight | Data Pipeline Failure | [1211426159186280](https://app.asana.com/1/1184020052539844/task/1211426159186280) |
-| Discrepancy in Customer ID Binding Rate  | Insight | Other Root Cause | [1211358426495869](https://app.asana.com/1/1184020052539844/task/1211358426495869) |
-| Membership Binding Anomalies in Data Ins | Insight | Data Pipeline Failure | [1211356786872970](https://app.asana.com/1/1184020052539844/task/1211356786872970) |
-| Open Rate Hotspot Discrepancies in MAAC  | Insight | Webhook / Sync Delay | [1211353841908307](https://app.asana.com/1/1184020052539844/task/1211353841908307) |
-| Mapping Count Recognition Failure for Cu | Insight | Data Pipeline Failure | [1211314354463888](https://app.asana.com/1/1184020052539844/task/1211314354463888) |
-| Auto-Reply Ranking Display in Insight Re | Insight | Config / Permission | [1211298009313561](https://app.asana.com/1/1184020052539844/task/1211298009313561) |
-| Message Discrepancy Between MAAC and LIN | Insight | Data Inconsistency | [1211285609853706](https://app.asana.com/1/1184020052539844/task/1211285609853706) |
-| "Limit Reached" Message and Prize Non-re | Prize Management | Other Root Cause | [1212713603195744](https://app.asana.com/1/1184020052539844/task/1212713603195744) |
-| Repeated Prize Redemption in JCB Event | Prize Management | Other Root Cause | [1212148507497017](https://app.asana.com/1/1184020052539844/task/1212148507497017) |
-| Unresponsive Redemption Voucher Click in | Prize Management | Other Root Cause | [1211530080882418](https://app.asana.com/1/1184020052539844/task/1211530080882418) |
-| Prize Stock Alert Notifications Despite  | Prize Management | Webhook / Sync Delay | [1211310614292818](https://app.asana.com/1/1184020052539844/task/1211310614292818) |
-| Incorrect Rich Menu Tagging After Contac | Rich Menu | External API Dep | [1211803131074457](https://app.asana.com/1/1184020052539844/task/1211803131074457) |
-| CID Field Data Discrepancy in Segment Ex | Segment | Data Inconsistency | [1213076444939189](https://app.asana.com/1/1184020052539844/task/1213076444939189) |
-| Segment Update Failure in MAAC System | Segment | Other Root Cause | [1212739151110360](https://app.asana.com/1/1184020052539844/task/1212739151110360) |
-| Identical Contact Numbers Across Differe | Segment | Config / Permission | [1212714239759016](https://app.asana.com/1/1184020052539844/task/1212714239759016) |
-| Smart Sending Suspension Request | Segment | Data Pipeline Failure | [1212617985199028](https://app.asana.com/1/1184020052539844/task/1212617985199028) |
-| Zero Data in High Purchase Probability L | Segment | Config / Permission | [1212543508010702](https://app.asana.com/1/1184020052539844/task/1212543508010702) |
-| Segment Data Export Format Changes | Segment | Other Root Cause | [1212465993341273](https://app.asana.com/1/1184020052539844/task/1212465993341273) |
-| AI Segment Displaying Zero Results | Segment | Other Root Cause | [1212277836186691](https://app.asana.com/1/1184020052539844/task/1212277836186691) |
-| GA Tracking Failure in MAAC EC-Features | Segment | Config / Permission | [1212252476377404](https://app.asana.com/1/1184020052539844/task/1212252476377404) |
-| Audience Exclusion Limit Reached in MAAC | Segment | User Misunderstanding | [1212212478568915](https://app.asana.com/1/1184020052539844/task/1212212478568915) |
-| Unexpected Segment Filtering Results | Segment | Webhook / Sync Delay | [1212086489143431](https://app.asana.com/1/1184020052539844/task/1212086489143431) |
-| Inaccurate AI Segment Creation | Segment | Other Root Cause | [1212000598445419](https://app.asana.com/1/1184020052539844/task/1212000598445419) |
-| AI Segmentation Failure in Broadcast | Segment | Other Root Cause | [1211919837362932](https://app.asana.com/1/1184020052539844/task/1211919837362932) |
-| Limited Broadcast Reach in MAAC System | Segment | External API Dep | [1211818294292311](https://app.asana.com/1/1184020052539844/task/1211818294292311) |
-| Discrepancy in MAAC Segment Import Count | Segment | Other Root Cause | [1209226325083447](https://app.asana.com/1/1184020052539844/task/1209226325083447) |
-| AI Segment Results Discrepancy in Insurv | Segment | Webhook / Sync Delay | [1211648131247953](https://app.asana.com/1/1184020052539844/task/1211648131247953) |
-| Anomalous Segment Count in MAAC-Segment | Segment | Data Pipeline Failure | [1211285615645748](https://app.asana.com/1/1184020052539844/task/1211285615645748) |
-| Upload Failure in MAAC-Segment | Segment | Quota / Limit | [1210376434573383](https://app.asana.com/1/1184020052539844/task/1210376434573383) |
-| Tagging Failure After Clicking Broadcast | Tag Manager | Webhook / Sync Delay | [1212314620645881](https://app.asana.com/1/1184020052539844/task/1212314620645881) |
-| Tag Discrepancy Between MAAC and Emarsys | Tag Manager | Data Inconsistency | [1211876667612502](https://app.asana.com/1/1184020052539844/task/1211876667612502) |
-| Irregular Tag Synchronization from CAAC  | Tag Manager | Webhook / Sync Delay | [1211802724129394](https://app.asana.com/1/1184020052539844/task/1211802724129394) |
-| Tag Reappearance in MAAC System | Tag Manager | Config / Permission | [1211669157227422](https://app.asana.com/1/1184020052539844/task/1211669157227422) |
-| Discrepancy in Tag List and Deep Link Da | Tag Manager | Data Inconsistency | [1211622605919662](https://app.asana.com/1/1184020052539844/task/1211622605919662) |
-| Tag Addition Delay in MAAC Contact List | Tag Manager | Webhook / Sync Delay | [1211575001403892](https://app.asana.com/1/1184020052539844/task/1211575001403892) |
-| Unexpected Tag Appearance in MAAC | Tag Manager | User Misunderstanding | [1211528743341634](https://app.asana.com/1/1184020052539844/task/1211528743341634) |
-| Extended Tag Deletion Time in MAAC-Tag | Tag Manager | By Design | [1211222283206634](https://app.asana.com/1/1184020052539844/task/1211222283206634) |
-| Tag Disappearance After Name Change in M | Tag Manager | Other Root Cause | [1210638961172045](https://app.asana.com/1/1184020052539844/task/1210638961172045) |
-| Broadcast Delivery Failure to Active Con | Template Library | User Misunderstanding | [1211557302787615](https://app.asana.com/1/1184020052539844/task/1211557302787615) |
-| Why Can't Users Open MAAC Deeplinks from | Tracelink | By Design | [1211978338514071](https://app.asana.com/1/1184020052539844/task/1211978338514071) |
-| Reauthorization Process for Existing LIN | Tracelink | Cache / State Issue | [1211847487255320](https://app.asana.com/1/1184020052539844/task/1211847487255320) |
-| Inconsistent Page Redirection in MAAC Ri | Tracelink | Data Inconsistency | [1211713182842659](https://app.asana.com/1/1184020052539844/task/1211713182842659) |
-| Safari Incompatibility with MAAC Trackin | Tracelink | Other Root Cause | [1211379820597016](https://app.asana.com/1/1184020052539844/task/1211379820597016) |
-
-### P3 Issues (8)
-
-| Issue | Module | Root Cause | Asana |
-|-------|--------|-----------|-------|
-| Message Delivery Failure in Instagram Au | Auto-reply | Config / Permission | [1213115186501125](https://app.asana.com/1/1184020052539844/task/1213115186501125) |
-| Discrepancy in Message Count Between MAA | Insight | Other Root Cause | [1212736080583740](https://app.asana.com/1/1184020052539844/task/1212736080583740) |
-| Sudden Tag Coverage Drop to Zero | Insight | Data Pipeline Failure | [1212602245683188](https://app.asana.com/1/1184020052539844/task/1212602245683188) |
-| Button Selection Failure in Segment Filt | Segment | Other Root Cause | [1212803690945957](https://app.asana.com/1/1184020052539844/task/1212803690945957) |
-| Unexpected Segment Count Discrepancy | Segment | Data Inconsistency | [1212821275473949](https://app.asana.com/1/1184020052539844/task/1212821275473949) |
-| Contact Tag Order in MAAC Interface | Tag Manager | Data Inconsistency | [1212526242255975](https://app.asana.com/1/1184020052539844/task/1212526242255975) |
-| ID Binding Failure via CLID in MAAC Trac | Tracelink | Config / Permission | [1213035004023033](https://app.asana.com/1/1184020052539844/task/1213035004023033) |
-| LIFF Opening Failure Due to External Red | Tracelink | Cache / State Issue | [1212486166756322](https://app.asana.com/1/1184020052539844/task/1212486166756322) |
-
-### P4 Issues (7)
-
-| Issue | Module | Root Cause | Asana |
-|-------|--------|-----------|-------|
-| Deeplink Display Failure in Customer Onb | Deeplink | Config / Permission | [1212585827993386](https://app.asana.com/1/1184020052539844/task/1212585827993386) |
-| Button Visibility Issue on Small-Screen  | Deeplink | Other Root Cause | [1212400140357443](https://app.asana.com/1/1184020052539844/task/1212400140357443) |
-| Discrepancy in Acquired New Contacts Bet | Insight | Data Inconsistency | [1212791162159401](https://app.asana.com/1/1184020052539844/task/1212791162159401) |
-| Incorrect Localization in Prize Status L | Prize Management | Other Root Cause | [1212577017707300](https://app.asana.com/1/1184020052539844/task/1212577017707300) |
-| "NaN" Display in Contact List Export | Segment | Other Root Cause | [1212543257591550](https://app.asana.com/1/1184020052539844/task/1212543257591550) |
-| Tracelink Redirection to Welcome Message | Tracelink | Encoding / Format | [1212716056060047](https://app.asana.com/1/1184020052539844/task/1212716056060047) |
-| Incorrect URL Generation in MAAC-Traceli | Tracelink | Other Root Cause | [1212440779412548](https://app.asana.com/1/1184020052539844/task/1212440779412548) |
-
-## 8. Attribution Chains
-
-These chains show how root causes propagate through the system.
-Format: `Root Cause → Issue → Module → Product`
-
-### Other Root Cause
-- `Other Root Cause` → `Discrepancy in Message Count Between MAA` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212736080583740)
-- `Other Root Cause` → `Discrepancy in Customer ID Binding Rate ` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211358426495869)
-- `Other Root Cause` → `Button Selection Failure in Segment Filt` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212803690945957)
-- `Other Root Cause` → `Segment Update Failure in MAAC` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212760165483455)
-- `Other Root Cause` → `Segment Update Failure in MAAC System` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212739151110360)
-- `Other Root Cause` → `"NaN" Display in Contact List Export` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212543257591550)
-- `Other Root Cause` → `Segment Data Export Format Changes` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212465993341273)
-- `Other Root Cause` → `AI Segment Displaying Zero Results` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212277836186691)
-- `Other Root Cause` → `Unexpected Segment Calculation Results` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212084549273717)
-- `Other Root Cause` → `Unexpected MAAC Segment Count Discrepanc` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212084549273694)
-- `Other Root Cause` → `Inaccurate AI Segment Creation` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212000598445419)
-- `Other Root Cause` → `AI Segmentation Failure in Broadcast` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211919837362932)
-- `Other Root Cause` → `Discrepancy in MAAC Segment Import Count` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1209226325083447)
-- `Other Root Cause` → `Tag Disappearance After Name Change in M` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1210638961172045)
-- `Other Root Cause` → `Keyword Case Sensitivity Issue in MAAC A` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213109852110296)
-- ... +16 more
-
-### Config / Permission
-- `Config / Permission` → `Unresponsive "View Send Record" Button i` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211780759562084)
-- `Config / Permission` → `Auto-Reply Ranking Display in Insight Re` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211298009313561)
-- `Config / Permission` → `Identical Contact Numbers Across Differe` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212714239759016)
-- `Config / Permission` → `Zero Data in High Purchase Probability L` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212543508010702)
-- `Config / Permission` → `GA Tracking Failure in MAAC EC-Features` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212252476377404)
-- `Config / Permission` → `Tag Reappearance in MAAC System` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211669157227422)
-- `Config / Permission` → `Auto-Reply Trigger Failure on Facebook M` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213145171671763)
-- `Config / Permission` → `Message Delivery Failure in Instagram Au` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213115186501125)
-- `Config / Permission` → `Keyword Auto-Reply Trigger Issue on Inst` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212740607334933)
-- `Config / Permission` → `Image Carousel Addition Failure in Auto-` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212516260073008)
-- `Config / Permission` → `Deeplink Display Failure in Customer Onb` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212585827993386)
-- `Config / Permission` → `ID Binding Failure via CLID in MAAC Trac` → `Tracelink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213035004023033)
-
-### Data Inconsistency
-- `Data Inconsistency` → `Discrepancy in Acquired New Contacts Bet` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212791162159401)
-- `Data Inconsistency` → `Data Discrepancy in Deeplink Reports` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212213023126579)
-- `Data Inconsistency` → `Discrepancy in Customer ID Binding Rates` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212207562464141)
-- `Data Inconsistency` → `Message Discrepancy Between MAAC and LIN` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211285609853706)
-- `Data Inconsistency` → `Reduced Recipient Count in Scheduled Sma` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213115186501137)
-- `Data Inconsistency` → `Contact Discrepancy in LINE Segment` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213084606836149)
-- `Data Inconsistency` → `CID Field Data Discrepancy in Segment Ex` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213076444939189)
-- `Data Inconsistency` → `Unexpected Segment Count Discrepancy` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212821275473949)
-- `Data Inconsistency` → `Contact Tag Order in MAAC Interface` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212526242255975)
-- `Data Inconsistency` → `Tag Discrepancy Between MAAC and Emarsys` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211876667612502)
-- `Data Inconsistency` → `Discrepancy in Tag List and Deep Link Da` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211622605919662)
-- `Data Inconsistency` → `Inconsistent Page Redirection in MAAC Ri` → `Tracelink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211713182842659)
-
-### External API Dep
-- `External API Dep` → `Limited Broadcast Reach in MAAC System` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211818294292311)
-- `External API Dep` → `Incorrect Rich Menu Tagging After Contac` → `Rich Menu` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211803131074457)
-- `External API Dep` → `Display Name Issue for New OA Contacts` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211975651294654)
-- `External API Dep` → `Unexpected Automated Reply in MAAC Syste` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211730242249302)
-- `External API Dep` → `Auto Reply Functionality Failure` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1210776362195812)
-- `External API Dep` → `Deeplink Redirection Issue on Facebook A` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213079624870420)
-- `External API Dep` → `CLID Missing During Deep Link Transition` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213035004023053)
-- `External API Dep` → `Deep Link Failure in Facebook Environmen` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211658876963521)
-- `External API Dep` → `Deeplink Redirect Failure in Facebook Me` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211476033978693)
-- `External API Dep` → `Archived Deep Link Content Display for N` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211368444546388)
-- `External API Dep` → `Android Incompatibility with MAAC Referr` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211356153706723)
-
-### Data Pipeline Failure
-- `Data Pipeline Failure` → `Zero Tag Coverage in MAAC Data Insights` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213185386062836)
-- `Data Pipeline Failure` → `Sudden Tag Coverage Drop to Zero` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212602245683188)
-- `Data Pipeline Failure` → `Missing Data in Data Insights Report for` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212601716064139)
-- `Data Pipeline Failure` → `Data Discrepancy in MAAC Acquisition Das` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211976775930269)
-- `Data Pipeline Failure` → `Zero Tag Coverage on Insight Page for Al` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211426159186280)
-- `Data Pipeline Failure` → `Membership Binding Anomalies in Data Ins` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211356786872970)
-- `Data Pipeline Failure` → `Mapping Count Recognition Failure for Cu` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211314354463888)
-- `Data Pipeline Failure` → `Data Insights Display Anomalies in Multi` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1213131750073052)
-- `Data Pipeline Failure` → `Smart Sending Suspension Request` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212617985199028)
-- `Data Pipeline Failure` → `Anomalous Segment Count in MAAC-Segment` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211285615645748)
-
-### Webhook / Sync Delay
-- `Webhook / Sync Delay` → `Incorrect Auto-Reply Name in Weekly Repo` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211693894670618)
-- `Webhook / Sync Delay` → `Open Rate Hotspot Discrepancies in MAAC ` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211353841908307)
-- `Webhook / Sync Delay` → `Unexpected Segment Filtering Results` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212086489143431)
-- `Webhook / Sync Delay` → `AI Segment Results Discrepancy in Insurv` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211648131247953)
-- `Webhook / Sync Delay` → `Tagging Failure After Clicking Broadcast` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212314620645881)
-- `Webhook / Sync Delay` → `Irregular Tag Synchronization from CAAC ` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211802724129394)
-- `Webhook / Sync Delay` → `Tag Addition Delay in MAAC Contact List` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211575001403892)
-- `Webhook / Sync Delay` → `Keyword Auto-Reply Failure in MAAC Syste` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211518547270482)
-- `Webhook / Sync Delay` → `Auto-Reply Discrepancy in MAAC Settings` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211405329420293)
-- `Webhook / Sync Delay` → `Prize Stock Alert Notifications Despite ` → `Prize Management` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211310614292818)
-
-### User Misunderstanding
-- `User Misunderstanding` → `Audience Exclusion Limit Reached in MAAC` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212212478568915)
-- `User Misunderstanding` → `Unexpected Tag Appearance in MAAC` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211528743341634)
-- `User Misunderstanding` → `Broadcast Delivery Failure to Active Con` → `Template Library` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211557302787615)
-- `User Misunderstanding` → `Auto-Reply Failure on Instagram` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212278988595118)
-
-### By Design
-- `By Design` → `Non-Unique Click Counts in Broadcast Mes` → `Insight` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211518421816701)
-- `By Design` → `Extended Tag Deletion Time in MAAC-Tag` → `Tag Manager` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211222283206634)
-- `By Design` → `Why Can't Users Open MAAC Deeplinks from` → `Tracelink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211978338514071)
-
-### Quota / Limit
-- `Quota / Limit` → `Upload Failure in MAAC-Segment` → `Segment` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1210376434573383)
-- `Quota / Limit` → `Deeplink Redirection Failure in Meta Aut` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1210875549357676)
-- `Quota / Limit` → `Message Delivery Failure in Customer Jou` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212011516046540)
-- `Quota / Limit` → `Message Delivery Failure in Customer Jou` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211728764247261)
-- `Quota / Limit` → `Message Delivery Failure in Customer Jou` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211405329420306)
-- `Quota / Limit` → `Message Delivery Failure in Customer Jou` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211368348898205)
-- `Quota / Limit` → `Message Delivery Failure in Customer Jou` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211168364860701)
-
-### Encoding / Format
-- `Encoding / Format` → `Google Maps Link Display Issue in MAAC A` → `Auto-reply` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211529952491962)
-- `Encoding / Format` → `Tracelink Redirection to Welcome Message` → `Tracelink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212716056060047)
-- `Encoding / Format` → `Prize Delivery Failure in Rapid Referral` → `Prize Management` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211256941142756)
-
-### Cache / State Issue
-- `Cache / State Issue` → `LIFF Opening Failure Due to External Red` → `Tracelink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1212486166756322)
-- `Cache / State Issue` → `Reauthorization Process for Existing LIN` → `Tracelink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211847487255320)
-
-### Resource Constraint
-- `Resource Constraint` → `Deeplink Functionality in TikTok Ads` → `Deeplink` → MAAC | [Asana](https://app.asana.com/1/1184020052539844/task/1211292942830085)
-
-## 9. Quick Reference — Impact Analysis Guide
-
-When evaluating a change to any component, use this guide:
-
-| If you change... | Check impact on... |
-|------------------|-------------------|
-| **Auto-reply** | Contacts, Template Library, LINE API, Meta API |
-| **Broadcast** | Insight, Segment, Template Library, Customer Journey, LINE API |
-| **Contacts** | Segment, Customer Journey, Tag Manager, Deeplink, Auto-reply, LINE API, PostgreSQL |
-| **Customer Journey** | Broadcast, Tag Manager, Segment, Contacts, SendGrid, Airflow |
-| **Deeplink** | Contacts, Insight, Tracelink, Rich Menu, LIFF |
-| **Insight** | Deeplink, Broadcast, Airflow, BigQuery, PostgreSQL |
-| **Prize Management** | LINE API |
-| **Rich Menu** | Deeplink, LINE API |
-| **Segment** | Broadcast, Contacts, Tag Manager, Customer Journey, BigQuery |
-| **Tag Manager** | Segment, Contacts, Customer Journey, PostgreSQL |
-| **Template Library** | Broadcast, Auto-reply |
-| **Tracelink** | Deeplink, LIFF, Redis |
+| Infrastructure | Description | Used by Products |
+|---------------|-------------|-----------------|
+| **BigQuery** | Data warehouse for engagement history & analytics | CAAC, CDH, DAAC, MAAC |
+| **Cloud Run Jobs** | Task execution for heavy processing | CDH |
+| **Cloud Storage (GCS)** | File/image storage | MAAC |
+| **Cloud Tasks** | Deferred task execution | MAAC |
+| **Datadog** | APM & distributed tracing | MAAC |
+| **Elasticsearch** | Message search & conversation indexing | CAAC |
+| **FCM** | Push notifications to mobile/browser | CAAC |
+| **Firebase / Firestore** | Real-time database for live features | MAAC |
+| **GCS** | File storage for import/export | CAAC, CDH, DAAC |
+| **Google Analytics** | Campaign tracking & UTM parameters | MAAC |
+| **Infobip** | WhatsApp/Voice gateway | CAAC |
+| **LINE Messaging API** | LINE platform messaging, rich menu, LIFF | MAAC |
+| **Meta API (FB/IG)** | Facebook & Instagram messaging API | MAAC |
+| **OpenAI** | AI for segment tagging & entity commenting | CDH |
+| **OpenAI / Gemini** | AI model APIs for agent | DAAC |
+| **PostgreSQL** | Primary database (SQLAlchemy + raw SQL) | CAAC, CDH, DAAC, MAAC |
+| **PubSub** | Event streaming — profile changes, tag updates | CAAC, CDH, MAAC |
+| **RabbitMQ / Celery** | Async task queue for background jobs | MAAC |
+| **Redis** | Session cache, rate limiting, pub/sub | CAAC, MAAC |
+| **SendGrid** | Email delivery service | MAAC |
+| **Sentry** | Error tracking & monitoring | MAAC |
+| **Statsig** | Feature flag management | CDH, MAAC |
+| **Terraform** | Infrastructure as code for client provisioning | DAAC |
+| **WhatsApp Cloud API** | WhatsApp Business messaging via Infobip | MAAC |
+| **dbt** | Data transformation pipeline | DAAC |
+
+## 6. Shared Services
+
+### Arioso
+- SSO authentication service — Google/MS OAuth
+- Used by: CAAC, DAAC, MAAC
+
+### Harmony
+- Partner API & Google Ads integration
+- Used by: MAAC
+
+### Interlude
+- Admin center — billing, subscription, org provisioning
+- Used by: CAAC, DAAC, MAAC
+
+### MDS
+- Message Delivery Service
+- Used by: MAAC
+
+### Monophony
+- URL shortener service (maac.io)
+- Used by: CAAC, MAAC
+
+### Sforzando
+- Prize fulfillment & reward distribution
+- Used by: MAAC
+
+## 7. Cross-Product Data Flow
+
+```
+MAAC (rubato) ──CAAC_CANTATA_URL──→ CAAC (cantata)
+MAAC (rubato) ──DAAC_API_URL──────→ DAAC (bebop)
+CAAC (cantata) ──MAAC_URL──────────→ MAAC (rubato)
+CAAC (cantata) ──CDH_INTERNAL_URL──→ CDH  (polyrhythmic)
+CDH  ──RUBATO_HOST+DB_DSN──────────→ MAAC (reads DB)
+CDH  ──CANTATA_HOST+DB_DSN─────────→ CAAC (reads DB)
+DAAC ──MAAC_GCP_PROJECT_ID─────────→ MAAC (BigQuery)
+DAAC ──CAAC_GCP_PROJECT_ID─────────→ CAAC (BigQuery)
+```
+
+## 8. Impact Analysis Guide
+
+### High-Impact Modules (most imported by others)
+
+| Module | Imported by N modules | Risk |
+|--------|----------------------|------|
+| maac/line | 32 | 🔴 Critical |
+| maac/organization | 27 | 🔴 Critical |
+| maac/accounts | 25 | 🔴 Critical |
+| maac/system | 21 | 🔴 Critical |
+| maac/tag | 18 | 🔴 Critical |
+| maac/channel | 14 | 🔴 Critical |
+| maac/google_analytics | 14 | 🔴 Critical |
+| maac/openapi | 12 | 🔴 Critical |
+| maac/audience | 10 | 🟡 High |
+| maac/journey | 9 | 🟡 High |
+| maac/notification | 9 | 🟡 High |
+| maac/sms | 8 | 🟡 High |
+| maac/report | 8 | 🟡 High |
+| maac/webhook | 7 | 🟡 High |
+| maac/payment | 7 | 🟡 High |
+
+### Hub Modules (most outgoing deps)
+
+| Module | Depends on N modules | Coupling |
+|--------|---------------------|----------|
+| maac/line | 24 | 🔴 High |
+| maac/openapi | 17 | 🔴 High |
+| maac/journey | 12 | 🔴 High |
+| maac/prize | 11 | 🔴 High |
+| maac/broadcast | 10 | 🟡 Medium |
+| maac/organization | 10 | 🟡 Medium |
+| maac/sms | 10 | 🟡 Medium |
+| maac/accounts | 8 | 🟡 Medium |
+| maac/audience | 8 | 🟡 Medium |
+| maac/auto_reply | 8 | 🟡 Medium |
+| maac/channel | 8 | 🟡 Medium |
+| maac/tag | 8 | 🟡 Medium |
+| maac/system | 8 | 🟡 Medium |
+| maac/nine_one_app | 8 | 🟡 Medium |
+| maac/shopline | 8 | 🟡 Medium |
+
+## 9. Change Impact Chains
+
+Format: `If you change X → these modules are directly affected`
+
+### Changing `maac/line`
+Directly affects 32 modules:
+- maac/accounts
+- maac/audience
+- maac/auto_reply
+- maac/broadcast
+- maac/caac
+- maac/cdp
+- maac/channel
+- maac/cyberbiz
+- maac/email_channel
+- maac/extension
+- maac/fb
+- maac/form
+- maac/google_analytics
+- maac/journey
+- maac/message
+- maac/nine_one_app
+- maac/openapi
+- maac/organization
+- maac/payment
+- maac/prize
+- maac/receipt
+- maac/referral
+- maac/report
+- maac/sforzando
+- maac/shopify
+- maac/shopline
+- maac/sms
+- maac/sms_plus
+- maac/system
+- maac/tag
+- maac/webhook
+- maac/whatsapp
+
+### Changing `maac/organization`
+Directly affects 27 modules:
+- maac/accounts
+- maac/ai_generation
+- maac/audience
+- maac/auto_reply
+- maac/broadcast
+- maac/caac
+- maac/cdp
+- maac/channel
+- maac/email_channel
+- maac/extension
+- maac/fb
+- maac/google_analytics
+- maac/journey
+- maac/line
+- maac/message
+- maac/nine_one_app
+- maac/openapi
+- maac/payment
+- maac/prize
+- maac/receipt
+- maac/referral
+- maac/sforzando
+- maac/shopline
+- maac/sms
+- maac/sms_plus
+- maac/tag
+- maac/whatsapp
+
+### Changing `maac/accounts`
+Directly affects 25 modules:
+- maac/audience
+- maac/auto_reply
+- maac/broadcast
+- maac/caac
+- maac/campaign
+- maac/cdp
+- maac/channel
+- maac/cyberbiz
+- maac/email_channel
+- maac/extension
+- maac/fb
+- maac/google_analytics
+- maac/journey
+- maac/line
+- maac/nine_one_app
+- maac/notification
+- maac/openapi
+- maac/organization
+- maac/prize
+- maac/referral
+- maac/sforzando
+- maac/shopify
+- maac/shopline
+- maac/system
+- maac/tag
+
+### Changing `maac/system`
+Directly affects 21 modules:
+- maac/ai_generation
+- maac/audience
+- maac/broadcast
+- maac/channel
+- maac/email_channel
+- maac/google_analytics
+- maac/journey
+- maac/line
+- maac/message
+- maac/nine_one_app
+- maac/openapi
+- maac/prize
+- maac/receipt
+- maac/referral
+- maac/report
+- maac/sforzando
+- maac/shopify
+- maac/shopline
+- maac/sms
+- maac/tag
+- maac/webhook
+
+### Changing `maac/tag`
+Directly affects 18 modules:
+- maac/audience
+- maac/auto_reply
+- maac/broadcast
+- maac/cdp
+- maac/fb
+- maac/form
+- maac/journey
+- maac/line
+- maac/nine_one_app
+- maac/openapi
+- maac/prize
+- maac/referral
+- maac/report
+- maac/sforzando
+- maac/shopline
+- maac/system
+- maac/webhook
+- maac/whatsapp
+
+### Changing `maac/channel`
+Directly affects 14 modules:
+- maac/accounts
+- maac/auto_reply
+- maac/broadcast
+- maac/campaign
+- maac/email_channel
+- maac/extension
+- maac/fb
+- maac/journey
+- maac/line
+- maac/message
+- maac/openapi
+- maac/organization
+- maac/sms
+- maac/whatsapp
+
+### Changing `maac/google_analytics`
+Directly affects 14 modules:
+- maac/audience
+- maac/auto_reply
+- maac/broadcast
+- maac/extension
+- maac/fb
+- maac/journey
+- maac/line
+- maac/message
+- maac/openapi
+- maac/organization
+- maac/prize
+- maac/report
+- maac/sms
+- maac/system
+
+### Changing `maac/openapi`
+Directly affects 12 modules:
+- maac/channel
+- maac/line
+- maac/nine_one_app
+- maac/organization
+- maac/prize
+- maac/receipt
+- maac/report
+- maac/shopline
+- maac/sms
+- maac/sms_plus
+- maac/webhook
+- maac/whatsapp
+
+### Changing `maac/audience`
+Directly affects 10 modules:
+- maac/accounts
+- maac/broadcast
+- maac/cdp
+- maac/journey
+- maac/line
+- maac/openapi
+- maac/organization
+- maac/sms
+- maac/system
+- maac/tag
+
+### Changing `maac/journey`
+Directly affects 9 modules:
+- maac/accounts
+- maac/campaign
+- maac/cdp
+- maac/email_channel
+- maac/extension
+- maac/line
+- maac/organization
+- maac/sms
+- maac/tag
 
 ---
-
-*End of Knowledge Graph Document*
+*End of Code Architecture Knowledge Graph*
