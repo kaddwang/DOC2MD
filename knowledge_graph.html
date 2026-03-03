@@ -380,17 +380,7 @@ function init() {
 
   network = new vis.Network(document.getElementById("net"), { nodes: vN, edges: vE }, {
     physics: {
-      enabled: true,
-      solver: "forceAtlas2Based",
-      forceAtlas2Based: {
-        gravitationalConstant: -60,
-        centralGravity: 0.003,
-        springLength: 120,
-        springConstant: 0.02,
-        damping: 0.7,
-        avoidOverlap: 0.85,
-      },
-      stabilization: { iterations: 180, fit: true },
+      enabled: false,  // Start frozen — concentric layout stays intact
     },
     interaction: {
       hover: true,
@@ -403,14 +393,26 @@ function init() {
     layout: { improvedLayout: false },
   });
 
-  // After stabilization, reduce physics to keep it tidy but draggable
-  network.once("stabilized", () => {
+  // Only enable physics briefly when user drags a node, then freeze again
+  network.on("dragStart", () => {
     network.setOptions({
       physics: {
+        enabled: true,
         solver: "forceAtlas2Based",
-        forceAtlas2Based: { gravitationalConstant: -30, centralGravity: 0.002, springConstant: 0.01, damping: 0.9, avoidOverlap: 0.9 }
+        forceAtlas2Based: {
+          gravitationalConstant: -40,
+          centralGravity: 0.002,
+          springLength: 100,
+          springConstant: 0.015,
+          damping: 0.85,
+          avoidOverlap: 0.9,
+        },
       }
     });
+  });
+  network.on("dragEnd", () => {
+    // Let it settle for a moment, then freeze
+    setTimeout(() => { network.setOptions({ physics: { enabled: false } }); }, 600);
   });
 
   document.getElementById("sN").textContent = allN.length;
