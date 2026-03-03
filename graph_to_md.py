@@ -2,10 +2,11 @@
 """
 graph_to_md.py — Flatten Knowledge Graph → LLM-optimized Markdown
 
-Converts the code-architecture knowledge graph JSON into a structured
+Converts the code-architecture knowledge graph JSON (v7) into a structured
 Markdown document that any LLM can quickly parse to understand:
   - Product suite hierarchy & cross-product connections
   - Module architecture & internal dependencies per product
+  - Semantic dependency breakdown (model refs, const refs, task deps, API clients)
   - Frontend → Backend mapping
   - Infrastructure dependencies
   - Shared services
@@ -13,20 +14,20 @@ Markdown document that any LLM can quickly parse to understand:
   - Impact analysis (high-impact modules, hub modules, change chains)
 
 Usage:
-    python3 graph_to_md.py                          # uses /tmp/graph_data_v6.json
+    python3 graph_to_md.py                          # uses /tmp/graph_data_v7.json
     python3 graph_to_md.py --input my_graph.json    # custom input
     python3 graph_to_md.py --output my_output.md    # custom output
 """
 
 import json
 import argparse
-from collections import defaultdict
+from collections import defaultdict, Counter
 from datetime import datetime
 
 # ============================================================
 # Config
 # ============================================================
-DEFAULT_INPUT = "/tmp/graph_data_v6.json"
+DEFAULT_INPUT = "/tmp/graph_data_v7.json"
 DEFAULT_OUTPUT = "knowledge_graph.md"
 
 PRODUCT_ORDER = ["MAAC", "CAAC", "DAAC", "CDH"]
@@ -36,6 +37,15 @@ PRODUCT_REPOS = {
     "DAAC": "bebop (Python/FastAPI)",
     "CDH": "polyrhythmic (Python+Go)",
 }
+
+# Semantic edge categories
+SEMANTIC_DEP_TYPES = {
+    "model_ref":  "Model Reference — imports Django/Go models from another module",
+    "const_ref":  "Constant Reference — imports settings, constants, or enums",
+    "task_dep":   "Task Dependency — calls or enqueues a Celery/async task",
+    "api_client": "API Client — uses an HTTP client to call another service",
+}
+CODE_DEP_TYPES = ["code_dep", "model_ref", "const_ref", "task_dep", "api_client"]
 
 
 def load_graph(path):
@@ -69,20 +79,34 @@ def nodes_for_product(nodes_by_type, product, ntype):
     )
 
 
+def short_label(label):
+    """Extract short module name: 'maac/accounts' → 'accounts'"""
+    return label.split("/")[-1] if "/" in label else label
+
+
+def clean_page(label):
+    """Remove prefix like 'page/' or 'caac_page/' from frontend page labels."""
+    return label.split("/", 1)[-1] if "/" in label else label
+
+
 def render(data):
     nid, ntype, out, inc = build_index(data)
     lines = []
     w = lines.append
 
+    # Edge type statistics
+    edge_counts = Counter(e["type"] for e in data["edges"])
+
     # ============================================================
     # HEADER
     # ============================================================
-    w("# Crescendo Lab — Code Architecture Knowledge Graph (LLM-Optimized)")
+    w("# Crescendo Lab — Code Architecture Knowledge Graph v7 (LLM-Optimized)")
     w("")
-    w(f"> Auto-generated from source code analysis on {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    w(f"> Auto-generated from deep codebase analysis on {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     w(f"> Repos: rubato (MAAC BE), Grazioso (MAAC FE), cantata (CAAC BE), Zeffiroso (CAAC FE), bebop (DAAC), polyrhythmic (CDH)")
     w(f"> Nodes: {len(data['nodes'])} | Edges: {len(data['edges'])}")
-    w("> Purpose: Verified architecture map from actual import analysis — for LLM impact analysis & attribution.")
+    w(f"> Edge breakdown: {', '.join(f'{k}={v}' for k, v in sorted(edge_counts.items(), key=lambda x: -x[1]))}")
+    w("> Purpose: Verified architecture map with semantic dependency types — for LLM impact analysis, attribution & root-cause tracing.")
     w("")
     w("---")
     w("")
@@ -92,20 +116,31 @@ def render(data):
     # ============================================================
     w("## 1. Product Suite")
     w("")
-    products = sorted(ntype.get("product", []), key=lambda n: PRODUCT_ORDER.index(n["label"]) if n["label"] in PRODUCT_ORDER else 99)
+    products = sorted(
+        ntype.get("product", []),
+        key=lambda n: PRODUCT_ORDER.index(n["label"]) if n["label"] in PRODUCT_ORDER else 99,
+    )
 
     for p in products:
         w(f"### {p['label']}")
         w(f"- **{p['label']}**: {p.get('desc', '')}")
         title = p.get("title", "")
         if title:
-            w(f"- Title: {title}")
+            w(f"- Tech: {title}")
+        w(f"- Repos: {PRODUCT_REPOS.get(p['label'], 'N/A')}")
         w("")
+
+        # Module count
+        prod_modules = nodes_for_product(ntype, p["label"], "module")
+        prod_pages = nodes_for_product(ntype, p["label"], "frontend_page")
+        w(f"- Backend modules: {len(prod_modules)}")
+        w(f"- Frontend pages: {len(prod_pages)}")
 
         # Cross-product API calls and data syncs
         cross_out = [(e, t) for e, t in out[p["id"]] if t["type"] == "product" and e["type"] in ("api_call", "data_sync")]
         cross_in = [(e, f) for e, f in inc[p["id"]] if f["type"] == "product" and e["type"] in ("api_call", "data_sync")]
         if cross_out or cross_in:
+            w("")
             w("**Cross-product connections:**")
             for e, t in cross_out:
                 label = e.get("label", "").replace("\n", " ")
@@ -113,7 +148,7 @@ def render(data):
             for e, f in cross_in:
                 label = e.get("label", "").replace("\n", " ")
                 w(f"- ← {f['label']}: {label}")
-            w("")
+        w("")
 
     # ============================================================
     # 2. MODULE ARCHITECTURE (per product)
@@ -125,70 +160,107 @@ def render(data):
         modules = nodes_for_product(ntype, prod, "module")
         if not modules:
             continue
-        w(f"### {prod} Modules")
+        w(f"### {prod} Modules ({len(modules)} total)")
         w("")
-        w("| Module | Description | Dependencies (imports) |")
-        w("|--------|-------------|----------------------|")
+        w("| Module | Description | code_dep | model_ref | const_ref | task_dep | api_client |")
+        w("|--------|-------------|----------|-----------|-----------|----------|------------|")
 
         for mod in modules:
-            # code_dep outgoing = this module imports from
-            deps_out = sorted(set(
-                (t["label"].split("/")[-1] if "/" in t["label"] else t["label"])
-                for e, t in out[mod["id"]]
-                if e["type"] == "code_dep" and t["type"] == "module"
-            ))
-            dep_str = ", ".join(deps_out) if deps_out else ""
-            desc = mod.get("desc", "").replace("\n", " ").replace("|", "\\|")
-            short = mod["label"].split("/")[-1] if "/" in mod["label"] else mod["label"]
-            w(f"| **{short}** | {desc} | {dep_str} |")
+            desc = mod.get("desc", "").replace("\n", " ").replace("|", "\\|")[:60]
+            short = short_label(mod["label"])
+
+            # Count semantic dep types (outgoing)
+            dep_counts = Counter()
+            for e, t in out[mod["id"]]:
+                if e["type"] in CODE_DEP_TYPES and t["type"] == "module":
+                    dep_counts[e["type"]] += 1
+
+            cd = dep_counts.get("code_dep", 0) or ""
+            mr = dep_counts.get("model_ref", 0) or ""
+            cr = dep_counts.get("const_ref", 0) or ""
+            td = dep_counts.get("task_dep", 0) or ""
+            ac = dep_counts.get("api_client", 0) or ""
+
+            w(f"| **{short}** | {desc} | {cd} | {mr} | {cr} | {td} | {ac} |")
 
         w("")
 
     # ============================================================
-    # 3. MODULE DETAILS
+    # 3. SEMANTIC DEPENDENCY TYPES (new in v7)
     # ============================================================
-    w("## 3. Module Details")
+    w("## 3. Semantic Dependency Types")
+    w("")
+    w("v7 differentiates generic `code_dep` into fine-grained relationship types:")
+    w("")
+    for etype, desc in SEMANTIC_DEP_TYPES.items():
+        cnt = edge_counts.get(etype, 0)
+        w(f"- **`{etype}`** ({cnt} edges) — {desc}")
+    w(f"- **`code_dep`** ({edge_counts.get('code_dep', 0)} edges) — General Python/Go import dependency (catch-all)")
+    w("")
+
+    # Per-product semantic breakdown
+    w("### Semantic Dependency Distribution by Product")
+    w("")
+    w("| Product | code_dep | model_ref | const_ref | task_dep | api_client | Total |")
+    w("|---------|----------|-----------|-----------|----------|------------|-------|")
+
+    for prod in PRODUCT_ORDER:
+        modules = nodes_for_product(ntype, prod, "module")
+        mod_ids = {m["id"] for m in modules}
+        pcounts = Counter()
+        for e in data["edges"]:
+            if e["type"] in CODE_DEP_TYPES and e["from"] in nid and e["to"] in nid:
+                from_node = nid[e["from"]]
+                if from_node.get("product") == prod and from_node["type"] == "module":
+                    pcounts[e["type"]] += 1
+        total = sum(pcounts.values())
+        w(f"| **{prod}** | {pcounts.get('code_dep',0)} | {pcounts.get('model_ref',0)} | {pcounts.get('const_ref',0)} | {pcounts.get('task_dep',0)} | {pcounts.get('api_client',0)} | {total} |")
+
+    w("")
+
+    # ============================================================
+    # 4. MODULE DETAILS
+    # ============================================================
+    w("## 4. Module Details")
     w("")
 
     for prod in PRODUCT_ORDER:
         modules = nodes_for_product(ntype, prod, "module")
         for mod in modules:
-            # label is already like "maac/accounts", use short name for header
-            short = mod["label"].split("/")[-1] if "/" in mod["label"] else mod["label"]
+            short = short_label(mod["label"])
             w(f"### {prod}/{short}")
             w(f"- **Product**: {prod}")
-            w(f"- **Description**: {mod.get('desc', '')}")
+            desc = mod.get("desc", "")
+            if desc:
+                w(f"- **Description**: {desc}")
 
-            # Imports from (code_dep outgoing to other modules)
-            imports_from = sorted(set(
-                (t["label"].split("/")[-1] if "/" in t["label"] else t["label"])
-                for e, t in out[mod["id"]]
-                if e["type"] == "code_dep" and t["type"] == "module"
-            ))
-            if imports_from:
-                w(f"- **Imports from**: {', '.join(imports_from)}")
+            # Group outgoing deps by edge type
+            deps_by_type = defaultdict(list)
+            for e, t in out[mod["id"]]:
+                if e["type"] in CODE_DEP_TYPES and t["type"] == "module":
+                    deps_by_type[e["type"]].append(short_label(t["label"]))
 
-            # Imported by (code_dep incoming from other modules)
-            imported_by = sorted(set(
-                (f["label"].split("/")[-1] if "/" in f["label"] else f["label"])
-                for e, f in inc[mod["id"]]
-                if e["type"] == "code_dep" and f["type"] == "module"
-            ))
-            if imported_by:
-                w(f"- **Imported by**: {', '.join(imported_by)}")
+            for etype in CODE_DEP_TYPES:
+                targets = sorted(set(deps_by_type.get(etype, [])))
+                if targets:
+                    w(f"- **{etype}** → {', '.join(targets)}")
 
-            # Frontend pages (hierarchy edges to frontend_page nodes)
-            def clean_page(lbl):
-                """Remove prefix like 'page/' or 'caac_page/' from frontend page labels."""
-                if "/" in lbl:
-                    return lbl.split("/", 1)[-1]
-                return lbl
+            # Imported by (all code dep types incoming)
+            importers_by_type = defaultdict(list)
+            for e, f in inc[mod["id"]]:
+                if e["type"] in CODE_DEP_TYPES and f["type"] == "module":
+                    importers_by_type[e["type"]].append(short_label(f["label"]))
 
+            for etype in CODE_DEP_TYPES:
+                sources = sorted(set(importers_by_type.get(etype, [])))
+                if sources:
+                    w(f"- **← {etype}** from: {', '.join(sources)}")
+
+            # Frontend pages
             pages = sorted(set(
                 clean_page(t["label"]) for e, t in out[mod["id"]]
                 if t["type"] == "frontend_page"
             ))
-            # Also check incoming from frontend pages
             pages_inc = sorted(set(
                 clean_page(f["label"]) for e, f in inc[mod["id"]]
                 if f["type"] == "frontend_page"
@@ -205,18 +277,25 @@ def render(data):
             if infra_deps:
                 w(f"- **Infrastructure**: {', '.join(infra_deps)}")
 
+            # Shared services
+            svc_deps = sorted(set(
+                t["label"] for e, t in out[mod["id"]]
+                if t["type"] == "shared_service"
+            ))
+            if svc_deps:
+                w(f"- **Shared services**: {', '.join(svc_deps)}")
+
             w("")
 
     # ============================================================
-    # 4. FRONTEND → BACKEND MAPPING
+    # 5. FRONTEND → BACKEND MAPPING
     # ============================================================
-    w("## 4. Frontend → Backend Mapping")
+    w("## 5. Frontend → Backend Mapping")
     w("")
 
     for prod in PRODUCT_ORDER:
         pages = nodes_for_product(ntype, prod, "frontend_page")
         if not pages:
-            # Also check pages without product assigned
             continue
         w(f"### {prod} Frontend Pages")
         w("")
@@ -224,16 +303,14 @@ def render(data):
         w("|------|----------------------|")
 
         for page in pages:
-            page_name = page["label"].split("/", 1)[-1] if "/" in page["label"] else page["label"]
-            # hierarchy edges from page to modules
+            page_name = clean_page(page["label"])
             backend_mods = sorted(set(
-                (t["label"].split("/")[-1] if "/" in t["label"] else t["label"])
+                short_label(t["label"])
                 for e, t in out[page["id"]]
                 if t["type"] == "module"
             ))
-            # Also check incoming
             backend_mods_inc = sorted(set(
-                (f["label"].split("/")[-1] if "/" in f["label"] else f["label"])
+                short_label(f["label"])
                 for e, f in inc[page["id"]]
                 if f["type"] == "module"
             ))
@@ -242,7 +319,7 @@ def render(data):
 
         w("")
 
-    # Also handle pages without product
+    # Orphan pages
     orphan_pages = [n for n in ntype.get("frontend_page", []) if not n.get("product")]
     if orphan_pages:
         w("### Other Frontend Pages")
@@ -250,25 +327,21 @@ def render(data):
         w("| Page | Calls Backend Modules |")
         w("|------|----------------------|")
         for page in sorted(orphan_pages, key=lambda n: n["label"]):
-            page_name = page["label"].split("/", 1)[-1] if "/" in page["label"] else page["label"]
+            page_name = clean_page(page["label"])
             backend_mods = sorted(set(
-                (t["label"].split("/")[-1] if "/" in t["label"] else t["label"])
-                for e, t in out[page["id"]]
-                if t["type"] == "module"
+                short_label(t["label"]) for e, t in out[page["id"]] if t["type"] == "module"
             ))
             backend_mods_inc = sorted(set(
-                (f["label"].split("/")[-1] if "/" in f["label"] else f["label"])
-                for e, f in inc[page["id"]]
-                if f["type"] == "module"
+                short_label(f["label"]) for e, f in inc[page["id"]] if f["type"] == "module"
             ))
             all_mods = sorted(set(backend_mods + backend_mods_inc))
             w(f"| {page_name} | {', '.join(all_mods) if all_mods else '—'} |")
         w("")
 
     # ============================================================
-    # 5. INFRASTRUCTURE DEPENDENCIES
+    # 6. INFRASTRUCTURE DEPENDENCIES
     # ============================================================
-    w("## 5. Infrastructure Dependencies")
+    w("## 6. Infrastructure Dependencies")
     w("")
     w("| Infrastructure | Description | Used by Products |")
     w("|---------------|-------------|-----------------|")
@@ -276,7 +349,6 @@ def render(data):
     infras = sorted(ntype.get("infra", []), key=lambda n: n["label"])
     for infra in infras:
         desc = infra.get("desc", "").replace("\n", " ").replace("|", "\\|")
-        # Find which products use this infra
         users = set()
         for e, f in inc[infra["id"]]:
             if f["type"] == "product":
@@ -294,9 +366,9 @@ def render(data):
     w("")
 
     # ============================================================
-    # 6. SHARED SERVICES
+    # 7. SHARED SERVICES
     # ============================================================
-    w("## 6. Shared Services")
+    w("## 7. Shared Services")
     w("")
 
     shared = sorted(ntype.get("shared_service", []), key=lambda n: n["label"])
@@ -305,7 +377,6 @@ def render(data):
         desc = svc.get("desc", "")
         if desc:
             w(f"- {desc}")
-        # Find which products use this service
         users = set()
         for e, f in inc[svc["id"]]:
             if f["type"] == "product":
@@ -320,68 +391,95 @@ def render(data):
         if users:
             user_str = ", ".join(sorted(users, key=lambda x: PRODUCT_ORDER.index(x) if x in PRODUCT_ORDER else 99))
             w(f"- Used by: {user_str}")
+        # Show which modules connect to this service
+        mod_users = sorted(set(
+            short_label(f["label"])
+            for e, f in inc[svc["id"]]
+            if f["type"] == "module"
+        ))
+        if mod_users:
+            w(f"- Module consumers: {', '.join(mod_users)}")
         w("")
 
     # ============================================================
-    # 7. CROSS-PRODUCT DATA FLOW
+    # 8. CROSS-PRODUCT DATA FLOW
     # ============================================================
-    w("## 7. Cross-Product Data Flow")
+    w("## 8. Cross-Product Data Flow")
     w("")
-    w("```")
 
     api_calls = [e for e in data["edges"] if e["type"] == "api_call"]
     data_syncs = [e for e in data["edges"] if e["type"] == "data_sync"]
 
-    for e in api_calls + data_syncs:
-        fn = nid.get(e["from"], {})
-        tn = nid.get(e["to"], {})
-        if fn and tn:
-            label = e.get("label", "").replace("\n", " ")
-            from_label = fn["label"]
-            to_label = tn["label"]
-            # Add repo name context for products
-            if fn["type"] == "product":
-                from_label = f"{fn['label']} ({PRODUCT_REPOS.get(fn['label'], '')})"
-            if tn["type"] == "product":
-                to_label = f"{tn['label']} ({PRODUCT_REPOS.get(tn['label'], '')})"
-            edge_type = "API" if e["type"] == "api_call" else "DATA_SYNC"
-            w(f"{from_label} ──[{edge_type}]──→ {to_label}  ({label})")
+    if api_calls:
+        w("### API Calls")
+        w("")
+        w("```")
+        for e in api_calls:
+            fn = nid.get(e["from"], {})
+            tn = nid.get(e["to"], {})
+            if fn and tn:
+                label = e.get("label", "").replace("\n", " ")
+                from_label = fn["label"]
+                to_label = tn["label"]
+                if fn["type"] == "product":
+                    from_label = f"{fn['label']} ({PRODUCT_REPOS.get(fn['label'], '')})"
+                if tn["type"] == "product":
+                    to_label = f"{tn['label']} ({PRODUCT_REPOS.get(tn['label'], '')})"
+                w(f"{from_label} ──[API]──→ {to_label}  ({label})")
+        w("```")
+        w("")
 
-    w("```")
-    w("")
+    if data_syncs:
+        w("### Data Sync")
+        w("")
+        w("```")
+        for e in data_syncs:
+            fn = nid.get(e["from"], {})
+            tn = nid.get(e["to"], {})
+            if fn and tn:
+                label = e.get("label", "").replace("\n", " ")
+                w(f"{fn['label']} ──[SYNC]──→ {tn['label']}  ({label})")
+        w("```")
+        w("")
 
     # ============================================================
-    # 8. IMPACT ANALYSIS GUIDE
+    # 9. IMPACT ANALYSIS GUIDE
     # ============================================================
-    w("## 8. Impact Analysis Guide")
+    w("## 9. Impact Analysis Guide")
     w("")
 
-    # Calculate import counts for all modules
     all_modules = ntype.get("module", [])
-    import_count = {}  # module_id → count of modules that import it
-    depend_count = {}  # module_id → count of modules it depends on
+
+    # Compute comprehensive import counts (all code dep types)
+    import_count = {}   # module_id → count of modules that import it
+    depend_count = {}   # module_id → count of modules it depends on
+    import_by_type = defaultdict(lambda: Counter())  # module_id → {etype: count}
 
     for mod in all_modules:
-        # How many other modules import this one (incoming code_dep)
-        importers = [f for e, f in inc[mod["id"]] if e["type"] == "code_dep" and f["type"] == "module"]
+        importers = [f for e, f in inc[mod["id"]] if e["type"] in CODE_DEP_TYPES and f["type"] == "module"]
         import_count[mod["id"]] = len(importers)
 
-        # How many other modules this one depends on (outgoing code_dep)
-        dependencies = [t for e, t in out[mod["id"]] if e["type"] == "code_dep" and t["type"] == "module"]
+        for e, f in inc[mod["id"]]:
+            if e["type"] in CODE_DEP_TYPES and f["type"] == "module":
+                import_by_type[mod["id"]][e["type"]] += 1
+
+        dependencies = [t for e, t in out[mod["id"]] if e["type"] in CODE_DEP_TYPES and t["type"] == "module"]
         depend_count[mod["id"]] = len(dependencies)
 
-    # High-impact modules (most imported by others)
+    # High-impact modules
     w("### High-Impact Modules (most imported by others)")
     w("")
-    w("| Module | Imported by N modules | Risk |")
-    w("|--------|----------------------|------|")
+    w("| Module | Product | Imported by N | code_dep | model_ref | const_ref | task_dep | api_client | Risk |")
+    w("|--------|---------|---------------|----------|-----------|-----------|----------|------------|------|")
 
     top_imported = sorted(all_modules, key=lambda n: import_count[n["id"]], reverse=True)
-    for mod in top_imported[:15]:
+    for mod in top_imported[:20]:
         cnt = import_count[mod["id"]]
         if cnt == 0:
             break
-        name = mod["label"]
+        name = short_label(mod["label"])
+        prod = mod.get("product", "")
+        bt = import_by_type[mod["id"]]
         if cnt >= 14:
             risk = "🔴 Critical"
         elif cnt >= 7:
@@ -390,63 +488,65 @@ def render(data):
             risk = "🟠 Medium"
         else:
             risk = "🟢 Low"
-        w(f"| {name} | {cnt} | {risk} |")
+        w(f"| {name} | {prod} | {cnt} | {bt.get('code_dep',0)} | {bt.get('model_ref',0)} | {bt.get('const_ref',0)} | {bt.get('task_dep',0)} | {bt.get('api_client',0)} | {risk} |")
 
     w("")
 
     # Hub modules (most outgoing deps)
     w("### Hub Modules (most outgoing deps)")
     w("")
-    w("| Module | Depends on N modules | Coupling |")
-    w("|--------|---------------------|----------|")
+    w("| Module | Product | Depends on N | Coupling |")
+    w("|--------|---------|-------------|----------|")
 
     top_deps = sorted(all_modules, key=lambda n: depend_count[n["id"]], reverse=True)
     for mod in top_deps[:15]:
         cnt = depend_count[mod["id"]]
         if cnt == 0:
             break
-        name = mod["label"]
+        name = short_label(mod["label"])
+        prod = mod.get("product", "")
         if cnt >= 14:
             coupling = "🔴 High"
         elif cnt >= 8:
             coupling = "🟡 Medium"
         else:
             coupling = "🟠 Low-Medium"
-        w(f"| {name} | {cnt} | {coupling} |")
+        w(f"| {name} | {prod} | {cnt} | {coupling} |")
 
     w("")
 
     # ============================================================
-    # 9. CHANGE IMPACT CHAINS
+    # 10. CHANGE IMPACT CHAINS
     # ============================================================
-    w("## 9. Change Impact Chains")
+    w("## 10. Change Impact Chains")
     w("")
     w("Format: `If you change X → these modules are directly affected`")
     w("")
 
-    # Show change impact for top 10 most-imported modules
     for mod in top_imported[:10]:
         cnt = import_count[mod["id"]]
         if cnt == 0:
             break
         name = mod["label"]
+        short = short_label(name)
 
-        importers = sorted(set(
-            f["label"]
-            for e, f in inc[mod["id"]]
-            if e["type"] == "code_dep" and f["type"] == "module"
-        ))
+        importers_detail = defaultdict(list)
+        for e, f in inc[mod["id"]]:
+            if e["type"] in CODE_DEP_TYPES and f["type"] == "module":
+                importers_detail[e["type"]].append(short_label(f["label"]))
 
-        w(f"### Changing `{name}`")
+        w(f"### Changing `{short}` ({mod.get('product', '')})")
         w(f"Directly affects {cnt} modules:")
-        for imp in importers:
-            w(f"- {imp}")
+        for etype in CODE_DEP_TYPES:
+            sources = sorted(set(importers_detail.get(etype, [])))
+            if sources:
+                w(f"- via `{etype}`: {', '.join(sources)}")
         w("")
 
     # ============================================================
-    # 10. PRODUCT DEPENDENCY MATRIX
+    # 11. PRODUCT DEPENDENCY MATRIX
     # ============================================================
-    w("## 10. Product Dependency Matrix")
+    w("## 11. Product Dependency Matrix")
     w("")
     w("Summary of how each product connects to others:")
     w("")
@@ -467,7 +567,6 @@ def render(data):
             if not tp:
                 cells.append("—")
                 continue
-            # Check direct edges
             connections = []
             for e, t in out[fp["id"]]:
                 if t["id"] == tp["id"]:
@@ -483,9 +582,9 @@ def render(data):
     w("")
 
     # ============================================================
-    # 11. MODULE-TO-INFRASTRUCTURE MAPPING
+    # 12. MODULE-TO-INFRASTRUCTURE MAPPING
     # ============================================================
-    w("## 11. Module-to-Infrastructure Mapping")
+    w("## 12. Module-to-Infrastructure Mapping")
     w("")
     w("Which modules depend on which infrastructure components:")
     w("")
@@ -494,7 +593,7 @@ def render(data):
         dependents = []
         for e, f in inc[infra["id"]]:
             if f["type"] == "module":
-                dependents.append(f["label"])
+                dependents.append(f"{f.get('product','')}/{short_label(f['label'])}")
             elif f["type"] == "product":
                 dependents.append(f["label"])
         if dependents:
@@ -506,10 +605,44 @@ def render(data):
             w("")
 
     # ============================================================
+    # 13. SEMANTIC DEPENDENCY HOTSPOTS
+    # ============================================================
+    w("## 13. Semantic Dependency Hotspots")
+    w("")
+    w("Modules with the most fine-grained semantic dependencies (model_ref + const_ref + task_dep + api_client):")
+    w("")
+
+    semantic_scores = []
+    for mod in all_modules:
+        score = 0
+        breakdown = Counter()
+        for e, t in out[mod["id"]]:
+            if e["type"] in SEMANTIC_DEP_TYPES:
+                score += 1
+                breakdown[e["type"]] += 1
+        for e, f in inc[mod["id"]]:
+            if e["type"] in SEMANTIC_DEP_TYPES:
+                score += 1
+                breakdown[e["type"]] += 1
+        if score > 0:
+            semantic_scores.append((mod, score, breakdown))
+
+    semantic_scores.sort(key=lambda x: -x[1])
+
+    w("| Module | Product | Total Semantic Edges | model_ref | const_ref | task_dep | api_client |")
+    w("|--------|---------|---------------------|-----------|-----------|----------|------------|")
+    for mod, score, bd in semantic_scores[:20]:
+        name = short_label(mod["label"])
+        prod = mod.get("product", "")
+        w(f"| {name} | {prod} | {score} | {bd.get('model_ref',0)} | {bd.get('const_ref',0)} | {bd.get('task_dep',0)} | {bd.get('api_client',0)} |")
+
+    w("")
+
+    # ============================================================
     # FOOTER
     # ============================================================
     w("---")
-    w("*End of Code Architecture Knowledge Graph*")
+    w("*End of Code Architecture Knowledge Graph v7*")
 
     return "\n".join(lines)
 
