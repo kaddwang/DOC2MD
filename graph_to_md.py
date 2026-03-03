@@ -47,6 +47,21 @@ SEMANTIC_DEP_TYPES = {
 }
 CODE_DEP_TYPES = ["code_dep", "model_ref", "const_ref", "task_dep", "api_client"]
 
+# ── Deep-link base URL (Vercel deployment) ──
+GRAPH_BASE_URL = "https://doc-2-md.vercel.app/"
+
+
+def node_url(label):
+    """Generate a deep-link URL that opens the knowledge graph focused on this node."""
+    from urllib.parse import quote
+    return f"{GRAPH_BASE_URL}#node={quote(label)}"
+
+
+def linked(label, raw_label=None):
+    """Return Markdown link: [label](deep-link-url)"""
+    target = raw_label or label
+    return f"[{label}]({node_url(target)})"
+
 
 def load_graph(path):
     with open(path, "r", encoding="utf-8") as f:
@@ -107,6 +122,11 @@ def render(data):
     w(f"> Nodes: {len(data['nodes'])} | Edges: {len(data['edges'])}")
     w(f"> Edge breakdown: {', '.join(f'{k}={v}' for k, v in sorted(edge_counts.items(), key=lambda x: -x[1]))}")
     w("> Purpose: Verified architecture map with semantic dependency types — for LLM impact analysis, attribution & root-cause tracing.")
+    w(f"> 🔗 Interactive graph: {GRAPH_BASE_URL}")
+    w("")
+    w("**📌 Deep-link convention:** Every module, product, infrastructure, and frontend page name in this document is a clickable link.")
+    w(f"Links follow the pattern `{GRAPH_BASE_URL}#node=<label>` and open the interactive knowledge graph focused on that node.")
+    w("When referencing a module in conversation, include its link so the user can jump directly to the interactive view.")
     w("")
     w("---")
     w("")
@@ -122,7 +142,7 @@ def render(data):
     )
 
     for p in products:
-        w(f"### {p['label']}")
+        w(f"### {linked(p['label'])}")
         w(f"- **{p['label']}**: {p.get('desc', '')}")
         title = p.get("title", "")
         if title:
@@ -144,10 +164,10 @@ def render(data):
             w("**Cross-product connections:**")
             for e, t in cross_out:
                 label = e.get("label", "").replace("\n", " ")
-                w(f"- → {t['label']}: {label}")
+                w(f"- → {linked(t['label'])}: {label}")
             for e, f in cross_in:
                 label = e.get("label", "").replace("\n", " ")
-                w(f"- ← {f['label']}: {label}")
+                w(f"- ← {linked(f['label'])}: {label}")
         w("")
 
     # ============================================================
@@ -168,6 +188,7 @@ def render(data):
         for mod in modules:
             desc = mod.get("desc", "").replace("\n", " ").replace("|", "\\|")[:60]
             short = short_label(mod["label"])
+            lnk = linked(short, mod["label"])
 
             # Count semantic dep types (outgoing)
             dep_counts = Counter()
@@ -181,7 +202,7 @@ def render(data):
             td = dep_counts.get("task_dep", 0) or ""
             ac = dep_counts.get("api_client", 0) or ""
 
-            w(f"| **{short}** | {desc} | {cd} | {mr} | {cr} | {td} | {ac} |")
+            w(f"| **{lnk}** | {desc} | {cd} | {mr} | {cr} | {td} | {ac} |")
 
         w("")
 
@@ -228,8 +249,8 @@ def render(data):
         modules = nodes_for_product(ntype, prod, "module")
         for mod in modules:
             short = short_label(mod["label"])
-            w(f"### {prod}/{short}")
-            w(f"- **Product**: {prod}")
+            w(f"### {linked(f'{prod}/{short}', mod['label'])}")
+            w(f"- **Product**: {linked(prod)}")
             desc = mod.get("desc", "")
             if desc:
                 w(f"- **Description**: {desc}")
@@ -238,52 +259,47 @@ def render(data):
             deps_by_type = defaultdict(list)
             for e, t in out[mod["id"]]:
                 if e["type"] in CODE_DEP_TYPES and t["type"] == "module":
-                    deps_by_type[e["type"]].append(short_label(t["label"]))
+                    deps_by_type[e["type"]].append((short_label(t["label"]), t["label"]))
 
             for etype in CODE_DEP_TYPES:
-                targets = sorted(set(deps_by_type.get(etype, [])))
+                targets = sorted(set(deps_by_type.get(etype, [])), key=lambda x: x[0])
                 if targets:
-                    w(f"- **{etype}** → {', '.join(targets)}")
+                    links = ", ".join(linked(s, r) for s, r in targets)
+                    w(f"- **{etype}** → {links}")
 
             # Imported by (all code dep types incoming)
             importers_by_type = defaultdict(list)
             for e, f in inc[mod["id"]]:
                 if e["type"] in CODE_DEP_TYPES and f["type"] == "module":
-                    importers_by_type[e["type"]].append(short_label(f["label"]))
+                    importers_by_type[e["type"]].append((short_label(f["label"]), f["label"]))
 
             for etype in CODE_DEP_TYPES:
-                sources = sorted(set(importers_by_type.get(etype, [])))
+                sources = sorted(set(importers_by_type.get(etype, [])), key=lambda x: x[0])
                 if sources:
-                    w(f"- **← {etype}** from: {', '.join(sources)}")
+                    links = ", ".join(linked(s, r) for s, r in sources)
+                    w(f"- **← {etype}** from: {links}")
 
             # Frontend pages
-            pages = sorted(set(
-                clean_page(t["label"]) for e, t in out[mod["id"]]
-                if t["type"] == "frontend_page"
-            ))
-            pages_inc = sorted(set(
-                clean_page(f["label"]) for e, f in inc[mod["id"]]
-                if f["type"] == "frontend_page"
-            ))
-            all_pages = sorted(set(pages + pages_inc))
+            pages_out = [(clean_page(t["label"]), t["label"]) for e, t in out[mod["id"]] if t["type"] == "frontend_page"]
+            pages_in = [(clean_page(f["label"]), f["label"]) for e, f in inc[mod["id"]] if f["type"] == "frontend_page"]
+            all_pages = sorted(set(pages_out + pages_in), key=lambda x: x[0])
             if all_pages:
-                w(f"- **Frontend pages**: {', '.join(all_pages)}")
+                links = ", ".join(linked(s, r) for s, r in all_pages)
+                w(f"- **Frontend pages**: {links}")
 
             # Infrastructure deps
-            infra_deps = sorted(set(
-                t["label"] for e, t in out[mod["id"]]
-                if t["type"] == "infra"
-            ))
+            infra_out = [(t["label"], t["label"]) for e, t in out[mod["id"]] if t["type"] == "infra"]
+            infra_deps = sorted(set(infra_out), key=lambda x: x[0])
             if infra_deps:
-                w(f"- **Infrastructure**: {', '.join(infra_deps)}")
+                links = ", ".join(linked(s, r) for s, r in infra_deps)
+                w(f"- **Infrastructure**: {links}")
 
             # Shared services
-            svc_deps = sorted(set(
-                t["label"] for e, t in out[mod["id"]]
-                if t["type"] == "shared_service"
-            ))
+            svc_out = [(t["label"], t["label"]) for e, t in out[mod["id"]] if t["type"] == "shared_service"]
+            svc_deps = sorted(set(svc_out), key=lambda x: x[0])
             if svc_deps:
-                w(f"- **Shared services**: {', '.join(svc_deps)}")
+                links = ", ".join(linked(s, r) for s, r in svc_deps)
+                w(f"- **Shared services**: {links}")
 
             w("")
 
@@ -304,18 +320,12 @@ def render(data):
 
         for page in pages:
             page_name = clean_page(page["label"])
-            backend_mods = sorted(set(
-                short_label(t["label"])
-                for e, t in out[page["id"]]
-                if t["type"] == "module"
-            ))
-            backend_mods_inc = sorted(set(
-                short_label(f["label"])
-                for e, f in inc[page["id"]]
-                if f["type"] == "module"
-            ))
-            all_mods = sorted(set(backend_mods + backend_mods_inc))
-            w(f"| {page_name} | {', '.join(all_mods) if all_mods else '—'} |")
+            page_lnk = linked(page_name, page["label"])
+            mods_out = [(short_label(t["label"]), t["label"]) for e, t in out[page["id"]] if t["type"] == "module"]
+            mods_in = [(short_label(f["label"]), f["label"]) for e, f in inc[page["id"]] if f["type"] == "module"]
+            all_mods = sorted(set(mods_out + mods_in), key=lambda x: x[0])
+            mods_str = ", ".join(linked(s, r) for s, r in all_mods) if all_mods else "—"
+            w(f"| {page_lnk} | {mods_str} |")
 
         w("")
 
@@ -328,14 +338,12 @@ def render(data):
         w("|------|----------------------|")
         for page in sorted(orphan_pages, key=lambda n: n["label"]):
             page_name = clean_page(page["label"])
-            backend_mods = sorted(set(
-                short_label(t["label"]) for e, t in out[page["id"]] if t["type"] == "module"
-            ))
-            backend_mods_inc = sorted(set(
-                short_label(f["label"]) for e, f in inc[page["id"]] if f["type"] == "module"
-            ))
-            all_mods = sorted(set(backend_mods + backend_mods_inc))
-            w(f"| {page_name} | {', '.join(all_mods) if all_mods else '—'} |")
+            page_lnk = linked(page_name, page["label"])
+            mods_out = [(short_label(t["label"]), t["label"]) for e, t in out[page["id"]] if t["type"] == "module"]
+            mods_in = [(short_label(f["label"]), f["label"]) for e, f in inc[page["id"]] if f["type"] == "module"]
+            all_mods = sorted(set(mods_out + mods_in), key=lambda x: x[0])
+            mods_str = ", ".join(linked(s, r) for s, r in all_mods) if all_mods else "—"
+            w(f"| {page_lnk} | {mods_str} |")
         w("")
 
     # ============================================================
@@ -360,8 +368,8 @@ def render(data):
                 users.add(t["label"])
             elif t.get("product"):
                 users.add(t["product"])
-        user_str = ", ".join(sorted(users, key=lambda x: PRODUCT_ORDER.index(x) if x in PRODUCT_ORDER else 99))
-        w(f"| **{infra['label']}** | {desc} | {user_str} |")
+        user_links = ", ".join(linked(u) for u in sorted(users, key=lambda x: PRODUCT_ORDER.index(x) if x in PRODUCT_ORDER else 99))
+        w(f"| **{linked(infra['label'])}** | {desc} | {user_links} |")
 
     w("")
 
@@ -373,7 +381,7 @@ def render(data):
 
     shared = sorted(ntype.get("shared_service", []), key=lambda n: n["label"])
     for svc in shared:
-        w(f"### {svc['label']}")
+        w(f"### {linked(svc['label'])}")
         desc = svc.get("desc", "")
         if desc:
             w(f"- {desc}")
@@ -389,16 +397,17 @@ def render(data):
             elif t.get("product"):
                 users.add(t["product"])
         if users:
-            user_str = ", ".join(sorted(users, key=lambda x: PRODUCT_ORDER.index(x) if x in PRODUCT_ORDER else 99))
-            w(f"- Used by: {user_str}")
+            user_links = ", ".join(linked(u) for u in sorted(users, key=lambda x: PRODUCT_ORDER.index(x) if x in PRODUCT_ORDER else 99))
+            w(f"- Used by: {user_links}")
         # Show which modules connect to this service
-        mod_users = sorted(set(
-            short_label(f["label"])
+        mod_users_raw = sorted(set(
+            (short_label(f["label"]), f["label"])
             for e, f in inc[svc["id"]]
             if f["type"] == "module"
-        ))
-        if mod_users:
-            w(f"- Module consumers: {', '.join(mod_users)}")
+        ), key=lambda x: x[0])
+        if mod_users_raw:
+            links = ", ".join(linked(s, r) for s, r in mod_users_raw)
+            w(f"- Module consumers: {links}")
         w("")
 
     # ============================================================
@@ -478,6 +487,7 @@ def render(data):
         if cnt == 0:
             break
         name = short_label(mod["label"])
+        lnk = linked(name, mod["label"])
         prod = mod.get("product", "")
         bt = import_by_type[mod["id"]]
         if cnt >= 14:
@@ -488,7 +498,7 @@ def render(data):
             risk = "🟠 Medium"
         else:
             risk = "🟢 Low"
-        w(f"| {name} | {prod} | {cnt} | {bt.get('code_dep',0)} | {bt.get('model_ref',0)} | {bt.get('const_ref',0)} | {bt.get('task_dep',0)} | {bt.get('api_client',0)} | {risk} |")
+        w(f"| {lnk} | {prod} | {cnt} | {bt.get('code_dep',0)} | {bt.get('model_ref',0)} | {bt.get('const_ref',0)} | {bt.get('task_dep',0)} | {bt.get('api_client',0)} | {risk} |")
 
     w("")
 
@@ -504,6 +514,7 @@ def render(data):
         if cnt == 0:
             break
         name = short_label(mod["label"])
+        lnk = linked(name, mod["label"])
         prod = mod.get("product", "")
         if cnt >= 14:
             coupling = "🔴 High"
@@ -511,7 +522,7 @@ def render(data):
             coupling = "🟡 Medium"
         else:
             coupling = "🟠 Low-Medium"
-        w(f"| {name} | {prod} | {cnt} | {coupling} |")
+        w(f"| {lnk} | {prod} | {cnt} | {coupling} |")
 
     w("")
 
@@ -533,14 +544,15 @@ def render(data):
         importers_detail = defaultdict(list)
         for e, f in inc[mod["id"]]:
             if e["type"] in CODE_DEP_TYPES and f["type"] == "module":
-                importers_detail[e["type"]].append(short_label(f["label"]))
+                importers_detail[e["type"]].append((short_label(f["label"]), f["label"]))
 
-        w(f"### Changing `{short}` ({mod.get('product', '')})")
+        w(f"### Changing {linked(short, name)} ({mod.get('product', '')})")
         w(f"Directly affects {cnt} modules:")
         for etype in CODE_DEP_TYPES:
-            sources = sorted(set(importers_detail.get(etype, [])))
+            sources = sorted(set(importers_detail.get(etype, [])), key=lambda x: x[0])
             if sources:
-                w(f"- via `{etype}`: {', '.join(sources)}")
+                links = ", ".join(linked(s, r) for s, r in sources)
+                w(f"- via `{etype}`: {links}")
         w("")
 
     # ============================================================
@@ -590,18 +602,19 @@ def render(data):
     w("")
 
     for infra in infras:
-        dependents = []
+        dep_links = []
         for e, f in inc[infra["id"]]:
             if f["type"] == "module":
-                dependents.append(f"{f.get('product','')}/{short_label(f['label'])}")
+                dep_links.append((f"{f.get('product','')}/{short_label(f['label'])}", f["label"]))
             elif f["type"] == "product":
-                dependents.append(f["label"])
-        if dependents:
-            w(f"### {infra['label']}")
+                dep_links.append((f["label"], f["label"]))
+        if dep_links:
+            w(f"### {linked(infra['label'])}")
             desc = infra.get("desc", "")
             if desc:
                 w(f"- {desc}")
-            w(f"- **Depended on by**: {', '.join(sorted(dependents))}")
+            links = ", ".join(linked(s, r) for s, r in sorted(dep_links, key=lambda x: x[0]))
+            w(f"- **Depended on by**: {links}")
             w("")
 
     # ============================================================
@@ -633,8 +646,9 @@ def render(data):
     w("|--------|---------|---------------------|-----------|-----------|----------|------------|")
     for mod, score, bd in semantic_scores[:20]:
         name = short_label(mod["label"])
+        lnk = linked(name, mod["label"])
         prod = mod.get("product", "")
-        w(f"| {name} | {prod} | {score} | {bd.get('model_ref',0)} | {bd.get('const_ref',0)} | {bd.get('task_dep',0)} | {bd.get('api_client',0)} |")
+        w(f"| {lnk} | {prod} | {score} | {bd.get('model_ref',0)} | {bd.get('const_ref',0)} | {bd.get('task_dep',0)} | {bd.get('api_client',0)} |")
 
     w("")
 

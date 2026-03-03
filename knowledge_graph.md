@@ -1,16 +1,21 @@
 # Crescendo Lab — Code Architecture Knowledge Graph v7 (LLM-Optimized)
 
-> Auto-generated from deep codebase analysis on 2026-03-03 16:12
+> Auto-generated from deep codebase analysis on 2026-03-03 16:20
 > Repos: rubato (MAAC BE), Grazioso (MAAC FE), cantata (CAAC BE), Zeffiroso (CAAC FE), bebop (DAAC), polyrhythmic (CDH)
 > Nodes: 155 | Edges: 915
 > Edge breakdown: code_dep=319, const_ref=166, model_ref=125, hierarchy=123, task_dep=59, api_call=54, infra_dep=37, api_client=17, service_dep=11, data_sync=4
 > Purpose: Verified architecture map with semantic dependency types — for LLM impact analysis, attribution & root-cause tracing.
+> 🔗 Interactive graph: https://doc-2-md.vercel.app/
+
+**📌 Deep-link convention:** Every module, product, infrastructure, and frontend page name in this document is a clickable link.
+Links follow the pattern `https://doc-2-md.vercel.app/#node=<label>` and open the interactive knowledge graph focused on that node.
+When referencing a module in conversation, include its link so the user can jump directly to the interactive view.
 
 ---
 
 ## 1. Product Suite
 
-### MAAC
+### [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **MAAC**: Marketing Automation & Analytics Cloud
 - Tech: MAAC — Marketing Automation & Analytics Cloud
 Tech: Django 3.2 + React 19 (TypeScript)
@@ -21,13 +26,13 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 - Frontend pages: 26
 
 **Cross-product connections:**
-- → CAAC: CAAC_CANTATA_URL (REST API)
-- → DAAC: DAAC_API_URL (REST API)
-- ← CDH: RUBATO_HOST + RUBATO_DB_DSN
-- ← CAAC: MAAC_URL (REST API)
-- ← DAAC: MAAC_GCP_PROJECT_ID (BigQuery)
+- → [CAAC](https://doc-2-md.vercel.app/#node=CAAC): CAAC_CANTATA_URL (REST API)
+- → [DAAC](https://doc-2-md.vercel.app/#node=DAAC): DAAC_API_URL (REST API)
+- ← [CDH](https://doc-2-md.vercel.app/#node=CDH): RUBATO_HOST + RUBATO_DB_DSN
+- ← [CAAC](https://doc-2-md.vercel.app/#node=CAAC): MAAC_URL (REST API)
+- ← [DAAC](https://doc-2-md.vercel.app/#node=DAAC): MAAC_GCP_PROJECT_ID (BigQuery)
 
-### CAAC
+### [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **CAAC**: Conversation Automation & Analytics Cloud
 - Tech: CAAC — Conversation Automation & Analytics Cloud
 Tech: Go (Cantata) + React (Zeffiroso/TS)
@@ -38,13 +43,13 @@ Repos: {'backend': 'cantata (Go)', 'frontend': 'Zeffiroso (React/TS)'}
 - Frontend pages: 6
 
 **Cross-product connections:**
-- → MAAC: MAAC_URL (REST API)
-- → CDH: CDH_INTERNAL_URL (Unification V2)
-- ← MAAC: CAAC_CANTATA_URL (REST API)
-- ← CDH: CANTATA_HOST + CANTATA_DB_DSN
-- ← DAAC: CAAC_GCP_PROJECT_ID (BigQuery)
+- → [MAAC](https://doc-2-md.vercel.app/#node=MAAC): MAAC_URL (REST API)
+- → [CDH](https://doc-2-md.vercel.app/#node=CDH): CDH_INTERNAL_URL (Unification V2)
+- ← [MAAC](https://doc-2-md.vercel.app/#node=MAAC): CAAC_CANTATA_URL (REST API)
+- ← [CDH](https://doc-2-md.vercel.app/#node=CDH): CANTATA_HOST + CANTATA_DB_DSN
+- ← [DAAC](https://doc-2-md.vercel.app/#node=DAAC): CAAC_GCP_PROJECT_ID (BigQuery)
 
-### DAAC
+### [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **DAAC**: Data Automation & Analytics Cloud
 - Tech: DAAC — Data Automation & Analytics Cloud
 Tech: Python (FastAPI) + React + AI Agent
@@ -55,11 +60,11 @@ Repos: {'backend': 'bebop (Python/FastAPI)', 'frontend': 'bebop/frontend (React/
 - Frontend pages: 0
 
 **Cross-product connections:**
-- → MAAC: MAAC_GCP_PROJECT_ID (BigQuery)
-- → CAAC: CAAC_GCP_PROJECT_ID (BigQuery)
-- ← MAAC: DAAC_API_URL (REST API)
+- → [MAAC](https://doc-2-md.vercel.app/#node=MAAC): MAAC_GCP_PROJECT_ID (BigQuery)
+- → [CAAC](https://doc-2-md.vercel.app/#node=CAAC): CAAC_GCP_PROJECT_ID (BigQuery)
+- ← [MAAC](https://doc-2-md.vercel.app/#node=MAAC): DAAC_API_URL (REST API)
 
-### CDH
+### [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **CDH**: Customer Data Hub — Unified Contact Profile
 - Tech: CDH — Customer Data Hub — Unified Contact Profile
 Tech: Python + Go (Polyrhythmic)
@@ -70,9 +75,9 @@ Repos: {'backend': 'polyrhythmic (Python+Go)', 'frontend': 'N/A (API-only)'}
 - Frontend pages: 0
 
 **Cross-product connections:**
-- → MAAC: RUBATO_HOST + RUBATO_DB_DSN
-- → CAAC: CANTATA_HOST + CANTATA_DB_DSN
-- ← CAAC: CDH_INTERNAL_URL (Unification V2)
+- → [MAAC](https://doc-2-md.vercel.app/#node=MAAC): RUBATO_HOST + RUBATO_DB_DSN
+- → [CAAC](https://doc-2-md.vercel.app/#node=CAAC): CANTATA_HOST + CANTATA_DB_DSN
+- ← [CAAC](https://doc-2-md.vercel.app/#node=CAAC): CDH_INTERNAL_URL (Unification V2)
 
 ## 2. Module Architecture
 
@@ -80,108 +85,108 @@ Repos: {'backend': 'polyrhythmic (Python+Go)', 'frontend': 'N/A (API-only)'}
 
 | Module | Description | code_dep | model_ref | const_ref | task_dep | api_client |
 |--------|-------------|----------|-----------|-----------|----------|------------|
-| **accounts** | User authentication, SSO, 2FA, session management | 8 | 2 | 3 | 2 |  |
-| **ai_generation** | AI content generation — copywriting, image generation | 2 |  | 1 |  |  |
-| **api_doc** | MAAC module: api_doc |  |  |  |  |  |
-| **async_wrapper** | MAAC module: async_wrapper |  |  |  |  |  |
-| **audience** | Contact management, segments, filters, ad platform audiences | 8 | 6 | 5 |  |  |
-| **auto_reply** | Keyword auto-reply across LINE/FB/WhatsApp channels | 9 | 2 | 4 | 1 |  |
-| **bigquery** | BigQuery data pipeline integration | 1 | 1 | 3 |  |  |
-| **broadcast** | Push messaging (LINE/SMS/WhatsApp), scheduling, A/B test | 10 | 1 | 5 |  |  |
-| **caac** | CAAC integration bridge — connects Rubato to Cantata | 4 | 2 | 1 |  |  |
-| **campaign** | Campaign orchestration — multi-channel campaign management | 2 | 2 | 2 |  |  |
-| **cdp** | Customer Data Platform — profile unification, data sync | 6 | 1 | 2 | 2 |  |
-| **channel** | Multi-channel management (LINE/FB/IG/WhatsApp/Email/SMS) | 5 | 3 | 4 | 1 |  |
-| **coupon** | MAAC module: coupon |  |  |  |  |  |
-| **cyberbiz** | Cyberbiz e-commerce integration | 1 | 1 |  |  |  |
-| **email_channel** | Email campaign delivery via SendGrid, bounce handling | 8 |  | 4 | 1 |  |
-| **extension** | MAAC extension plugins — custom action nodes | 6 | 1 | 6 |  |  |
-| **fb** | Facebook/Instagram messaging, comment auto-reply | 7 | 1 | 4 | 1 |  |
-| **firestore** | MAAC module: firestore | 1 | 1 |  |  |  |
-| **form** | SurveyCake form integration, response tracking | 2 | 1 | 3 | 3 | 2 |
-| **google_analytics** | GA4/UTM tracking integration for campaigns | 1 | 4 | 1 |  |  |
-| **integration** | MAAC module: integration | 2 | 1 |  |  |  |
-| **interlude** | MAAC module: interlude | 4 | 1 |  |  |  |
-| **internal** | Internal admin tools — data migration, debugging | 15 | 5 | 6 | 3 | 2 |
-| **invoice** | Invoice management — receipt/reward redemption |  |  |  |  |  |
-| **journey** | Customer journey automation (triggers, actions, conditions) | 14 | 5 | 7 | 1 |  |
-| **line** | Core LINE integration — messaging, rich menu, Flex, LIFF | 32 | 19 | 19 | 10 | 3 |
-| **message** | Message rendering engine — builds LINE/FB/SMS/Email messages | 4 | 1 | 3 |  |  |
-| **nine_one_app** | 91App e-commerce integration | 8 | 4 | 3 | 4 | 1 |
-| **notification** | In-app notification system for admin users | 1 |  |  |  |  |
-| **openapi** | Public OpenAPI — external developer API endpoints | 20 | 5 | 13 | 5 | 2 |
-| **organization** | Org/tenant management, billing, feature control, RBAC | 15 | 2 | 7 | 1 |  |
-| **payment** | Payment & billing — subscription, invoice management | 4 | 2 | 2 | 1 |  |
-| **prize** | Prize/reward management, lottery, coupon distribution | 8 | 5 | 6 | 4 | 1 |
-| **pubsub** | MAAC module: pubsub |  |  |  |  |  |
-| **pubsub_pull** | PubSub consumer — event processing workers | 4 |  | 5 | 2 |  |
-| **receipt** | Receipt registration campaign for loyalty programs | 8 | 2 | 2 | 2 | 1 |
-| **referral** | Rapid Referral — MGM campaigns, invitation tracking | 4 | 4 | 3 | 3 | 1 |
-| **report** | Analytics & reporting — campaign performance, member stats | 3 | 6 | 2 |  |  |
-| **sforzando** | Prize fulfillment partner integration | 4 | 4 | 1 | 2 | 1 |
-| **shopify** | Shopify e-commerce integration | 1 | 3 | 1 | 1 |  |
-| **shopline** | Shopline e-commerce integration | 6 | 3 | 2 | 3 | 1 |
-| **shortener** | MAAC module: shortener |  |  | 1 |  |  |
-| **smoke_test** | Automated smoke test — system health validation | 7 | 5 | 6 |  |  |
-| **sms** | SMS delivery — domestic/international SMS campaigns | 11 | 4 | 7 |  | 2 |
-| **sms_plus** | SMS Plus — enhanced SMS features, message records | 9 |  | 3 |  |  |
-| **staticfiles** | MAAC module: staticfiles |  |  |  |  |  |
-| **stress_test** | MAAC module: stress_test |  |  |  |  |  |
-| **system** | System-wide utilities — campaign tracking, feature flags | 7 | 6 | 4 | 2 |  |
-| **tag** | Tag management — contact tagging, auto-tagging rules | 6 | 3 | 3 | 2 |  |
-| **verification** | MAAC module: verification | 1 |  |  |  |  |
-| **wccs** | MAAC module: wccs | 4 |  | 4 | 1 |  |
-| **webhook** | Webhook delivery — event push to external systems | 4 | 4 | 1 |  |  |
-| **whatsapp** | WhatsApp Business messaging, template management | 7 |  | 6 | 1 |  |
-| **workflow** | MAAC module: workflow |  | 2 | 1 |  |  |
+| **[accounts](https://doc-2-md.vercel.app/#node=maac/accounts)** | User authentication, SSO, 2FA, session management | 8 | 2 | 3 | 2 |  |
+| **[ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation)** | AI content generation — copywriting, image generation | 2 |  | 1 |  |  |
+| **[api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc)** | MAAC module: api_doc |  |  |  |  |  |
+| **[async_wrapper](https://doc-2-md.vercel.app/#node=maac/async_wrapper)** | MAAC module: async_wrapper |  |  |  |  |  |
+| **[audience](https://doc-2-md.vercel.app/#node=maac/audience)** | Contact management, segments, filters, ad platform audiences | 8 | 6 | 5 |  |  |
+| **[auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply)** | Keyword auto-reply across LINE/FB/WhatsApp channels | 9 | 2 | 4 | 1 |  |
+| **[bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery)** | BigQuery data pipeline integration | 1 | 1 | 3 |  |  |
+| **[broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast)** | Push messaging (LINE/SMS/WhatsApp), scheduling, A/B test | 10 | 1 | 5 |  |  |
+| **[caac](https://doc-2-md.vercel.app/#node=maac/caac)** | CAAC integration bridge — connects Rubato to Cantata | 4 | 2 | 1 |  |  |
+| **[campaign](https://doc-2-md.vercel.app/#node=maac/campaign)** | Campaign orchestration — multi-channel campaign management | 2 | 2 | 2 |  |  |
+| **[cdp](https://doc-2-md.vercel.app/#node=maac/cdp)** | Customer Data Platform — profile unification, data sync | 6 | 1 | 2 | 2 |  |
+| **[channel](https://doc-2-md.vercel.app/#node=maac/channel)** | Multi-channel management (LINE/FB/IG/WhatsApp/Email/SMS) | 5 | 3 | 4 | 1 |  |
+| **[coupon](https://doc-2-md.vercel.app/#node=maac/coupon)** | MAAC module: coupon |  |  |  |  |  |
+| **[cyberbiz](https://doc-2-md.vercel.app/#node=maac/cyberbiz)** | Cyberbiz e-commerce integration | 1 | 1 |  |  |  |
+| **[email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel)** | Email campaign delivery via SendGrid, bounce handling | 8 |  | 4 | 1 |  |
+| **[extension](https://doc-2-md.vercel.app/#node=maac/extension)** | MAAC extension plugins — custom action nodes | 6 | 1 | 6 |  |  |
+| **[fb](https://doc-2-md.vercel.app/#node=maac/fb)** | Facebook/Instagram messaging, comment auto-reply | 7 | 1 | 4 | 1 |  |
+| **[firestore](https://doc-2-md.vercel.app/#node=maac/firestore)** | MAAC module: firestore | 1 | 1 |  |  |  |
+| **[form](https://doc-2-md.vercel.app/#node=maac/form)** | SurveyCake form integration, response tracking | 2 | 1 | 3 | 3 | 2 |
+| **[google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics)** | GA4/UTM tracking integration for campaigns | 1 | 4 | 1 |  |  |
+| **[integration](https://doc-2-md.vercel.app/#node=maac/integration)** | MAAC module: integration | 2 | 1 |  |  |  |
+| **[interlude](https://doc-2-md.vercel.app/#node=maac/interlude)** | MAAC module: interlude | 4 | 1 |  |  |  |
+| **[internal](https://doc-2-md.vercel.app/#node=maac/internal)** | Internal admin tools — data migration, debugging | 15 | 5 | 6 | 3 | 2 |
+| **[invoice](https://doc-2-md.vercel.app/#node=maac/invoice)** | Invoice management — receipt/reward redemption |  |  |  |  |  |
+| **[journey](https://doc-2-md.vercel.app/#node=maac/journey)** | Customer journey automation (triggers, actions, conditions) | 14 | 5 | 7 | 1 |  |
+| **[line](https://doc-2-md.vercel.app/#node=maac/line)** | Core LINE integration — messaging, rich menu, Flex, LIFF | 32 | 19 | 19 | 10 | 3 |
+| **[message](https://doc-2-md.vercel.app/#node=maac/message)** | Message rendering engine — builds LINE/FB/SMS/Email messages | 4 | 1 | 3 |  |  |
+| **[nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app)** | 91App e-commerce integration | 8 | 4 | 3 | 4 | 1 |
+| **[notification](https://doc-2-md.vercel.app/#node=maac/notification)** | In-app notification system for admin users | 1 |  |  |  |  |
+| **[openapi](https://doc-2-md.vercel.app/#node=maac/openapi)** | Public OpenAPI — external developer API endpoints | 20 | 5 | 13 | 5 | 2 |
+| **[organization](https://doc-2-md.vercel.app/#node=maac/organization)** | Org/tenant management, billing, feature control, RBAC | 15 | 2 | 7 | 1 |  |
+| **[payment](https://doc-2-md.vercel.app/#node=maac/payment)** | Payment & billing — subscription, invoice management | 4 | 2 | 2 | 1 |  |
+| **[prize](https://doc-2-md.vercel.app/#node=maac/prize)** | Prize/reward management, lottery, coupon distribution | 8 | 5 | 6 | 4 | 1 |
+| **[pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub)** | MAAC module: pubsub |  |  |  |  |  |
+| **[pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull)** | PubSub consumer — event processing workers | 4 |  | 5 | 2 |  |
+| **[receipt](https://doc-2-md.vercel.app/#node=maac/receipt)** | Receipt registration campaign for loyalty programs | 8 | 2 | 2 | 2 | 1 |
+| **[referral](https://doc-2-md.vercel.app/#node=maac/referral)** | Rapid Referral — MGM campaigns, invitation tracking | 4 | 4 | 3 | 3 | 1 |
+| **[report](https://doc-2-md.vercel.app/#node=maac/report)** | Analytics & reporting — campaign performance, member stats | 3 | 6 | 2 |  |  |
+| **[sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando)** | Prize fulfillment partner integration | 4 | 4 | 1 | 2 | 1 |
+| **[shopify](https://doc-2-md.vercel.app/#node=maac/shopify)** | Shopify e-commerce integration | 1 | 3 | 1 | 1 |  |
+| **[shopline](https://doc-2-md.vercel.app/#node=maac/shopline)** | Shopline e-commerce integration | 6 | 3 | 2 | 3 | 1 |
+| **[shortener](https://doc-2-md.vercel.app/#node=maac/shortener)** | MAAC module: shortener |  |  | 1 |  |  |
+| **[smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test)** | Automated smoke test — system health validation | 7 | 5 | 6 |  |  |
+| **[sms](https://doc-2-md.vercel.app/#node=maac/sms)** | SMS delivery — domestic/international SMS campaigns | 11 | 4 | 7 |  | 2 |
+| **[sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)** | SMS Plus — enhanced SMS features, message records | 9 |  | 3 |  |  |
+| **[staticfiles](https://doc-2-md.vercel.app/#node=maac/staticfiles)** | MAAC module: staticfiles |  |  |  |  |  |
+| **[stress_test](https://doc-2-md.vercel.app/#node=maac/stress_test)** | MAAC module: stress_test |  |  |  |  |  |
+| **[system](https://doc-2-md.vercel.app/#node=maac/system)** | System-wide utilities — campaign tracking, feature flags | 7 | 6 | 4 | 2 |  |
+| **[tag](https://doc-2-md.vercel.app/#node=maac/tag)** | Tag management — contact tagging, auto-tagging rules | 6 | 3 | 3 | 2 |  |
+| **[verification](https://doc-2-md.vercel.app/#node=maac/verification)** | MAAC module: verification | 1 |  |  |  |  |
+| **[wccs](https://doc-2-md.vercel.app/#node=maac/wccs)** | MAAC module: wccs | 4 |  | 4 | 1 |  |
+| **[webhook](https://doc-2-md.vercel.app/#node=maac/webhook)** | Webhook delivery — event push to external systems | 4 | 4 | 1 |  |  |
+| **[whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)** | WhatsApp Business messaging, template management | 7 |  | 6 | 1 |  |
+| **[workflow](https://doc-2-md.vercel.app/#node=maac/workflow)** | MAAC module: workflow |  | 2 | 1 |  |  |
 
 ### CAAC Modules (13 total)
 
 | Module | Description | code_dep | model_ref | const_ref | task_dep | api_client |
 |--------|-------------|----------|-----------|-----------|----------|------------|
-| **aistrategy** | AI strategy configuration — model selection, prompts |  |  |  |  |  |
-| **aitask** | AI task execution — auto-reply suggestions, summarization | 3 |  |  |  |  |
-| **aiusage** | AI usage tracking — token consumption, quota |  |  |  |  |  |
-| **auth** | Authentication & authorization — SSO, 2FA |  |  |  |  |  |
-| **cat** | CAT (Contact Attribution Tracking) — member journey tracking |  |  |  |  |  |
-| **cdp** | CDP integration — unified contact view within CAAC |  |  |  |  |  |
-| **chat** | Core 1-on-1 chat — message routing, conversation lifecycle | 5 |  |  |  |  |
-| **dashboard** | CAAC analytics dashboard — conversation metrics, team perfor |  |  |  |  |  |
-| **longrunningtask** | Long-running operations — bulk exports, data migration | 1 |  |  |  |  |
-| **openapi** | CAAC public API for external integrations |  |  |  |  |  |
-| **organization** | Organization management — channels, users, roles, AI feature | 1 |  |  |  |  |
-| **tag** | Contact tagging within CAAC conversations |  |  |  |  |  |
-| **workertask** | Background worker tasks — message processing, sync jobs | 1 |  |  |  |  |
+| **[aistrategy](https://doc-2-md.vercel.app/#node=caac/aistrategy)** | AI strategy configuration — model selection, prompts |  |  |  |  |  |
+| **[aitask](https://doc-2-md.vercel.app/#node=caac/aitask)** | AI task execution — auto-reply suggestions, summarization | 3 |  |  |  |  |
+| **[aiusage](https://doc-2-md.vercel.app/#node=caac/aiusage)** | AI usage tracking — token consumption, quota |  |  |  |  |  |
+| **[auth](https://doc-2-md.vercel.app/#node=caac/auth)** | Authentication & authorization — SSO, 2FA |  |  |  |  |  |
+| **[cat](https://doc-2-md.vercel.app/#node=caac/cat)** | CAT (Contact Attribution Tracking) — member journey tracking |  |  |  |  |  |
+| **[cdp](https://doc-2-md.vercel.app/#node=caac/cdp)** | CDP integration — unified contact view within CAAC |  |  |  |  |  |
+| **[chat](https://doc-2-md.vercel.app/#node=caac/chat)** | Core 1-on-1 chat — message routing, conversation lifecycle | 5 |  |  |  |  |
+| **[dashboard](https://doc-2-md.vercel.app/#node=caac/dashboard)** | CAAC analytics dashboard — conversation metrics, team perfor |  |  |  |  |  |
+| **[longrunningtask](https://doc-2-md.vercel.app/#node=caac/longrunningtask)** | Long-running operations — bulk exports, data migration | 1 |  |  |  |  |
+| **[openapi](https://doc-2-md.vercel.app/#node=caac/openapi)** | CAAC public API for external integrations |  |  |  |  |  |
+| **[organization](https://doc-2-md.vercel.app/#node=caac/organization)** | Organization management — channels, users, roles, AI feature | 1 |  |  |  |  |
+| **[tag](https://doc-2-md.vercel.app/#node=caac/tag)** | Contact tagging within CAAC conversations |  |  |  |  |  |
+| **[workertask](https://doc-2-md.vercel.app/#node=caac/workertask)** | Background worker tasks — message processing, sync jobs | 1 |  |  |  |  |
 
 ### DAAC Modules (9 total)
 
 | Module | Description | code_dep | model_ref | const_ref | task_dep | api_client |
 |--------|-------------|----------|-----------|-----------|----------|------------|
-| **agent_v2** | AI Agent — natural language data querying (OpenAI/Gemini) | 1 |  |  |  |  |
-| **auth** | Authentication via Arioso SSO + Interlude |  |  |  |  |  |
-| **dashboard** | Custom analytics dashboards — user-created visualizations | 1 |  |  |  |  |
-| **dbt** | dbt pipeline management — data transformation & modeling | 1 |  |  |  |  |
-| **file** | File management — upload/download for analysis results |  |  |  |  |  |
-| **infra** | Infrastructure provisioning — Terraform client setup | 1 |  |  |  |  |
-| **journey** | Journey analysis — customer path analysis via AI | 1 |  |  |  |  |
-| **organization** | Org management — workspace, dbt config, Terraform infra | 1 |  |  |  |  |
-| **session** | AI analysis session — conversation state, context management | 2 |  |  |  |  |
+| **[agent_v2](https://doc-2-md.vercel.app/#node=daac/agent_v2)** | AI Agent — natural language data querying (OpenAI/Gemini) | 1 |  |  |  |  |
+| **[auth](https://doc-2-md.vercel.app/#node=daac/auth)** | Authentication via Arioso SSO + Interlude |  |  |  |  |  |
+| **[dashboard](https://doc-2-md.vercel.app/#node=daac/dashboard)** | Custom analytics dashboards — user-created visualizations | 1 |  |  |  |  |
+| **[dbt](https://doc-2-md.vercel.app/#node=daac/dbt)** | dbt pipeline management — data transformation & modeling | 1 |  |  |  |  |
+| **[file](https://doc-2-md.vercel.app/#node=daac/file)** | File management — upload/download for analysis results |  |  |  |  |  |
+| **[infra](https://doc-2-md.vercel.app/#node=daac/infra)** | Infrastructure provisioning — Terraform client setup | 1 |  |  |  |  |
+| **[journey](https://doc-2-md.vercel.app/#node=daac/journey)** | Journey analysis — customer path analysis via AI | 1 |  |  |  |  |
+| **[organization](https://doc-2-md.vercel.app/#node=daac/organization)** | Org management — workspace, dbt config, Terraform infra | 1 |  |  |  |  |
+| **[session](https://doc-2-md.vercel.app/#node=daac/session)** | AI analysis session — conversation state, context management | 2 |  |  |  |  |
 
 ### CDH Modules (11 total)
 
 | Module | Description | code_dep | model_ref | const_ref | task_dep | api_client |
 |--------|-------------|----------|-----------|-----------|----------|------------|
-| **broadcast** | CDH broadcast coordination — cross-product message dispatch |  |  |  |  |  |
-| **channel_entity_comment** | Channel entity commenting — AI-powered contact annotations |  |  |  |  |  |
-| **contact** | Unified contact profile — cross-product contact view | 1 |  |  |  |  |
-| **custom_field** | Custom contact fields — user-defined attributes |  |  |  |  |  |
-| **engagement_history** | Engagement history — cross-channel interaction tracking |  |  |  |  |  |
-| **member** | Member management — import/export, profile enrichment | 2 |  |  |  |  |
-| **richmenu** | LINE Rich Menu management via CDH |  |  |  |  |  |
-| **segment** | Cross-product audience segmentation via SQL/LLM |  |  |  |  |  |
-| **tag** | Cross-product tag synchronization | 1 |  |  |  |  |
-| **task** | Background task execution — unification, sync, export jobs |  |  |  |  |  |
-| **unification** | Contact unification graph — merge/split profiles across chan | 2 |  |  |  |  |
+| **[broadcast](https://doc-2-md.vercel.app/#node=cdh/broadcast)** | CDH broadcast coordination — cross-product message dispatch |  |  |  |  |  |
+| **[channel_entity_comment](https://doc-2-md.vercel.app/#node=cdh/channel_entity_comment)** | Channel entity commenting — AI-powered contact annotations |  |  |  |  |  |
+| **[contact](https://doc-2-md.vercel.app/#node=cdh/contact)** | Unified contact profile — cross-product contact view | 1 |  |  |  |  |
+| **[custom_field](https://doc-2-md.vercel.app/#node=cdh/custom_field)** | Custom contact fields — user-defined attributes |  |  |  |  |  |
+| **[engagement_history](https://doc-2-md.vercel.app/#node=cdh/engagement_history)** | Engagement history — cross-channel interaction tracking |  |  |  |  |  |
+| **[member](https://doc-2-md.vercel.app/#node=cdh/member)** | Member management — import/export, profile enrichment | 2 |  |  |  |  |
+| **[richmenu](https://doc-2-md.vercel.app/#node=cdh/richmenu)** | LINE Rich Menu management via CDH |  |  |  |  |  |
+| **[segment](https://doc-2-md.vercel.app/#node=cdh/segment)** | Cross-product audience segmentation via SQL/LLM |  |  |  |  |  |
+| **[tag](https://doc-2-md.vercel.app/#node=cdh/tag)** | Cross-product tag synchronization | 1 |  |  |  |  |
+| **[task](https://doc-2-md.vercel.app/#node=cdh/task)** | Background task execution — unification, sync, export jobs |  |  |  |  |  |
+| **[unification](https://doc-2-md.vercel.app/#node=cdh/unification)** | Contact unification graph — merge/split profiles across chan | 2 |  |  |  |  |
 
 ## 3. Semantic Dependency Types
 
@@ -204,684 +209,684 @@ v7 differentiates generic `code_dep` into fine-grained relationship types:
 
 ## 4. Module Details
 
-### MAAC/accounts
-- **Product**: MAAC
+### [MAAC/accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: User authentication, SSO, 2FA, session management
-- **code_dep** → api_doc, audience, caac, channel, interlude, line, organization, sms
-- **model_ref** → organization, sms
-- **const_ref** → line, notification, sms
-- **task_dep** → journey, line
-- **← code_dep** from: audience, caac, email_channel, interlude, internal, line, notification, openapi, organization, smoke_test, system
-- **← model_ref** from: audience, auto_reply, broadcast, caac, campaign, cdp, channel, cyberbiz, extension, fb, google_analytics, integration, interlude, journey, line, nine_one_app, organization, prize, referral, sforzando, shopify, shopline, system, tag
-- **← const_ref** from: extension, organization, smoke_test
-- **← api_client** from: internal
-- **Frontend pages**: Organization Settings
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **model_ref** → [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **task_dep** → [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← model_ref** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [cyberbiz](https://doc-2-md.vercel.app/#node=maac/cyberbiz), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [integration](https://doc-2-md.vercel.app/#node=maac/integration), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← const_ref** from: [extension](https://doc-2-md.vercel.app/#node=maac/extension), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test)
+- **← api_client** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal)
+- **Frontend pages**: [Organization Settings](https://doc-2-md.vercel.app/#node=page/Organization%20Settings)
 
-### MAAC/ai_generation
-- **Product**: MAAC
+### [MAAC/ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: AI content generation — copywriting, image generation
-- **code_dep** → organization, system
-- **const_ref** → organization
-- **← code_dep** from: line, openapi, organization
-- **← const_ref** from: line
+- **code_dep** → [organization](https://doc-2-md.vercel.app/#node=maac/organization), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **const_ref** → [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **← code_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **← const_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### MAAC/api_doc
-- **Product**: MAAC
+### [MAAC/api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: api_doc
-- **← code_dep** from: accounts, audience, auto_reply, broadcast, caac, campaign, cdp, channel, email_channel, fb, form, integration, interlude, internal, journey, line, nine_one_app, openapi, organization, prize, receipt, smoke_test, sms, sms_plus, system, tag
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [integration](https://doc-2-md.vercel.app/#node=maac/integration), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
 
-### MAAC/async_wrapper
-- **Product**: MAAC
+### [MAAC/async_wrapper](https://doc-2-md.vercel.app/#node=maac/async_wrapper)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: async_wrapper
-- **← code_dep** from: line, nine_one_app, receipt
-- **← const_ref** from: line
+- **← code_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt)
+- **← const_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### MAAC/audience
-- **Product**: MAAC
+### [MAAC/audience](https://doc-2-md.vercel.app/#node=maac/audience)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Contact management, segments, filters, ad platform audiences
-- **code_dep** → accounts, api_doc, bigquery, cdp, line, organization, system, tag
-- **model_ref** → accounts, google_analytics, line, organization, sms, tag
-- **const_ref** → cdp, line, organization, sms, system
-- **← code_dep** from: accounts, broadcast, cdp, firestore, internal, journey, line, openapi, sms, tag
-- **← model_ref** from: internal, journey, line, openapi, sms, system
-- **← const_ref** from: bigquery, broadcast, internal, line, openapi, organization, sms
-- **← task_dep** from: internal, line, openapi
-- **Frontend pages**: Members, Retarget, Segment
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [firestore](https://doc-2-md.vercel.app/#node=maac/firestore), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← model_ref** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← const_ref** from: [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **← task_dep** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **Frontend pages**: [Members](https://doc-2-md.vercel.app/#node=page/Members), [Retarget](https://doc-2-md.vercel.app/#node=page/Retarget), [Segment](https://doc-2-md.vercel.app/#node=page/Segment)
 
-### MAAC/auto_reply
-- **Product**: MAAC
+### [MAAC/auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Keyword auto-reply across LINE/FB/WhatsApp channels
-- **code_dep** → api_doc, channel, fb, google_analytics, line, organization, pubsub, wccs, whatsapp
-- **model_ref** → accounts, line
-- **const_ref** → channel, line, system, tag
-- **task_dep** → tag
-- **← code_dep** from: fb, internal, line, openapi, wccs, whatsapp
-- **← const_ref** from: fb, line, openapi, wccs, whatsapp
-- **Frontend pages**: Auto Reply
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **const_ref** → [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **task_dep** → [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← code_dep** from: [fb](https://doc-2-md.vercel.app/#node=maac/fb), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← const_ref** from: [fb](https://doc-2-md.vercel.app/#node=maac/fb), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **Frontend pages**: [Auto Reply](https://doc-2-md.vercel.app/#node=page/Auto%20Reply)
 
-### MAAC/bigquery
-- **Product**: MAAC
+### [MAAC/bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: BigQuery data pipeline integration
-- **code_dep** → receipt
-- **model_ref** → line
-- **const_ref** → audience, line, system
-- **← code_dep** from: audience, line, organization, receipt, report, system
+- **code_dep** → [receipt](https://doc-2-md.vercel.app/#node=maac/receipt)
+- **model_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **const_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← code_dep** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [report](https://doc-2-md.vercel.app/#node=maac/report), [system](https://doc-2-md.vercel.app/#node=maac/system)
 
-### MAAC/broadcast
-- **Product**: MAAC
+### [MAAC/broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Push messaging (LINE/SMS/WhatsApp), scheduling, A/B test
-- **code_dep** → api_doc, audience, channel, google_analytics, line, message, organization, report, system, tag
-- **model_ref** → accounts
-- **const_ref** → audience, channel, line, message, system
-- **Frontend pages**: Broadcast
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [report](https://doc-2-md.vercel.app/#node=maac/report), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
+- **const_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **Frontend pages**: [Broadcast](https://doc-2-md.vercel.app/#node=page/Broadcast)
 
-### MAAC/caac
-- **Product**: MAAC
+### [MAAC/caac](https://doc-2-md.vercel.app/#node=maac/caac)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: CAAC integration bridge — connects Rubato to Cantata
-- **code_dep** → accounts, api_doc, line, organization
-- **model_ref** → accounts, line
-- **const_ref** → line
-- **← code_dep** from: accounts, line, organization
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
 
-### MAAC/campaign
-- **Product**: MAAC
+### [MAAC/campaign](https://doc-2-md.vercel.app/#node=maac/campaign)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Campaign orchestration — multi-channel campaign management
-- **code_dep** → api_doc, journey
-- **model_ref** → accounts, journey
-- **const_ref** → channel, journey
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [journey](https://doc-2-md.vercel.app/#node=maac/journey)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [journey](https://doc-2-md.vercel.app/#node=maac/journey)
+- **const_ref** → [channel](https://doc-2-md.vercel.app/#node=maac/channel), [journey](https://doc-2-md.vercel.app/#node=maac/journey)
 
-### MAAC/cdp
-- **Product**: MAAC
+### [MAAC/cdp](https://doc-2-md.vercel.app/#node=maac/cdp)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Customer Data Platform — profile unification, data sync
-- **code_dep** → api_doc, audience, interlude, journey, line, organization
-- **model_ref** → accounts
-- **const_ref** → line, tag
-- **task_dep** → journey, tag
-- **← code_dep** from: audience, journey, line, tag
-- **← const_ref** from: audience, journey, line, pubsub_pull, smoke_test, tag
-- **Frontend pages**: Members
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **task_dep** → [journey](https://doc-2-md.vercel.app/#node=maac/journey), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← code_dep** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← const_ref** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **Frontend pages**: [Members](https://doc-2-md.vercel.app/#node=page/Members)
 
-### MAAC/channel
-- **Product**: MAAC
+### [MAAC/channel](https://doc-2-md.vercel.app/#node=maac/channel)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Multi-channel management (LINE/FB/IG/WhatsApp/Email/SMS)
-- **code_dep** → api_doc, line, message, openapi, organization
-- **model_ref** → accounts, line, organization
-- **const_ref** → line, notification, sms, system
-- **task_dep** → notification
-- **← code_dep** from: accounts, auto_reply, broadcast, email_channel, extension, internal, journey, message, openapi, organization, whatsapp
-- **← model_ref** from: journey
-- **← const_ref** from: auto_reply, broadcast, campaign, email_channel, extension, fb, internal, journey, line, message, openapi, organization, pubsub_pull, sms, wccs, whatsapp
-- **Frontend pages**: Channel Settings
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **task_dep** → [notification](https://doc-2-md.vercel.app/#node=maac/notification)
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← model_ref** from: [journey](https://doc-2-md.vercel.app/#node=maac/journey)
+- **← const_ref** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **Frontend pages**: [Channel Settings](https://doc-2-md.vercel.app/#node=page/Channel%20Settings)
 
-### MAAC/coupon
-- **Product**: MAAC
+### [MAAC/coupon](https://doc-2-md.vercel.app/#node=maac/coupon)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: coupon
 
-### MAAC/cyberbiz
-- **Product**: MAAC
+### [MAAC/cyberbiz](https://doc-2-md.vercel.app/#node=maac/cyberbiz)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Cyberbiz e-commerce integration
-- **code_dep** → line
-- **model_ref** → accounts
+- **code_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
 
-### MAAC/email_channel
-- **Product**: MAAC
+### [MAAC/email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Email campaign delivery via SendGrid, bounce handling
-- **code_dep** → accounts, api_doc, channel, extension, journey, line, organization, sms
-- **const_ref** → channel, journey, line, system
-- **task_dep** → journey
-- **← code_dep** from: journey, line, openapi
-- **Frontend pages**: Journey
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **const_ref** → [channel](https://doc-2-md.vercel.app/#node=maac/channel), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **task_dep** → [journey](https://doc-2-md.vercel.app/#node=maac/journey)
+- **← code_dep** from: [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **Frontend pages**: [Journey](https://doc-2-md.vercel.app/#node=page/Journey)
 
-### MAAC/extension
-- **Product**: MAAC
+### [MAAC/extension](https://doc-2-md.vercel.app/#node=maac/extension)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC extension plugins — custom action nodes
-- **code_dep** → channel, google_analytics, interlude, journey, line, organization
-- **model_ref** → accounts
-- **const_ref** → accounts, channel, google_analytics, interlude, journey, line
-- **← code_dep** from: email_channel, journey
+- **code_dep** → [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
+- **const_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [journey](https://doc-2-md.vercel.app/#node=maac/journey)
 
-### MAAC/fb
-- **Product**: MAAC
+### [MAAC/fb](https://doc-2-md.vercel.app/#node=maac/fb)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Facebook/Instagram messaging, comment auto-reply
-- **code_dep** → api_doc, auto_reply, google_analytics, line, message, organization, pubsub
-- **model_ref** → accounts
-- **const_ref** → auto_reply, channel, line, system
-- **task_dep** → tag
-- **← code_dep** from: auto_reply, smoke_test
-- **← const_ref** from: line
-- **Frontend pages**: Auto Reply, Retarget
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
+- **const_ref** → [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **task_dep** → [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← code_dep** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test)
+- **← const_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **Frontend pages**: [Auto Reply](https://doc-2-md.vercel.app/#node=page/Auto%20Reply), [Retarget](https://doc-2-md.vercel.app/#node=page/Retarget)
 
-### MAAC/firestore
-- **Product**: MAAC
+### [MAAC/firestore](https://doc-2-md.vercel.app/#node=maac/firestore)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: firestore
-- **code_dep** → audience
-- **model_ref** → line
-- **← code_dep** from: line, system
+- **code_dep** → [audience](https://doc-2-md.vercel.app/#node=maac/audience)
+- **model_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
 
-### MAAC/form
-- **Product**: MAAC
+### [MAAC/form](https://doc-2-md.vercel.app/#node=maac/form)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: SurveyCake form integration, response tracking
-- **code_dep** → api_doc, line
-- **model_ref** → line
-- **const_ref** → line, tag, webhook
-- **task_dep** → line, tag, webhook
-- **api_client** → line, tag
-- **← model_ref** from: line
-- **Frontend pages**: SurveyCake (Form)
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **model_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **api_client** → [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **Frontend pages**: [SurveyCake (Form)](https://doc-2-md.vercel.app/#node=page/SurveyCake%20%28Form%29)
 
-### MAAC/google_analytics
-- **Product**: MAAC
+### [MAAC/google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: GA4/UTM tracking integration for campaigns
-- **code_dep** → organization
-- **model_ref** → accounts, line, organization, report
-- **const_ref** → system
-- **← code_dep** from: auto_reply, broadcast, extension, fb, journey, line, message, openapi, organization, prize, sms
-- **← model_ref** from: audience, line, openapi, prize, report, system, workflow
-- **← const_ref** from: extension, journey, line, openapi, prize
-- **Frontend pages**: Insight (Dashboard), Tracelink
+- **code_dep** → [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [report](https://doc-2-md.vercel.app/#node=maac/report)
+- **const_ref** → [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← code_dep** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **← model_ref** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [report](https://doc-2-md.vercel.app/#node=maac/report), [system](https://doc-2-md.vercel.app/#node=maac/system), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- **← const_ref** from: [extension](https://doc-2-md.vercel.app/#node=maac/extension), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize)
+- **Frontend pages**: [Insight (Dashboard)](https://doc-2-md.vercel.app/#node=page/Insight%20%28Dashboard%29), [Tracelink](https://doc-2-md.vercel.app/#node=page/Tracelink)
 
-### MAAC/integration
-- **Product**: MAAC
+### [MAAC/integration](https://doc-2-md.vercel.app/#node=maac/integration)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: integration
-- **code_dep** → api_doc, line
-- **model_ref** → accounts
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
 
-### MAAC/interlude
-- **Product**: MAAC
+### [MAAC/interlude](https://doc-2-md.vercel.app/#node=maac/interlude)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: interlude
-- **code_dep** → accounts, api_doc, organization, payment
-- **model_ref** → accounts
-- **← code_dep** from: accounts, cdp, extension, internal, journey, line, nine_one_app, openapi, organization, payment, shopline, smoke_test, sms, sms_plus
-- **← const_ref** from: extension, openapi, organization, sms
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)
+- **← const_ref** from: [extension](https://doc-2-md.vercel.app/#node=maac/extension), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
 
-### MAAC/internal
-- **Product**: MAAC
+### [MAAC/internal](https://doc-2-md.vercel.app/#node=maac/internal)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Internal admin tools — data migration, debugging
-- **code_dep** → accounts, api_doc, audience, auto_reply, channel, interlude, line, message, nine_one_app, openapi, organization, prize, sms, wccs, webhook
-- **model_ref** → audience, line, openapi, prize, webhook
-- **const_ref** → audience, channel, line, openapi, organization, system
-- **task_dep** → audience, organization, whatsapp
-- **api_client** → accounts, line
-- **← code_dep** from: organization
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **model_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **const_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **task_dep** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **api_client** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [organization](https://doc-2-md.vercel.app/#node=maac/organization)
 
-### MAAC/invoice
-- **Product**: MAAC
+### [MAAC/invoice](https://doc-2-md.vercel.app/#node=maac/invoice)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Invoice management — receipt/reward redemption
 
-### MAAC/journey
-- **Product**: MAAC
+### [MAAC/journey](https://doc-2-md.vercel.app/#node=maac/journey)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Customer journey automation (triggers, actions, conditions)
-- **code_dep** → api_doc, audience, cdp, channel, email_channel, extension, google_analytics, interlude, line, organization, report, sms, system, tag
-- **model_ref** → accounts, audience, channel, line, tag
-- **const_ref** → cdp, channel, google_analytics, line, organization, system, tag
-- **task_dep** → tag
-- **← code_dep** from: campaign, cdp, email_channel, extension, line, pubsub_pull, smoke_test, sms, tag
-- **← model_ref** from: campaign, smoke_test
-- **← const_ref** from: campaign, email_channel, extension, organization, smoke_test, sms
-- **← task_dep** from: accounts, cdp, email_channel, line, pubsub_pull, tag
-- **Frontend pages**: Journey
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [report](https://doc-2-md.vercel.app/#node=maac/report), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **task_dep** → [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← code_dep** from: [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [line](https://doc-2-md.vercel.app/#node=maac/line), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← model_ref** from: [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test)
+- **← const_ref** from: [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **← task_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **Frontend pages**: [Journey](https://doc-2-md.vercel.app/#node=page/Journey)
 
-### MAAC/line
-- **Product**: MAAC
+### [MAAC/line](https://doc-2-md.vercel.app/#node=maac/line)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Core LINE integration — messaging, rich menu, Flex, LIFF
-- **code_dep** → accounts, ai_generation, api_doc, async_wrapper, audience, auto_reply, bigquery, caac, cdp, email_channel, firestore, google_analytics, interlude, journey, message, nine_one_app, openapi, organization, payment, prize, pubsub, receipt, referral, report, sforzando, shopify, shopline, sms, system, tag, webhook, whatsapp
-- **model_ref** → accounts, audience, form, google_analytics, nine_one_app, notification, openapi, organization, prize, receipt, referral, report, shopify, shopline, sms, system, tag, webhook, workflow
-- **const_ref** → ai_generation, async_wrapper, audience, auto_reply, cdp, channel, fb, google_analytics, message, notification, openapi, organization, receipt, sms, system, tag, webhook, whatsapp, workflow
-- **task_dep** → audience, journey, nine_one_app, notification, openapi, shopline, sms, system, tag, webhook
-- **api_client** → organization, prize, referral
-- **← code_dep** from: accounts, audience, auto_reply, broadcast, caac, cdp, channel, cyberbiz, email_channel, extension, fb, form, integration, internal, journey, message, nine_one_app, openapi, organization, payment, prize, pubsub_pull, receipt, referral, report, sforzando, shopify, shopline, smoke_test, sms, sms_plus, system, tag, verification, wccs, webhook, whatsapp
-- **← model_ref** from: audience, auto_reply, bigquery, caac, channel, firestore, form, google_analytics, internal, journey, message, nine_one_app, openapi, organization, payment, prize, receipt, referral, report, sforzando, shopify, shopline, smoke_test, sms, system, tag, webhook, workflow
-- **← const_ref** from: accounts, audience, auto_reply, bigquery, broadcast, caac, cdp, channel, email_channel, extension, fb, form, internal, journey, message, openapi, organization, payment, prize, pubsub_pull, receipt, referral, report, shopify, smoke_test, sms, system, tag, wccs, whatsapp
-- **← task_dep** from: accounts, form, nine_one_app, openapi, organization, prize, receipt, referral, shopify, shopline, system, tag
-- **← api_client** from: form, internal, openapi, prize, receipt, referral, sforzando, sms
-- **Frontend pages**: Beacon, Bindlink, DPM, Deeplink, Interaction Games, Rich Menu, Template Library, Widget
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [async_wrapper](https://doc-2-md.vercel.app/#node=maac/async_wrapper), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [firestore](https://doc-2-md.vercel.app/#node=maac/firestore), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [form](https://doc-2-md.vercel.app/#node=maac/form), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- **const_ref** → [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [async_wrapper](https://doc-2-md.vercel.app/#node=maac/async_wrapper), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [message](https://doc-2-md.vercel.app/#node=maac/message), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- **task_dep** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **api_client** → [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [referral](https://doc-2-md.vercel.app/#node=maac/referral)
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [cyberbiz](https://doc-2-md.vercel.app/#node=maac/cyberbiz), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [integration](https://doc-2-md.vercel.app/#node=maac/integration), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [verification](https://doc-2-md.vercel.app/#node=maac/verification), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← model_ref** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [firestore](https://doc-2-md.vercel.app/#node=maac/firestore), [form](https://doc-2-md.vercel.app/#node=maac/form), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- **← const_ref** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← task_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [form](https://doc-2-md.vercel.app/#node=maac/form), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← api_client** from: [form](https://doc-2-md.vercel.app/#node=maac/form), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **Frontend pages**: [Beacon](https://doc-2-md.vercel.app/#node=page/Beacon), [Bindlink](https://doc-2-md.vercel.app/#node=page/Bindlink), [DPM](https://doc-2-md.vercel.app/#node=page/DPM), [Deeplink](https://doc-2-md.vercel.app/#node=page/Deeplink), [Interaction Games](https://doc-2-md.vercel.app/#node=page/Interaction%20Games), [Rich Menu](https://doc-2-md.vercel.app/#node=page/Rich%20Menu), [Template Library](https://doc-2-md.vercel.app/#node=page/Template%20Library), [Widget](https://doc-2-md.vercel.app/#node=page/Widget)
 
-### MAAC/message
-- **Product**: MAAC
+### [MAAC/message](https://doc-2-md.vercel.app/#node=maac/message)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Message rendering engine — builds LINE/FB/SMS/Email messages
-- **code_dep** → channel, google_analytics, line, organization
-- **model_ref** → line
-- **const_ref** → channel, line, system
-- **← code_dep** from: broadcast, channel, fb, internal, line, system, whatsapp
-- **← const_ref** from: broadcast, line, system, whatsapp
-- **Frontend pages**: Broadcast, Template Library
+- **code_dep** → [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **const_ref** → [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← code_dep** from: [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← const_ref** from: [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **Frontend pages**: [Broadcast](https://doc-2-md.vercel.app/#node=page/Broadcast), [Template Library](https://doc-2-md.vercel.app/#node=page/Template%20Library)
 
-### MAAC/nine_one_app
-- **Product**: MAAC
+### [MAAC/nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: 91App e-commerce integration
-- **code_dep** → api_doc, async_wrapper, interlude, line, openapi, organization, payment, webhook
-- **model_ref** → accounts, line, openapi, system
-- **const_ref** → openapi, tag, webhook
-- **task_dep** → line, openapi, tag, webhook
-- **api_client** → openapi
-- **← code_dep** from: internal, line
-- **← model_ref** from: line
-- **← task_dep** from: line
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [async_wrapper](https://doc-2-md.vercel.app/#node=maac/async_wrapper), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **const_ref** → [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **api_client** → [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **← code_dep** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← task_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### MAAC/notification
-- **Product**: MAAC
+### [MAAC/notification](https://doc-2-md.vercel.app/#node=maac/notification)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: In-app notification system for admin users
-- **code_dep** → accounts
-- **← code_dep** from: openapi, organization, payment, sms_plus
-- **← model_ref** from: line, openapi, payment
-- **← const_ref** from: accounts, channel, line, openapi, organization, payment, prize, sms_plus, system
-- **← task_dep** from: channel, line, openapi, payment, prize
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts)
+- **← code_dep** from: [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [payment](https://doc-2-md.vercel.app/#node=maac/payment)
+- **← const_ref** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← task_dep** from: [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize)
 
-### MAAC/openapi
-- **Product**: MAAC
+### [MAAC/openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Public OpenAPI — external developer API endpoints
-- **code_dep** → accounts, ai_generation, api_doc, audience, auto_reply, channel, email_channel, google_analytics, interlude, line, notification, organization, payment, prize, report, shortener, sms, system, tag, whatsapp
-- **model_ref** → audience, google_analytics, line, notification, tag
-- **const_ref** → audience, auto_reply, channel, google_analytics, interlude, line, notification, organization, prize, sms, system, tag, webhook
-- **task_dep** → audience, line, notification, tag, webhook
-- **api_client** → line, sms
-- **← code_dep** from: channel, internal, line, nine_one_app, organization, prize, pubsub_pull, receipt, shopline, sms, sms_plus, whatsapp
-- **← model_ref** from: internal, line, nine_one_app, report, smoke_test, sms, webhook
-- **← const_ref** from: internal, line, nine_one_app, smoke_test, sms, sms_plus, whatsapp
-- **← task_dep** from: line, nine_one_app
-- **← api_client** from: nine_one_app, shopline, sms
-- **Frontend pages**: API Token
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [report](https://doc-2-md.vercel.app/#node=maac/report), [shortener](https://doc-2-md.vercel.app/#node=maac/shortener), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **model_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **task_dep** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **api_client** → [line](https://doc-2-md.vercel.app/#node=maac/line), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **← code_dep** from: [channel](https://doc-2-md.vercel.app/#node=maac/channel), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← model_ref** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [report](https://doc-2-md.vercel.app/#node=maac/report), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **← const_ref** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← task_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app)
+- **← api_client** from: [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **Frontend pages**: [API Token](https://doc-2-md.vercel.app/#node=page/API%20Token)
 
-### MAAC/organization
-- **Product**: MAAC
+### [MAAC/organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Org/tenant management, billing, feature control, RBAC
-- **code_dep** → accounts, ai_generation, api_doc, bigquery, caac, channel, google_analytics, interlude, internal, line, notification, openapi, payment, sms, webhook
-- **model_ref** → accounts, line
-- **const_ref** → accounts, audience, channel, interlude, journey, line, notification
-- **task_dep** → line
-- **← code_dep** from: accounts, ai_generation, audience, auto_reply, broadcast, caac, cdp, channel, email_channel, extension, fb, google_analytics, interlude, internal, journey, line, message, nine_one_app, openapi, payment, prize, receipt, referral, sforzando, shopline, sms, sms_plus, tag, wccs, whatsapp
-- **← model_ref** from: accounts, audience, channel, google_analytics, line, prize, sforzando, smoke_test, sms
-- **← const_ref** from: ai_generation, audience, internal, journey, line, openapi
-- **← task_dep** from: internal
-- **← api_client** from: line
-- **Frontend pages**: Organization Settings
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **const_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← model_ref** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **← const_ref** from: [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **← task_dep** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal)
+- **← api_client** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **Frontend pages**: [Organization Settings](https://doc-2-md.vercel.app/#node=page/Organization%20Settings)
 
-### MAAC/payment
-- **Product**: MAAC
+### [MAAC/payment](https://doc-2-md.vercel.app/#node=maac/payment)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Payment & billing — subscription, invoice management
-- **code_dep** → interlude, line, notification, organization
-- **model_ref** → line, notification
-- **const_ref** → line, notification
-- **task_dep** → notification
-- **← code_dep** from: interlude, line, nine_one_app, openapi, organization, report, shopline, sms, sms_plus
-- **← model_ref** from: report
+- **code_dep** → [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification)
+- **task_dep** → [notification](https://doc-2-md.vercel.app/#node=maac/notification)
+- **← code_dep** from: [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [report](https://doc-2-md.vercel.app/#node=maac/report), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)
+- **← model_ref** from: [report](https://doc-2-md.vercel.app/#node=maac/report)
 
-### MAAC/prize
-- **Product**: MAAC
+### [MAAC/prize](https://doc-2-md.vercel.app/#node=maac/prize)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Prize/reward management, lottery, coupon distribution
-- **code_dep** → api_doc, google_analytics, line, openapi, organization, report, sforzando, system
-- **model_ref** → accounts, google_analytics, line, organization, tag
-- **const_ref** → google_analytics, line, notification, system, tag, webhook
-- **task_dep** → line, notification, tag, webhook
-- **api_client** → line
-- **← code_dep** from: internal, line, openapi, receipt, referral, sforzando, webhook
-- **← model_ref** from: internal, line, receipt, referral, sforzando
-- **← const_ref** from: openapi, referral
-- **← task_dep** from: referral, sforzando
-- **← api_client** from: line
-- **Frontend pages**: Interaction Games, Prize
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [report](https://doc-2-md.vercel.app/#node=maac/report), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **api_client** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **← model_ref** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando)
+- **← const_ref** from: [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [referral](https://doc-2-md.vercel.app/#node=maac/referral)
+- **← task_dep** from: [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando)
+- **← api_client** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **Frontend pages**: [Interaction Games](https://doc-2-md.vercel.app/#node=page/Interaction%20Games), [Prize](https://doc-2-md.vercel.app/#node=page/Prize)
 
-### MAAC/pubsub
-- **Product**: MAAC
+### [MAAC/pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: pubsub
-- **← code_dep** from: auto_reply, fb, line, system, wccs, whatsapp
+- **← code_dep** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
 
-### MAAC/pubsub_pull
-- **Product**: MAAC
+### [MAAC/pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: PubSub consumer — event processing workers
-- **code_dep** → journey, line, openapi, sms
-- **const_ref** → cdp, channel, line, system, tag
-- **task_dep** → journey, tag
+- **code_dep** → [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **const_ref** → [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **task_dep** → [journey](https://doc-2-md.vercel.app/#node=maac/journey), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
 
-### MAAC/receipt
-- **Product**: MAAC
+### [MAAC/receipt](https://doc-2-md.vercel.app/#node=maac/receipt)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Receipt registration campaign for loyalty programs
-- **code_dep** → api_doc, async_wrapper, bigquery, line, openapi, organization, prize, system
-- **model_ref** → line, prize
-- **const_ref** → line, webhook
-- **task_dep** → line, webhook
-- **api_client** → line
-- **← code_dep** from: bigquery, line
-- **← model_ref** from: line, webhook
-- **← const_ref** from: line
-- **Frontend pages**: Receipt Register
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [async_wrapper](https://doc-2-md.vercel.app/#node=maac/async_wrapper), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **model_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **api_client** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **← const_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **Frontend pages**: [Receipt Register](https://doc-2-md.vercel.app/#node=page/Receipt%20Register)
 
-### MAAC/referral
-- **Product**: MAAC
+### [MAAC/referral](https://doc-2-md.vercel.app/#node=maac/referral)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Rapid Referral — MGM campaigns, invitation tracking
-- **code_dep** → line, organization, prize, system
-- **model_ref** → accounts, line, prize, tag
-- **const_ref** → line, prize, tag
-- **task_dep** → line, prize, tag
-- **api_client** → line
-- **← code_dep** from: line
-- **← model_ref** from: line, system
-- **← api_client** from: line
-- **Frontend pages**: Referral V2
+- **code_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **api_client** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← api_client** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **Frontend pages**: [Referral V2](https://doc-2-md.vercel.app/#node=page/Referral%20V2)
 
-### MAAC/report
-- **Product**: MAAC
+### [MAAC/report](https://doc-2-md.vercel.app/#node=maac/report)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Analytics & reporting — campaign performance, member stats
-- **code_dep** → bigquery, line, payment
-- **model_ref** → google_analytics, line, openapi, payment, sms_plus, tag
-- **const_ref** → line, system
-- **← code_dep** from: broadcast, journey, line, openapi, prize, sms
-- **← model_ref** from: google_analytics, line, tag
-- **Frontend pages**: Insight (Dashboard)
+- **code_dep** → [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [line](https://doc-2-md.vercel.app/#node=maac/line), [payment](https://doc-2-md.vercel.app/#node=maac/payment)
+- **model_ref** → [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← code_dep** from: [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **← model_ref** from: [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **Frontend pages**: [Insight (Dashboard)](https://doc-2-md.vercel.app/#node=page/Insight%20%28Dashboard%29)
 
-### MAAC/sforzando
-- **Product**: MAAC
+### [MAAC/sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Prize fulfillment partner integration
-- **code_dep** → line, organization, prize, system
-- **model_ref** → accounts, line, organization, prize
-- **const_ref** → tag
-- **task_dep** → prize, tag
-- **api_client** → line
-- **← code_dep** from: line, prize
-- **Frontend pages**: Prize
+- **code_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize)
+- **const_ref** → [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **task_dep** → [prize](https://doc-2-md.vercel.app/#node=maac/prize), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **api_client** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize)
+- **Frontend pages**: [Prize](https://doc-2-md.vercel.app/#node=page/Prize)
 
-### MAAC/shopify
-- **Product**: MAAC
+### [MAAC/shopify](https://doc-2-md.vercel.app/#node=maac/shopify)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Shopify e-commerce integration
-- **code_dep** → line
-- **model_ref** → accounts, line, system
-- **const_ref** → line
-- **task_dep** → line
-- **← code_dep** from: line
-- **← model_ref** from: line
+- **code_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### MAAC/shopline
-- **Product**: MAAC
+### [MAAC/shopline](https://doc-2-md.vercel.app/#node=maac/shopline)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Shopline e-commerce integration
-- **code_dep** → interlude, line, openapi, organization, payment, webhook
-- **model_ref** → accounts, line, system
-- **const_ref** → tag, webhook
-- **task_dep** → line, tag, webhook
-- **api_client** → openapi
-- **← code_dep** from: line
-- **← model_ref** from: line
-- **← task_dep** from: line
+- **code_dep** → [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **const_ref** → [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **api_client** → [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **← code_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← task_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### MAAC/shortener
-- **Product**: MAAC
+### [MAAC/shortener](https://doc-2-md.vercel.app/#node=maac/shortener)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: shortener
-- **const_ref** → system
-- **← code_dep** from: openapi
+- **const_ref** → [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← code_dep** from: [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
 
-### MAAC/smoke_test
-- **Product**: MAAC
+### [MAAC/smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Automated smoke test — system health validation
-- **code_dep** → accounts, api_doc, fb, interlude, journey, line, tag
-- **model_ref** → journey, line, openapi, organization, tag
-- **const_ref** → accounts, cdp, journey, line, openapi, tag
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **model_ref** → [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
 
-### MAAC/sms
-- **Product**: MAAC
+### [MAAC/sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: SMS delivery — domestic/international SMS campaigns
-- **code_dep** → api_doc, audience, google_analytics, interlude, journey, line, openapi, organization, payment, report, system
-- **model_ref** → audience, line, openapi, organization
-- **const_ref** → audience, channel, interlude, journey, line, openapi, system
-- **api_client** → line, openapi
-- **← code_dep** from: accounts, email_channel, internal, journey, line, openapi, organization, pubsub_pull, sms_plus
-- **← model_ref** from: accounts, audience, line
-- **← const_ref** from: accounts, audience, channel, line, openapi, sms_plus
-- **← task_dep** from: line
-- **← api_client** from: openapi
-- **Frontend pages**: Broadcast, SMS Plus
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [report](https://doc-2-md.vercel.app/#node=maac/report), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **model_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **const_ref** → [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **api_client** → [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **← code_dep** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)
+- **← model_ref** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← const_ref** from: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)
+- **← task_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← api_client** from: [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- **Frontend pages**: [Broadcast](https://doc-2-md.vercel.app/#node=page/Broadcast), [SMS Plus](https://doc-2-md.vercel.app/#node=page/SMS%20Plus)
 
-### MAAC/sms_plus
-- **Product**: MAAC
+### [MAAC/sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: SMS Plus — enhanced SMS features, message records
-- **code_dep** → api_doc, interlude, line, notification, openapi, organization, payment, sms, whatsapp
-- **const_ref** → notification, openapi, sms
-- **← model_ref** from: report
-- **Frontend pages**: SMS Plus
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **const_ref** → [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- **← model_ref** from: [report](https://doc-2-md.vercel.app/#node=maac/report)
+- **Frontend pages**: [SMS Plus](https://doc-2-md.vercel.app/#node=page/SMS%20Plus)
 
-### MAAC/staticfiles
-- **Product**: MAAC
+### [MAAC/staticfiles](https://doc-2-md.vercel.app/#node=maac/staticfiles)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: staticfiles
 
-### MAAC/stress_test
-- **Product**: MAAC
+### [MAAC/stress_test](https://doc-2-md.vercel.app/#node=maac/stress_test)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: stress_test
 
-### MAAC/system
-- **Product**: MAAC
+### [MAAC/system](https://doc-2-md.vercel.app/#node=maac/system)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: System-wide utilities — campaign tracking, feature flags
-- **code_dep** → accounts, api_doc, bigquery, firestore, line, message, pubsub
-- **model_ref** → accounts, audience, google_analytics, line, referral, tag
-- **const_ref** → line, message, notification, tag
-- **task_dep** → line, tag
-- **← code_dep** from: ai_generation, audience, broadcast, journey, line, openapi, prize, receipt, referral, sforzando, sms, webhook
-- **← model_ref** from: line, nine_one_app, shopify, shopline
-- **← const_ref** from: audience, auto_reply, bigquery, broadcast, channel, email_channel, fb, google_analytics, internal, journey, line, message, openapi, prize, pubsub_pull, report, shortener, sms, tag, wccs, webhook, whatsapp, workflow
-- **← task_dep** from: line
+- **code_dep** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [firestore](https://doc-2-md.vercel.app/#node=maac/firestore), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **const_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **task_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← code_dep** from: [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline)
+- **← const_ref** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [report](https://doc-2-md.vercel.app/#node=maac/report), [shortener](https://doc-2-md.vercel.app/#node=maac/shortener), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- **← task_dep** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### MAAC/tag
-- **Product**: MAAC
+### [MAAC/tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Tag management — contact tagging, auto-tagging rules
-- **code_dep** → api_doc, audience, cdp, journey, line, organization
-- **model_ref** → accounts, line, report
-- **const_ref** → cdp, line, system
-- **task_dep** → journey, line
-- **← code_dep** from: audience, broadcast, journey, line, openapi, smoke_test, webhook
-- **← model_ref** from: audience, journey, line, openapi, prize, referral, report, smoke_test, system
-- **← const_ref** from: auto_reply, cdp, form, journey, line, nine_one_app, openapi, prize, pubsub_pull, referral, sforzando, shopline, smoke_test, system
-- **← task_dep** from: auto_reply, cdp, fb, form, journey, line, nine_one_app, openapi, prize, pubsub_pull, referral, sforzando, shopline, system, wccs, whatsapp
-- **← api_client** from: form
-- **Frontend pages**: Members, Tag Manager
+- **code_dep** → [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization)
+- **model_ref** → [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [line](https://doc-2-md.vercel.app/#node=maac/line), [report](https://doc-2-md.vercel.app/#node=maac/report)
+- **const_ref** → [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **task_dep** → [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← code_dep** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **← model_ref** from: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← const_ref** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [form](https://doc-2-md.vercel.app/#node=maac/form), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← task_dep** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [system](https://doc-2-md.vercel.app/#node=maac/system), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **← api_client** from: [form](https://doc-2-md.vercel.app/#node=maac/form)
+- **Frontend pages**: [Members](https://doc-2-md.vercel.app/#node=page/Members), [Tag Manager](https://doc-2-md.vercel.app/#node=page/Tag%20Manager)
 
-### MAAC/verification
-- **Product**: MAAC
+### [MAAC/verification](https://doc-2-md.vercel.app/#node=maac/verification)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: verification
-- **code_dep** → line
+- **code_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### MAAC/wccs
-- **Product**: MAAC
+### [MAAC/wccs](https://doc-2-md.vercel.app/#node=maac/wccs)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: wccs
-- **code_dep** → auto_reply, line, organization, pubsub
-- **const_ref** → auto_reply, channel, line, system
-- **task_dep** → tag
-- **← code_dep** from: auto_reply, internal
+- **code_dep** → [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [line](https://doc-2-md.vercel.app/#node=maac/line), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub)
+- **const_ref** → [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **task_dep** → [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← code_dep** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [internal](https://doc-2-md.vercel.app/#node=maac/internal)
 
-### MAAC/webhook
-- **Product**: MAAC
+### [MAAC/webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: Webhook delivery — event push to external systems
-- **code_dep** → line, prize, system, tag
-- **model_ref** → line, openapi, receipt, workflow
-- **const_ref** → system
-- **← code_dep** from: internal, line, nine_one_app, organization, shopline
-- **← model_ref** from: internal, line
-- **← const_ref** from: form, line, nine_one_app, openapi, prize, receipt, shopline
-- **← task_dep** from: form, line, nine_one_app, openapi, prize, receipt, shopline
-- **Frontend pages**: Webhook
+- **code_dep** → [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **model_ref** → [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- **const_ref** → [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← code_dep** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline)
+- **← model_ref** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← const_ref** from: [form](https://doc-2-md.vercel.app/#node=maac/form), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline)
+- **← task_dep** from: [form](https://doc-2-md.vercel.app/#node=maac/form), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline)
+- **Frontend pages**: [Webhook](https://doc-2-md.vercel.app/#node=page/Webhook)
 
-### MAAC/whatsapp
-- **Product**: MAAC
+### [MAAC/whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: WhatsApp Business messaging, template management
-- **code_dep** → auto_reply, channel, line, message, openapi, organization, pubsub
-- **const_ref** → auto_reply, channel, line, message, openapi, system
-- **task_dep** → tag
-- **← code_dep** from: auto_reply, line, openapi, sms_plus
-- **← const_ref** from: line
-- **← task_dep** from: internal
-- **Frontend pages**: Auto Reply
+- **code_dep** → [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [pubsub](https://doc-2-md.vercel.app/#node=maac/pubsub)
+- **const_ref** → [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **task_dep** → [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- **← code_dep** from: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus)
+- **← const_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **← task_dep** from: [internal](https://doc-2-md.vercel.app/#node=maac/internal)
+- **Frontend pages**: [Auto Reply](https://doc-2-md.vercel.app/#node=page/Auto%20Reply)
 
-### MAAC/workflow
-- **Product**: MAAC
+### [MAAC/workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- **Product**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 - **Description**: MAAC module: workflow
-- **model_ref** → google_analytics, line
-- **const_ref** → system
-- **← model_ref** from: line, webhook
-- **← const_ref** from: line
+- **model_ref** → [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line)
+- **const_ref** → [system](https://doc-2-md.vercel.app/#node=maac/system)
+- **← model_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- **← const_ref** from: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### CAAC/aistrategy
-- **Product**: CAAC
+### [CAAC/aistrategy](https://doc-2-md.vercel.app/#node=caac/aistrategy)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: AI strategy configuration — model selection, prompts
-- **← code_dep** from: aitask, chat
-- **Frontend pages**: AI Settings
+- **← code_dep** from: [aitask](https://doc-2-md.vercel.app/#node=caac/aitask), [chat](https://doc-2-md.vercel.app/#node=caac/chat)
+- **Frontend pages**: [AI Settings](https://doc-2-md.vercel.app/#node=caac_page/AI%20Settings)
 
-### CAAC/aitask
-- **Product**: CAAC
+### [CAAC/aitask](https://doc-2-md.vercel.app/#node=caac/aitask)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: AI task execution — auto-reply suggestions, summarization
-- **code_dep** → aistrategy, aiusage, chat
-- **← code_dep** from: organization
-- **Frontend pages**: AI Settings, Chat
+- **code_dep** → [aistrategy](https://doc-2-md.vercel.app/#node=caac/aistrategy), [aiusage](https://doc-2-md.vercel.app/#node=caac/aiusage), [chat](https://doc-2-md.vercel.app/#node=caac/chat)
+- **← code_dep** from: [organization](https://doc-2-md.vercel.app/#node=caac/organization)
+- **Frontend pages**: [AI Settings](https://doc-2-md.vercel.app/#node=caac_page/AI%20Settings), [Chat](https://doc-2-md.vercel.app/#node=caac_page/Chat)
 
-### CAAC/aiusage
-- **Product**: CAAC
+### [CAAC/aiusage](https://doc-2-md.vercel.app/#node=caac/aiusage)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: AI usage tracking — token consumption, quota
-- **← code_dep** from: aitask, chat, workertask
-- **Frontend pages**: AI Settings
+- **← code_dep** from: [aitask](https://doc-2-md.vercel.app/#node=caac/aitask), [chat](https://doc-2-md.vercel.app/#node=caac/chat), [workertask](https://doc-2-md.vercel.app/#node=caac/workertask)
+- **Frontend pages**: [AI Settings](https://doc-2-md.vercel.app/#node=caac_page/AI%20Settings)
 
-### CAAC/auth
-- **Product**: CAAC
+### [CAAC/auth](https://doc-2-md.vercel.app/#node=caac/auth)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: Authentication & authorization — SSO, 2FA
-- **Frontend pages**: Settings
+- **Frontend pages**: [Settings](https://doc-2-md.vercel.app/#node=caac_page/Settings)
 
-### CAAC/cat
-- **Product**: CAAC
+### [CAAC/cat](https://doc-2-md.vercel.app/#node=caac/cat)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: CAT (Contact Attribution Tracking) — member journey tracking
 
-### CAAC/cdp
-- **Product**: CAAC
+### [CAAC/cdp](https://doc-2-md.vercel.app/#node=caac/cdp)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: CDP integration — unified contact view within CAAC
-- **← code_dep** from: chat
+- **← code_dep** from: [chat](https://doc-2-md.vercel.app/#node=caac/chat)
 
-### CAAC/chat
-- **Product**: CAAC
+### [CAAC/chat](https://doc-2-md.vercel.app/#node=caac/chat)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: Core 1-on-1 chat — message routing, conversation lifecycle
-- **code_dep** → aistrategy, aiusage, cdp, organization, tag
-- **← code_dep** from: aitask, longrunningtask
-- **Frontend pages**: Broadcast, Chat, Quick Template
+- **code_dep** → [aistrategy](https://doc-2-md.vercel.app/#node=caac/aistrategy), [aiusage](https://doc-2-md.vercel.app/#node=caac/aiusage), [cdp](https://doc-2-md.vercel.app/#node=caac/cdp), [organization](https://doc-2-md.vercel.app/#node=caac/organization), [tag](https://doc-2-md.vercel.app/#node=caac/tag)
+- **← code_dep** from: [aitask](https://doc-2-md.vercel.app/#node=caac/aitask), [longrunningtask](https://doc-2-md.vercel.app/#node=caac/longrunningtask)
+- **Frontend pages**: [Broadcast](https://doc-2-md.vercel.app/#node=caac_page/Broadcast), [Chat](https://doc-2-md.vercel.app/#node=caac_page/Chat), [Quick Template](https://doc-2-md.vercel.app/#node=caac_page/Quick%20Template)
 
-### CAAC/dashboard
-- **Product**: CAAC
+### [CAAC/dashboard](https://doc-2-md.vercel.app/#node=caac/dashboard)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: CAAC analytics dashboard — conversation metrics, team performance
-- **Frontend pages**: Insights
+- **Frontend pages**: [Insights](https://doc-2-md.vercel.app/#node=caac_page/Insights)
 
-### CAAC/longrunningtask
-- **Product**: CAAC
+### [CAAC/longrunningtask](https://doc-2-md.vercel.app/#node=caac/longrunningtask)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: Long-running operations — bulk exports, data migration
-- **code_dep** → chat
+- **code_dep** → [chat](https://doc-2-md.vercel.app/#node=caac/chat)
 
-### CAAC/openapi
-- **Product**: CAAC
+### [CAAC/openapi](https://doc-2-md.vercel.app/#node=caac/openapi)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: CAAC public API for external integrations
 
-### CAAC/organization
-- **Product**: CAAC
+### [CAAC/organization](https://doc-2-md.vercel.app/#node=caac/organization)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: Organization management — channels, users, roles, AI features
-- **code_dep** → aitask
-- **← code_dep** from: chat
-- **Frontend pages**: Settings
+- **code_dep** → [aitask](https://doc-2-md.vercel.app/#node=caac/aitask)
+- **← code_dep** from: [chat](https://doc-2-md.vercel.app/#node=caac/chat)
+- **Frontend pages**: [Settings](https://doc-2-md.vercel.app/#node=caac_page/Settings)
 
-### CAAC/tag
-- **Product**: CAAC
+### [CAAC/tag](https://doc-2-md.vercel.app/#node=caac/tag)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: Contact tagging within CAAC conversations
-- **← code_dep** from: chat
+- **← code_dep** from: [chat](https://doc-2-md.vercel.app/#node=caac/chat)
 
-### CAAC/workertask
-- **Product**: CAAC
+### [CAAC/workertask](https://doc-2-md.vercel.app/#node=caac/workertask)
+- **Product**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 - **Description**: Background worker tasks — message processing, sync jobs
-- **code_dep** → aiusage
+- **code_dep** → [aiusage](https://doc-2-md.vercel.app/#node=caac/aiusage)
 
-### DAAC/agent_v2
-- **Product**: DAAC
+### [DAAC/agent_v2](https://doc-2-md.vercel.app/#node=daac/agent_v2)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: AI Agent — natural language data querying (OpenAI/Gemini)
-- **code_dep** → session
+- **code_dep** → [session](https://doc-2-md.vercel.app/#node=daac/session)
 
-### DAAC/auth
-- **Product**: DAAC
+### [DAAC/auth](https://doc-2-md.vercel.app/#node=daac/auth)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: Authentication via Arioso SSO + Interlude
-- **← code_dep** from: organization, session
+- **← code_dep** from: [organization](https://doc-2-md.vercel.app/#node=daac/organization), [session](https://doc-2-md.vercel.app/#node=daac/session)
 
-### DAAC/dashboard
-- **Product**: DAAC
+### [DAAC/dashboard](https://doc-2-md.vercel.app/#node=daac/dashboard)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: Custom analytics dashboards — user-created visualizations
-- **code_dep** → organization
+- **code_dep** → [organization](https://doc-2-md.vercel.app/#node=daac/organization)
 
-### DAAC/dbt
-- **Product**: DAAC
+### [DAAC/dbt](https://doc-2-md.vercel.app/#node=daac/dbt)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: dbt pipeline management — data transformation & modeling
-- **code_dep** → organization
+- **code_dep** → [organization](https://doc-2-md.vercel.app/#node=daac/organization)
 
-### DAAC/file
-- **Product**: DAAC
+### [DAAC/file](https://doc-2-md.vercel.app/#node=daac/file)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: File management — upload/download for analysis results
 
-### DAAC/infra
-- **Product**: DAAC
+### [DAAC/infra](https://doc-2-md.vercel.app/#node=daac/infra)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: Infrastructure provisioning — Terraform client setup
-- **code_dep** → organization
+- **code_dep** → [organization](https://doc-2-md.vercel.app/#node=daac/organization)
 
-### DAAC/journey
-- **Product**: DAAC
+### [DAAC/journey](https://doc-2-md.vercel.app/#node=daac/journey)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: Journey analysis — customer path analysis via AI
-- **code_dep** → session
+- **code_dep** → [session](https://doc-2-md.vercel.app/#node=daac/session)
 
-### DAAC/organization
-- **Product**: DAAC
+### [DAAC/organization](https://doc-2-md.vercel.app/#node=daac/organization)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: Org management — workspace, dbt config, Terraform infra
-- **code_dep** → auth
-- **← code_dep** from: dashboard, dbt, infra, session
+- **code_dep** → [auth](https://doc-2-md.vercel.app/#node=daac/auth)
+- **← code_dep** from: [dashboard](https://doc-2-md.vercel.app/#node=daac/dashboard), [dbt](https://doc-2-md.vercel.app/#node=daac/dbt), [infra](https://doc-2-md.vercel.app/#node=daac/infra), [session](https://doc-2-md.vercel.app/#node=daac/session)
 
-### DAAC/session
-- **Product**: DAAC
+### [DAAC/session](https://doc-2-md.vercel.app/#node=daac/session)
+- **Product**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 - **Description**: AI analysis session — conversation state, context management
-- **code_dep** → auth, organization
-- **← code_dep** from: agent_v2, journey
+- **code_dep** → [auth](https://doc-2-md.vercel.app/#node=daac/auth), [organization](https://doc-2-md.vercel.app/#node=daac/organization)
+- **← code_dep** from: [agent_v2](https://doc-2-md.vercel.app/#node=daac/agent_v2), [journey](https://doc-2-md.vercel.app/#node=daac/journey)
 
-### CDH/broadcast
-- **Product**: CDH
+### [CDH/broadcast](https://doc-2-md.vercel.app/#node=cdh/broadcast)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: CDH broadcast coordination — cross-product message dispatch
 
-### CDH/channel_entity_comment
-- **Product**: CDH
+### [CDH/channel_entity_comment](https://doc-2-md.vercel.app/#node=cdh/channel_entity_comment)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Channel entity commenting — AI-powered contact annotations
 
-### CDH/contact
-- **Product**: CDH
+### [CDH/contact](https://doc-2-md.vercel.app/#node=cdh/contact)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Unified contact profile — cross-product contact view
-- **code_dep** → unification
+- **code_dep** → [unification](https://doc-2-md.vercel.app/#node=cdh/unification)
 
-### CDH/custom_field
-- **Product**: CDH
+### [CDH/custom_field](https://doc-2-md.vercel.app/#node=cdh/custom_field)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Custom contact fields — user-defined attributes
 
-### CDH/engagement_history
-- **Product**: CDH
+### [CDH/engagement_history](https://doc-2-md.vercel.app/#node=cdh/engagement_history)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Engagement history — cross-channel interaction tracking
 
-### CDH/member
-- **Product**: CDH
+### [CDH/member](https://doc-2-md.vercel.app/#node=cdh/member)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Member management — import/export, profile enrichment
-- **code_dep** → tag, unification
-- **← code_dep** from: tag, unification
+- **code_dep** → [tag](https://doc-2-md.vercel.app/#node=cdh/tag), [unification](https://doc-2-md.vercel.app/#node=cdh/unification)
+- **← code_dep** from: [tag](https://doc-2-md.vercel.app/#node=cdh/tag), [unification](https://doc-2-md.vercel.app/#node=cdh/unification)
 
-### CDH/richmenu
-- **Product**: CDH
+### [CDH/richmenu](https://doc-2-md.vercel.app/#node=cdh/richmenu)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: LINE Rich Menu management via CDH
 
-### CDH/segment
-- **Product**: CDH
+### [CDH/segment](https://doc-2-md.vercel.app/#node=cdh/segment)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Cross-product audience segmentation via SQL/LLM
 
-### CDH/tag
-- **Product**: CDH
+### [CDH/tag](https://doc-2-md.vercel.app/#node=cdh/tag)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Cross-product tag synchronization
-- **code_dep** → member
-- **← code_dep** from: member, unification
+- **code_dep** → [member](https://doc-2-md.vercel.app/#node=cdh/member)
+- **← code_dep** from: [member](https://doc-2-md.vercel.app/#node=cdh/member), [unification](https://doc-2-md.vercel.app/#node=cdh/unification)
 
-### CDH/task
-- **Product**: CDH
+### [CDH/task](https://doc-2-md.vercel.app/#node=cdh/task)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Background task execution — unification, sync, export jobs
 
-### CDH/unification
-- **Product**: CDH
+### [CDH/unification](https://doc-2-md.vercel.app/#node=cdh/unification)
+- **Product**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 - **Description**: Contact unification graph — merge/split profiles across channels
-- **code_dep** → member, tag
-- **← code_dep** from: contact, member
+- **code_dep** → [member](https://doc-2-md.vercel.app/#node=cdh/member), [tag](https://doc-2-md.vercel.app/#node=cdh/tag)
+- **← code_dep** from: [contact](https://doc-2-md.vercel.app/#node=cdh/contact), [member](https://doc-2-md.vercel.app/#node=cdh/member)
 
 ## 5. Frontend → Backend Mapping
 
@@ -889,99 +894,99 @@ v7 differentiates generic `code_dep` into fine-grained relationship types:
 
 | Page | Calls Backend Modules |
 |------|----------------------|
-| API Token | openapi |
-| Auto Reply | auto_reply, fb, whatsapp |
-| Beacon | line |
-| Bindlink | line |
-| Broadcast | broadcast, message, sms |
-| Channel Settings | channel |
-| DPM | line |
-| Deeplink | line |
-| Insight (Dashboard) | google_analytics, report |
-| Interaction Games | line, prize |
-| Journey | email_channel, journey |
-| Members | audience, cdp, tag |
-| Organization Settings | accounts, organization |
-| Prize | prize, sforzando |
-| Receipt Register | receipt |
-| Referral V2 | referral |
-| Retarget | audience, fb |
-| Rich Menu | line |
-| SMS Plus | sms, sms_plus |
-| Segment | audience |
-| SurveyCake (Form) | form |
-| Tag Manager | tag |
-| Template Library | line, message |
-| Tracelink | google_analytics |
-| Webhook | webhook |
-| Widget | line |
+| [API Token](https://doc-2-md.vercel.app/#node=page/API%20Token) | [openapi](https://doc-2-md.vercel.app/#node=maac/openapi) |
+| [Auto Reply](https://doc-2-md.vercel.app/#node=page/Auto%20Reply) | [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp) |
+| [Beacon](https://doc-2-md.vercel.app/#node=page/Beacon) | [line](https://doc-2-md.vercel.app/#node=maac/line) |
+| [Bindlink](https://doc-2-md.vercel.app/#node=page/Bindlink) | [line](https://doc-2-md.vercel.app/#node=maac/line) |
+| [Broadcast](https://doc-2-md.vercel.app/#node=page/Broadcast) | [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [message](https://doc-2-md.vercel.app/#node=maac/message), [sms](https://doc-2-md.vercel.app/#node=maac/sms) |
+| [Channel Settings](https://doc-2-md.vercel.app/#node=page/Channel%20Settings) | [channel](https://doc-2-md.vercel.app/#node=maac/channel) |
+| [DPM](https://doc-2-md.vercel.app/#node=page/DPM) | [line](https://doc-2-md.vercel.app/#node=maac/line) |
+| [Deeplink](https://doc-2-md.vercel.app/#node=page/Deeplink) | [line](https://doc-2-md.vercel.app/#node=maac/line) |
+| [Insight (Dashboard)](https://doc-2-md.vercel.app/#node=page/Insight%20%28Dashboard%29) | [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [report](https://doc-2-md.vercel.app/#node=maac/report) |
+| [Interaction Games](https://doc-2-md.vercel.app/#node=page/Interaction%20Games) | [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize) |
+| [Journey](https://doc-2-md.vercel.app/#node=page/Journey) | [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [journey](https://doc-2-md.vercel.app/#node=maac/journey) |
+| [Members](https://doc-2-md.vercel.app/#node=page/Members) | [audience](https://doc-2-md.vercel.app/#node=maac/audience), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [tag](https://doc-2-md.vercel.app/#node=maac/tag) |
+| [Organization Settings](https://doc-2-md.vercel.app/#node=page/Organization%20Settings) | [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [organization](https://doc-2-md.vercel.app/#node=maac/organization) |
+| [Prize](https://doc-2-md.vercel.app/#node=page/Prize) | [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando) |
+| [Receipt Register](https://doc-2-md.vercel.app/#node=page/Receipt%20Register) | [receipt](https://doc-2-md.vercel.app/#node=maac/receipt) |
+| [Referral V2](https://doc-2-md.vercel.app/#node=page/Referral%20V2) | [referral](https://doc-2-md.vercel.app/#node=maac/referral) |
+| [Retarget](https://doc-2-md.vercel.app/#node=page/Retarget) | [audience](https://doc-2-md.vercel.app/#node=maac/audience), [fb](https://doc-2-md.vercel.app/#node=maac/fb) |
+| [Rich Menu](https://doc-2-md.vercel.app/#node=page/Rich%20Menu) | [line](https://doc-2-md.vercel.app/#node=maac/line) |
+| [SMS Plus](https://doc-2-md.vercel.app/#node=page/SMS%20Plus) | [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus) |
+| [Segment](https://doc-2-md.vercel.app/#node=page/Segment) | [audience](https://doc-2-md.vercel.app/#node=maac/audience) |
+| [SurveyCake (Form)](https://doc-2-md.vercel.app/#node=page/SurveyCake%20%28Form%29) | [form](https://doc-2-md.vercel.app/#node=maac/form) |
+| [Tag Manager](https://doc-2-md.vercel.app/#node=page/Tag%20Manager) | [tag](https://doc-2-md.vercel.app/#node=maac/tag) |
+| [Template Library](https://doc-2-md.vercel.app/#node=page/Template%20Library) | [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message) |
+| [Tracelink](https://doc-2-md.vercel.app/#node=page/Tracelink) | [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics) |
+| [Webhook](https://doc-2-md.vercel.app/#node=page/Webhook) | [webhook](https://doc-2-md.vercel.app/#node=maac/webhook) |
+| [Widget](https://doc-2-md.vercel.app/#node=page/Widget) | [line](https://doc-2-md.vercel.app/#node=maac/line) |
 
 ### CAAC Frontend Pages
 
 | Page | Calls Backend Modules |
 |------|----------------------|
-| AI Settings | aistrategy, aitask, aiusage |
-| Broadcast | chat |
-| Chat | aitask, chat |
-| Insights | dashboard |
-| Quick Template | chat |
-| Settings | auth, organization |
+| [AI Settings](https://doc-2-md.vercel.app/#node=caac_page/AI%20Settings) | [aistrategy](https://doc-2-md.vercel.app/#node=caac/aistrategy), [aitask](https://doc-2-md.vercel.app/#node=caac/aitask), [aiusage](https://doc-2-md.vercel.app/#node=caac/aiusage) |
+| [Broadcast](https://doc-2-md.vercel.app/#node=caac_page/Broadcast) | [chat](https://doc-2-md.vercel.app/#node=caac/chat) |
+| [Chat](https://doc-2-md.vercel.app/#node=caac_page/Chat) | [aitask](https://doc-2-md.vercel.app/#node=caac/aitask), [chat](https://doc-2-md.vercel.app/#node=caac/chat) |
+| [Insights](https://doc-2-md.vercel.app/#node=caac_page/Insights) | [dashboard](https://doc-2-md.vercel.app/#node=caac/dashboard) |
+| [Quick Template](https://doc-2-md.vercel.app/#node=caac_page/Quick%20Template) | [chat](https://doc-2-md.vercel.app/#node=caac/chat) |
+| [Settings](https://doc-2-md.vercel.app/#node=caac_page/Settings) | [auth](https://doc-2-md.vercel.app/#node=caac/auth), [organization](https://doc-2-md.vercel.app/#node=caac/organization) |
 
 ## 6. Infrastructure Dependencies
 
 | Infrastructure | Description | Used by Products |
 |---------------|-------------|-----------------|
-| **BigQuery** | Analytics data warehouse, reporting | MAAC, CAAC, DAAC, CDH |
-| **Cloud Run Jobs** | Task execution for heavy processing | CDH |
-| **Cloud Storage (GCS)** | File/image storage | MAAC |
-| **Cloud Tasks** | Deferred task execution | MAAC |
-| **Datadog** | APM & distributed tracing | MAAC |
-| **Elasticsearch** | Message search & conversation indexing | CAAC |
-| **FCM** | Push notifications to mobile/browser | CAAC |
-| **Firebase / Firestore** | Real-time database for live features | MAAC |
-| **GCS** | File attachment storage | CAAC, DAAC, CDH |
-| **Google Analytics** | Campaign tracking & UTM parameters | MAAC |
-| **Infobip** | WhatsApp/Voice gateway | CAAC |
-| **LINE Messaging API** | LINE platform messaging, rich menu, LIFF | MAAC |
-| **Meta API (FB/IG)** | Facebook & Instagram messaging API | MAAC |
-| **OpenAI** | AI for segment tagging & entity commenting | CDH |
-| **OpenAI / Gemini** | AI model APIs for agent | DAAC |
-| **PostgreSQL** | Primary database (Django ORM) | MAAC, CAAC, DAAC, CDH |
-| **PubSub** | Event streaming for cross-service communication | MAAC, CAAC, CDH |
-| **RabbitMQ / Celery** | Async task queue for background jobs | MAAC |
-| **Redis** | Cache layer, Celery broker, rate limiting | MAAC, CAAC |
-| **SendGrid** | Email delivery service | MAAC |
-| **Sentry** | Error tracking & monitoring | MAAC |
-| **Statsig** | Feature flag management | MAAC, CDH |
-| **Terraform** | Infrastructure as code for client provisioning | DAAC |
-| **WhatsApp Cloud API** | WhatsApp Business messaging via Infobip | MAAC |
-| **dbt** | Data transformation pipeline | DAAC |
+| **[BigQuery](https://doc-2-md.vercel.app/#node=BigQuery)** | Analytics data warehouse, reporting | [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [DAAC](https://doc-2-md.vercel.app/#node=DAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH) |
+| **[Cloud Run Jobs](https://doc-2-md.vercel.app/#node=Cloud%20Run%20Jobs)** | Task execution for heavy processing | [CDH](https://doc-2-md.vercel.app/#node=CDH) |
+| **[Cloud Storage (GCS)](https://doc-2-md.vercel.app/#node=Cloud%20Storage%20%28GCS%29)** | File/image storage | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Cloud Tasks](https://doc-2-md.vercel.app/#node=Cloud%20Tasks)** | Deferred task execution | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Datadog](https://doc-2-md.vercel.app/#node=Datadog)** | APM & distributed tracing | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Elasticsearch](https://doc-2-md.vercel.app/#node=Elasticsearch)** | Message search & conversation indexing | [CAAC](https://doc-2-md.vercel.app/#node=CAAC) |
+| **[FCM](https://doc-2-md.vercel.app/#node=FCM)** | Push notifications to mobile/browser | [CAAC](https://doc-2-md.vercel.app/#node=CAAC) |
+| **[Firebase / Firestore](https://doc-2-md.vercel.app/#node=Firebase%20/%20Firestore)** | Real-time database for live features | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[GCS](https://doc-2-md.vercel.app/#node=GCS)** | File attachment storage | [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [DAAC](https://doc-2-md.vercel.app/#node=DAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH) |
+| **[Google Analytics](https://doc-2-md.vercel.app/#node=Google%20Analytics)** | Campaign tracking & UTM parameters | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Infobip](https://doc-2-md.vercel.app/#node=Infobip)** | WhatsApp/Voice gateway | [CAAC](https://doc-2-md.vercel.app/#node=CAAC) |
+| **[LINE Messaging API](https://doc-2-md.vercel.app/#node=LINE%20Messaging%20API)** | LINE platform messaging, rich menu, LIFF | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Meta API (FB/IG)](https://doc-2-md.vercel.app/#node=Meta%20API%20%28FB/IG%29)** | Facebook & Instagram messaging API | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[OpenAI](https://doc-2-md.vercel.app/#node=OpenAI)** | AI for segment tagging & entity commenting | [CDH](https://doc-2-md.vercel.app/#node=CDH) |
+| **[OpenAI / Gemini](https://doc-2-md.vercel.app/#node=OpenAI%20/%20Gemini)** | AI model APIs for agent | [DAAC](https://doc-2-md.vercel.app/#node=DAAC) |
+| **[PostgreSQL](https://doc-2-md.vercel.app/#node=PostgreSQL)** | Primary database (Django ORM) | [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [DAAC](https://doc-2-md.vercel.app/#node=DAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH) |
+| **[PubSub](https://doc-2-md.vercel.app/#node=PubSub)** | Event streaming for cross-service communication | [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH) |
+| **[RabbitMQ / Celery](https://doc-2-md.vercel.app/#node=RabbitMQ%20/%20Celery)** | Async task queue for background jobs | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Redis](https://doc-2-md.vercel.app/#node=Redis)** | Cache layer, Celery broker, rate limiting | [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CAAC](https://doc-2-md.vercel.app/#node=CAAC) |
+| **[SendGrid](https://doc-2-md.vercel.app/#node=SendGrid)** | Email delivery service | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Sentry](https://doc-2-md.vercel.app/#node=Sentry)** | Error tracking & monitoring | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[Statsig](https://doc-2-md.vercel.app/#node=Statsig)** | Feature flag management | [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH) |
+| **[Terraform](https://doc-2-md.vercel.app/#node=Terraform)** | Infrastructure as code for client provisioning | [DAAC](https://doc-2-md.vercel.app/#node=DAAC) |
+| **[WhatsApp Cloud API](https://doc-2-md.vercel.app/#node=WhatsApp%20Cloud%20API)** | WhatsApp Business messaging via Infobip | [MAAC](https://doc-2-md.vercel.app/#node=MAAC) |
+| **[dbt](https://doc-2-md.vercel.app/#node=dbt)** | Data transformation pipeline | [DAAC](https://doc-2-md.vercel.app/#node=DAAC) |
 
 ## 7. Shared Services
 
-### Arioso
+### [Arioso](https://doc-2-md.vercel.app/#node=Arioso)
 - SSO authentication service — Google/MS OAuth
-- Used by: MAAC, CAAC, DAAC
+- Used by: [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 
-### Harmony
+### [Harmony](https://doc-2-md.vercel.app/#node=Harmony)
 - Partner API & Google Ads integration
-- Used by: MAAC
+- Used by: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Interlude
+### [Interlude](https://doc-2-md.vercel.app/#node=Interlude)
 - Admin center — billing, subscription, org provisioning
-- Used by: MAAC, CAAC, DAAC
+- Used by: [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 
-### MDS
+### [MDS](https://doc-2-md.vercel.app/#node=MDS)
 - Message Delivery Service
-- Used by: MAAC
+- Used by: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Monophony
+### [Monophony](https://doc-2-md.vercel.app/#node=Monophony)
 - URL shortener service (maac.io)
-- Used by: MAAC, CAAC
+- Used by: [MAAC](https://doc-2-md.vercel.app/#node=MAAC), [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 
-### Sforzando
+### [Sforzando](https://doc-2-md.vercel.app/#node=Sforzando)
 - Prize fulfillment & reward distribution
-- Used by: MAAC
+- Used by: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
 ## 8. Cross-Product Data Flow
 
@@ -1059,119 +1064,119 @@ DAAC ──[SYNC]──→ CAAC  (CAAC_GCP_PROJECT_ID (BigQuery))
 
 | Module | Product | Imported by N | code_dep | model_ref | const_ref | task_dep | api_client | Risk |
 |--------|---------|---------------|----------|-----------|-----------|----------|------------|------|
-| line | MAAC | 115 | 37 | 28 | 30 | 12 | 8 | 🔴 Critical |
-| organization | MAAC | 47 | 30 | 9 | 6 | 1 | 1 | 🔴 Critical |
-| tag | MAAC | 47 | 7 | 9 | 14 | 16 | 1 | 🔴 Critical |
-| system | MAAC | 40 | 12 | 4 | 23 | 1 | 0 | 🔴 Critical |
-| accounts | MAAC | 39 | 11 | 24 | 3 | 0 | 1 | 🔴 Critical |
-| openapi | MAAC | 31 | 12 | 7 | 7 | 2 | 3 | 🔴 Critical |
-| channel | MAAC | 28 | 11 | 1 | 16 | 0 | 0 | 🔴 Critical |
-| api_doc | MAAC | 26 | 26 | 0 | 0 | 0 | 0 | 🔴 Critical |
-| audience | MAAC | 26 | 10 | 6 | 7 | 3 | 0 | 🔴 Critical |
-| google_analytics | MAAC | 23 | 11 | 7 | 5 | 0 | 0 | 🔴 Critical |
-| journey | MAAC | 23 | 9 | 2 | 6 | 6 | 0 | 🔴 Critical |
-| notification | MAAC | 21 | 4 | 3 | 9 | 5 | 0 | 🔴 Critical |
-| webhook | MAAC | 21 | 5 | 2 | 7 | 7 | 0 | 🔴 Critical |
-| sms | MAAC | 20 | 9 | 3 | 6 | 1 | 1 | 🔴 Critical |
-| interlude | MAAC | 18 | 14 | 0 | 4 | 0 | 0 | 🔴 Critical |
-| prize | MAAC | 17 | 7 | 5 | 2 | 2 | 1 | 🔴 Critical |
-| auto_reply | MAAC | 11 | 6 | 0 | 5 | 0 | 0 | 🟡 High |
-| message | MAAC | 11 | 7 | 0 | 4 | 0 | 0 | 🟡 High |
-| cdp | MAAC | 10 | 4 | 0 | 6 | 0 | 0 | 🟡 High |
-| payment | MAAC | 10 | 9 | 1 | 0 | 0 | 0 | 🟡 High |
+| [line](https://doc-2-md.vercel.app/#node=maac/line) | MAAC | 115 | 37 | 28 | 30 | 12 | 8 | 🔴 Critical |
+| [organization](https://doc-2-md.vercel.app/#node=maac/organization) | MAAC | 47 | 30 | 9 | 6 | 1 | 1 | 🔴 Critical |
+| [tag](https://doc-2-md.vercel.app/#node=maac/tag) | MAAC | 47 | 7 | 9 | 14 | 16 | 1 | 🔴 Critical |
+| [system](https://doc-2-md.vercel.app/#node=maac/system) | MAAC | 40 | 12 | 4 | 23 | 1 | 0 | 🔴 Critical |
+| [accounts](https://doc-2-md.vercel.app/#node=maac/accounts) | MAAC | 39 | 11 | 24 | 3 | 0 | 1 | 🔴 Critical |
+| [openapi](https://doc-2-md.vercel.app/#node=maac/openapi) | MAAC | 31 | 12 | 7 | 7 | 2 | 3 | 🔴 Critical |
+| [channel](https://doc-2-md.vercel.app/#node=maac/channel) | MAAC | 28 | 11 | 1 | 16 | 0 | 0 | 🔴 Critical |
+| [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc) | MAAC | 26 | 26 | 0 | 0 | 0 | 0 | 🔴 Critical |
+| [audience](https://doc-2-md.vercel.app/#node=maac/audience) | MAAC | 26 | 10 | 6 | 7 | 3 | 0 | 🔴 Critical |
+| [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics) | MAAC | 23 | 11 | 7 | 5 | 0 | 0 | 🔴 Critical |
+| [journey](https://doc-2-md.vercel.app/#node=maac/journey) | MAAC | 23 | 9 | 2 | 6 | 6 | 0 | 🔴 Critical |
+| [notification](https://doc-2-md.vercel.app/#node=maac/notification) | MAAC | 21 | 4 | 3 | 9 | 5 | 0 | 🔴 Critical |
+| [webhook](https://doc-2-md.vercel.app/#node=maac/webhook) | MAAC | 21 | 5 | 2 | 7 | 7 | 0 | 🔴 Critical |
+| [sms](https://doc-2-md.vercel.app/#node=maac/sms) | MAAC | 20 | 9 | 3 | 6 | 1 | 1 | 🔴 Critical |
+| [interlude](https://doc-2-md.vercel.app/#node=maac/interlude) | MAAC | 18 | 14 | 0 | 4 | 0 | 0 | 🔴 Critical |
+| [prize](https://doc-2-md.vercel.app/#node=maac/prize) | MAAC | 17 | 7 | 5 | 2 | 2 | 1 | 🔴 Critical |
+| [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply) | MAAC | 11 | 6 | 0 | 5 | 0 | 0 | 🟡 High |
+| [message](https://doc-2-md.vercel.app/#node=maac/message) | MAAC | 11 | 7 | 0 | 4 | 0 | 0 | 🟡 High |
+| [cdp](https://doc-2-md.vercel.app/#node=maac/cdp) | MAAC | 10 | 4 | 0 | 6 | 0 | 0 | 🟡 High |
+| [payment](https://doc-2-md.vercel.app/#node=maac/payment) | MAAC | 10 | 9 | 1 | 0 | 0 | 0 | 🟡 High |
 
 ### Hub Modules (most outgoing deps)
 
 | Module | Product | Depends on N | Coupling |
 |--------|---------|-------------|----------|
-| line | MAAC | 83 | 🔴 High |
-| openapi | MAAC | 45 | 🔴 High |
-| internal | MAAC | 31 | 🔴 High |
-| journey | MAAC | 27 | 🔴 High |
-| organization | MAAC | 25 | 🔴 High |
-| prize | MAAC | 24 | 🔴 High |
-| sms | MAAC | 24 | 🔴 High |
-| nine_one_app | MAAC | 20 | 🔴 High |
-| audience | MAAC | 19 | 🔴 High |
-| system | MAAC | 19 | 🔴 High |
-| smoke_test | MAAC | 18 | 🔴 High |
-| auto_reply | MAAC | 16 | 🔴 High |
-| broadcast | MAAC | 16 | 🔴 High |
-| accounts | MAAC | 15 | 🔴 High |
-| receipt | MAAC | 15 | 🔴 High |
+| [line](https://doc-2-md.vercel.app/#node=maac/line) | MAAC | 83 | 🔴 High |
+| [openapi](https://doc-2-md.vercel.app/#node=maac/openapi) | MAAC | 45 | 🔴 High |
+| [internal](https://doc-2-md.vercel.app/#node=maac/internal) | MAAC | 31 | 🔴 High |
+| [journey](https://doc-2-md.vercel.app/#node=maac/journey) | MAAC | 27 | 🔴 High |
+| [organization](https://doc-2-md.vercel.app/#node=maac/organization) | MAAC | 25 | 🔴 High |
+| [prize](https://doc-2-md.vercel.app/#node=maac/prize) | MAAC | 24 | 🔴 High |
+| [sms](https://doc-2-md.vercel.app/#node=maac/sms) | MAAC | 24 | 🔴 High |
+| [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app) | MAAC | 20 | 🔴 High |
+| [audience](https://doc-2-md.vercel.app/#node=maac/audience) | MAAC | 19 | 🔴 High |
+| [system](https://doc-2-md.vercel.app/#node=maac/system) | MAAC | 19 | 🔴 High |
+| [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test) | MAAC | 18 | 🔴 High |
+| [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply) | MAAC | 16 | 🔴 High |
+| [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast) | MAAC | 16 | 🔴 High |
+| [accounts](https://doc-2-md.vercel.app/#node=maac/accounts) | MAAC | 15 | 🔴 High |
+| [receipt](https://doc-2-md.vercel.app/#node=maac/receipt) | MAAC | 15 | 🔴 High |
 
 ## 10. Change Impact Chains
 
 Format: `If you change X → these modules are directly affected`
 
-### Changing `line` (MAAC)
+### Changing [line](https://doc-2-md.vercel.app/#node=maac/line) (MAAC)
 Directly affects 115 modules:
-- via `code_dep`: accounts, audience, auto_reply, broadcast, caac, cdp, channel, cyberbiz, email_channel, extension, fb, form, integration, internal, journey, message, nine_one_app, openapi, organization, payment, prize, pubsub_pull, receipt, referral, report, sforzando, shopify, shopline, smoke_test, sms, sms_plus, system, tag, verification, wccs, webhook, whatsapp
-- via `model_ref`: audience, auto_reply, bigquery, caac, channel, firestore, form, google_analytics, internal, journey, message, nine_one_app, openapi, organization, payment, prize, receipt, referral, report, sforzando, shopify, shopline, smoke_test, sms, system, tag, webhook, workflow
-- via `const_ref`: accounts, audience, auto_reply, bigquery, broadcast, caac, cdp, channel, email_channel, extension, fb, form, internal, journey, message, openapi, organization, payment, prize, pubsub_pull, receipt, referral, report, shopify, smoke_test, sms, system, tag, wccs, whatsapp
-- via `task_dep`: accounts, form, nine_one_app, openapi, organization, prize, receipt, referral, shopify, shopline, system, tag
-- via `api_client`: form, internal, openapi, prize, receipt, referral, sforzando, sms
+- via `code_dep`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [cyberbiz](https://doc-2-md.vercel.app/#node=maac/cyberbiz), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [integration](https://doc-2-md.vercel.app/#node=maac/integration), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [verification](https://doc-2-md.vercel.app/#node=maac/verification), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- via `model_ref`: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [firestore](https://doc-2-md.vercel.app/#node=maac/firestore), [form](https://doc-2-md.vercel.app/#node=maac/form), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- via `const_ref`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- via `task_dep`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [form](https://doc-2-md.vercel.app/#node=maac/form), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- via `api_client`: [form](https://doc-2-md.vercel.app/#node=maac/form), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
 
-### Changing `organization` (MAAC)
+### Changing [organization](https://doc-2-md.vercel.app/#node=maac/organization) (MAAC)
 Directly affects 47 modules:
-- via `code_dep`: accounts, ai_generation, audience, auto_reply, broadcast, caac, cdp, channel, email_channel, extension, fb, google_analytics, interlude, internal, journey, line, message, nine_one_app, openapi, payment, prize, receipt, referral, sforzando, shopline, sms, sms_plus, tag, wccs, whatsapp
-- via `model_ref`: accounts, audience, channel, google_analytics, line, prize, sforzando, smoke_test, sms
-- via `const_ref`: ai_generation, audience, internal, journey, line, openapi
-- via `task_dep`: internal
-- via `api_client`: line
+- via `code_dep`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [payment](https://doc-2-md.vercel.app/#node=maac/payment), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- via `model_ref`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [line](https://doc-2-md.vercel.app/#node=maac/line), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- via `const_ref`: [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
+- via `task_dep`: [internal](https://doc-2-md.vercel.app/#node=maac/internal)
+- via `api_client`: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### Changing `tag` (MAAC)
+### Changing [tag](https://doc-2-md.vercel.app/#node=maac/tag) (MAAC)
 Directly affects 47 modules:
-- via `code_dep`: audience, broadcast, journey, line, openapi, smoke_test, webhook
-- via `model_ref`: audience, journey, line, openapi, prize, referral, report, smoke_test, system
-- via `const_ref`: auto_reply, cdp, form, journey, line, nine_one_app, openapi, prize, pubsub_pull, referral, sforzando, shopline, smoke_test, system
-- via `task_dep`: auto_reply, cdp, fb, form, journey, line, nine_one_app, openapi, prize, pubsub_pull, referral, sforzando, shopline, system, wccs, whatsapp
-- via `api_client`: form
+- via `code_dep`: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- via `model_ref`: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [report](https://doc-2-md.vercel.app/#node=maac/report), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- via `const_ref`: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [form](https://doc-2-md.vercel.app/#node=maac/form), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- via `task_dep`: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [system](https://doc-2-md.vercel.app/#node=maac/system), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- via `api_client`: [form](https://doc-2-md.vercel.app/#node=maac/form)
 
-### Changing `system` (MAAC)
+### Changing [system](https://doc-2-md.vercel.app/#node=maac/system) (MAAC)
 Directly affects 40 modules:
-- via `code_dep`: ai_generation, audience, broadcast, journey, line, openapi, prize, receipt, referral, sforzando, sms, webhook
-- via `model_ref`: line, nine_one_app, shopify, shopline
-- via `const_ref`: audience, auto_reply, bigquery, broadcast, channel, email_channel, fb, google_analytics, internal, journey, line, message, openapi, prize, pubsub_pull, report, shortener, sms, tag, wccs, webhook, whatsapp, workflow
-- via `task_dep`: line
+- via `code_dep`: [ai_generation](https://doc-2-md.vercel.app/#node=maac/ai_generation), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- via `model_ref`: [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline)
+- via `const_ref`: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [report](https://doc-2-md.vercel.app/#node=maac/report), [shortener](https://doc-2-md.vercel.app/#node=maac/shortener), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [tag](https://doc-2-md.vercel.app/#node=maac/tag), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- via `task_dep`: [line](https://doc-2-md.vercel.app/#node=maac/line)
 
-### Changing `accounts` (MAAC)
+### Changing [accounts](https://doc-2-md.vercel.app/#node=maac/accounts) (MAAC)
 Directly affects 39 modules:
-- via `code_dep`: audience, caac, email_channel, interlude, internal, line, notification, openapi, organization, smoke_test, system
-- via `model_ref`: audience, auto_reply, broadcast, caac, campaign, cdp, channel, cyberbiz, extension, fb, google_analytics, integration, interlude, journey, line, nine_one_app, organization, prize, referral, sforzando, shopify, shopline, system, tag
-- via `const_ref`: extension, organization, smoke_test
-- via `api_client`: internal
+- via `code_dep`: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [notification](https://doc-2-md.vercel.app/#node=maac/notification), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- via `model_ref`: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [cyberbiz](https://doc-2-md.vercel.app/#node=maac/cyberbiz), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics), [integration](https://doc-2-md.vercel.app/#node=maac/integration), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [referral](https://doc-2-md.vercel.app/#node=maac/referral), [sforzando](https://doc-2-md.vercel.app/#node=maac/sforzando), [shopify](https://doc-2-md.vercel.app/#node=maac/shopify), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- via `const_ref`: [extension](https://doc-2-md.vercel.app/#node=maac/extension), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test)
+- via `api_client`: [internal](https://doc-2-md.vercel.app/#node=maac/internal)
 
-### Changing `openapi` (MAAC)
+### Changing [openapi](https://doc-2-md.vercel.app/#node=maac/openapi) (MAAC)
 Directly affects 31 modules:
-- via `code_dep`: channel, internal, line, nine_one_app, organization, prize, pubsub_pull, receipt, shopline, sms, sms_plus, whatsapp
-- via `model_ref`: internal, line, nine_one_app, report, smoke_test, sms, webhook
-- via `const_ref`: internal, line, nine_one_app, smoke_test, sms, sms_plus, whatsapp
-- via `task_dep`: line, nine_one_app
-- via `api_client`: nine_one_app, shopline, sms
+- via `code_dep`: [channel](https://doc-2-md.vercel.app/#node=maac/channel), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- via `model_ref`: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [report](https://doc-2-md.vercel.app/#node=maac/report), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [webhook](https://doc-2-md.vercel.app/#node=maac/webhook)
+- via `const_ref`: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- via `task_dep`: [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app)
+- via `api_client`: [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [shopline](https://doc-2-md.vercel.app/#node=maac/shopline), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
 
-### Changing `channel` (MAAC)
+### Changing [channel](https://doc-2-md.vercel.app/#node=maac/channel) (MAAC)
 Directly affects 28 modules:
-- via `code_dep`: accounts, auto_reply, broadcast, email_channel, extension, internal, journey, message, openapi, organization, whatsapp
-- via `model_ref`: journey
-- via `const_ref`: auto_reply, broadcast, campaign, email_channel, extension, fb, internal, journey, line, message, openapi, organization, pubsub_pull, sms, wccs, whatsapp
+- via `code_dep`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
+- via `model_ref`: [journey](https://doc-2-md.vercel.app/#node=maac/journey)
+- via `const_ref`: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [pubsub_pull](https://doc-2-md.vercel.app/#node=maac/pubsub_pull), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [wccs](https://doc-2-md.vercel.app/#node=maac/wccs), [whatsapp](https://doc-2-md.vercel.app/#node=maac/whatsapp)
 
-### Changing `api_doc` (MAAC)
+### Changing [api_doc](https://doc-2-md.vercel.app/#node=maac/api_doc) (MAAC)
 Directly affects 26 modules:
-- via `code_dep`: accounts, audience, auto_reply, broadcast, caac, campaign, cdp, channel, email_channel, fb, form, integration, interlude, internal, journey, line, nine_one_app, openapi, organization, prize, receipt, smoke_test, sms, sms_plus, system, tag
+- via `code_dep`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [audience](https://doc-2-md.vercel.app/#node=maac/audience), [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [caac](https://doc-2-md.vercel.app/#node=maac/caac), [campaign](https://doc-2-md.vercel.app/#node=maac/campaign), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [channel](https://doc-2-md.vercel.app/#node=maac/channel), [email_channel](https://doc-2-md.vercel.app/#node=maac/email_channel), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [form](https://doc-2-md.vercel.app/#node=maac/form), [integration](https://doc-2-md.vercel.app/#node=maac/integration), [interlude](https://doc-2-md.vercel.app/#node=maac/interlude), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [receipt](https://doc-2-md.vercel.app/#node=maac/receipt), [smoke_test](https://doc-2-md.vercel.app/#node=maac/smoke_test), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [sms_plus](https://doc-2-md.vercel.app/#node=maac/sms_plus), [system](https://doc-2-md.vercel.app/#node=maac/system), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
 
-### Changing `audience` (MAAC)
+### Changing [audience](https://doc-2-md.vercel.app/#node=maac/audience) (MAAC)
 Directly affects 26 modules:
-- via `code_dep`: accounts, broadcast, cdp, firestore, internal, journey, line, openapi, sms, tag
-- via `model_ref`: internal, journey, line, openapi, sms, system
-- via `const_ref`: bigquery, broadcast, internal, line, openapi, organization, sms
-- via `task_dep`: internal, line, openapi
+- via `code_dep`: [accounts](https://doc-2-md.vercel.app/#node=maac/accounts), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [cdp](https://doc-2-md.vercel.app/#node=maac/cdp), [firestore](https://doc-2-md.vercel.app/#node=maac/firestore), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [tag](https://doc-2-md.vercel.app/#node=maac/tag)
+- via `model_ref`: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [sms](https://doc-2-md.vercel.app/#node=maac/sms), [system](https://doc-2-md.vercel.app/#node=maac/system)
+- via `const_ref`: [bigquery](https://doc-2-md.vercel.app/#node=maac/bigquery), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- via `task_dep`: [internal](https://doc-2-md.vercel.app/#node=maac/internal), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi)
 
-### Changing `google_analytics` (MAAC)
+### Changing [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics) (MAAC)
 Directly affects 23 modules:
-- via `code_dep`: auto_reply, broadcast, extension, fb, journey, line, message, openapi, organization, prize, sms
-- via `model_ref`: audience, line, openapi, prize, report, system, workflow
-- via `const_ref`: extension, journey, line, openapi, prize
+- via `code_dep`: [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply), [broadcast](https://doc-2-md.vercel.app/#node=maac/broadcast), [extension](https://doc-2-md.vercel.app/#node=maac/extension), [fb](https://doc-2-md.vercel.app/#node=maac/fb), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [message](https://doc-2-md.vercel.app/#node=maac/message), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [organization](https://doc-2-md.vercel.app/#node=maac/organization), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [sms](https://doc-2-md.vercel.app/#node=maac/sms)
+- via `model_ref`: [audience](https://doc-2-md.vercel.app/#node=maac/audience), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize), [report](https://doc-2-md.vercel.app/#node=maac/report), [system](https://doc-2-md.vercel.app/#node=maac/system), [workflow](https://doc-2-md.vercel.app/#node=maac/workflow)
+- via `const_ref`: [extension](https://doc-2-md.vercel.app/#node=maac/extension), [journey](https://doc-2-md.vercel.app/#node=maac/journey), [line](https://doc-2-md.vercel.app/#node=maac/line), [openapi](https://doc-2-md.vercel.app/#node=maac/openapi), [prize](https://doc-2-md.vercel.app/#node=maac/prize)
 
 ## 11. Product Dependency Matrix
 
@@ -1188,105 +1193,105 @@ Summary of how each product connects to others:
 
 Which modules depend on which infrastructure components:
 
-### BigQuery
+### [BigQuery](https://doc-2-md.vercel.app/#node=BigQuery)
 - Analytics data warehouse, reporting
-- **Depended on by**: CAAC, CDH, DAAC, MAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH), [DAAC](https://doc-2-md.vercel.app/#node=DAAC), [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Cloud Run Jobs
+### [Cloud Run Jobs](https://doc-2-md.vercel.app/#node=Cloud%20Run%20Jobs)
 - Task execution for heavy processing
-- **Depended on by**: CDH
+- **Depended on by**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 
-### Cloud Storage (GCS)
+### [Cloud Storage (GCS)](https://doc-2-md.vercel.app/#node=Cloud%20Storage%20%28GCS%29)
 - File/image storage
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Cloud Tasks
+### [Cloud Tasks](https://doc-2-md.vercel.app/#node=Cloud%20Tasks)
 - Deferred task execution
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Datadog
+### [Datadog](https://doc-2-md.vercel.app/#node=Datadog)
 - APM & distributed tracing
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Elasticsearch
+### [Elasticsearch](https://doc-2-md.vercel.app/#node=Elasticsearch)
 - Message search & conversation indexing
-- **Depended on by**: CAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 
-### FCM
+### [FCM](https://doc-2-md.vercel.app/#node=FCM)
 - Push notifications to mobile/browser
-- **Depended on by**: CAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 
-### Firebase / Firestore
+### [Firebase / Firestore](https://doc-2-md.vercel.app/#node=Firebase%20/%20Firestore)
 - Real-time database for live features
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### GCS
+### [GCS](https://doc-2-md.vercel.app/#node=GCS)
 - File attachment storage
-- **Depended on by**: CAAC, CDH, DAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH), [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 
-### Google Analytics
+### [Google Analytics](https://doc-2-md.vercel.app/#node=Google%20Analytics)
 - Campaign tracking & UTM parameters
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Infobip
+### [Infobip](https://doc-2-md.vercel.app/#node=Infobip)
 - WhatsApp/Voice gateway
-- **Depended on by**: CAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC)
 
-### LINE Messaging API
+### [LINE Messaging API](https://doc-2-md.vercel.app/#node=LINE%20Messaging%20API)
 - LINE platform messaging, rich menu, LIFF
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Meta API (FB/IG)
+### [Meta API (FB/IG)](https://doc-2-md.vercel.app/#node=Meta%20API%20%28FB/IG%29)
 - Facebook & Instagram messaging API
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### OpenAI
+### [OpenAI](https://doc-2-md.vercel.app/#node=OpenAI)
 - AI for segment tagging & entity commenting
-- **Depended on by**: CDH
+- **Depended on by**: [CDH](https://doc-2-md.vercel.app/#node=CDH)
 
-### OpenAI / Gemini
+### [OpenAI / Gemini](https://doc-2-md.vercel.app/#node=OpenAI%20/%20Gemini)
 - AI model APIs for agent
-- **Depended on by**: DAAC
+- **Depended on by**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 
-### PostgreSQL
+### [PostgreSQL](https://doc-2-md.vercel.app/#node=PostgreSQL)
 - Primary database (Django ORM)
-- **Depended on by**: CAAC, CDH, DAAC, MAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH), [DAAC](https://doc-2-md.vercel.app/#node=DAAC), [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### PubSub
+### [PubSub](https://doc-2-md.vercel.app/#node=PubSub)
 - Event streaming for cross-service communication
-- **Depended on by**: CAAC, CDH, MAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [CDH](https://doc-2-md.vercel.app/#node=CDH), [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### RabbitMQ / Celery
+### [RabbitMQ / Celery](https://doc-2-md.vercel.app/#node=RabbitMQ%20/%20Celery)
 - Async task queue for background jobs
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Redis
+### [Redis](https://doc-2-md.vercel.app/#node=Redis)
 - Cache layer, Celery broker, rate limiting
-- **Depended on by**: CAAC, MAAC
+- **Depended on by**: [CAAC](https://doc-2-md.vercel.app/#node=CAAC), [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### SendGrid
+### [SendGrid](https://doc-2-md.vercel.app/#node=SendGrid)
 - Email delivery service
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Sentry
+### [Sentry](https://doc-2-md.vercel.app/#node=Sentry)
 - Error tracking & monitoring
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Statsig
+### [Statsig](https://doc-2-md.vercel.app/#node=Statsig)
 - Feature flag management
-- **Depended on by**: CDH, MAAC
+- **Depended on by**: [CDH](https://doc-2-md.vercel.app/#node=CDH), [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### Terraform
+### [Terraform](https://doc-2-md.vercel.app/#node=Terraform)
 - Infrastructure as code for client provisioning
-- **Depended on by**: DAAC
+- **Depended on by**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 
-### WhatsApp Cloud API
+### [WhatsApp Cloud API](https://doc-2-md.vercel.app/#node=WhatsApp%20Cloud%20API)
 - WhatsApp Business messaging via Infobip
-- **Depended on by**: MAAC
+- **Depended on by**: [MAAC](https://doc-2-md.vercel.app/#node=MAAC)
 
-### dbt
+### [dbt](https://doc-2-md.vercel.app/#node=dbt)
 - Data transformation pipeline
-- **Depended on by**: DAAC
+- **Depended on by**: [DAAC](https://doc-2-md.vercel.app/#node=DAAC)
 
 ## 13. Semantic Dependency Hotspots
 
@@ -1294,26 +1299,26 @@ Modules with the most fine-grained semantic dependencies (model_ref + const_ref 
 
 | Module | Product | Total Semantic Edges | model_ref | const_ref | task_dep | api_client |
 |--------|---------|---------------------|-----------|-----------|----------|------------|
-| line | MAAC | 129 | 47 | 49 | 22 | 11 |
-| tag | MAAC | 48 | 12 | 17 | 18 | 1 |
-| openapi | MAAC | 44 | 12 | 20 | 7 | 5 |
-| system | MAAC | 40 | 10 | 27 | 3 | 0 |
-| accounts | MAAC | 35 | 26 | 6 | 2 | 1 |
-| audience | MAAC | 27 | 12 | 12 | 3 | 0 |
-| journey | MAAC | 27 | 7 | 13 | 7 | 0 |
-| organization | MAAC | 27 | 11 | 13 | 2 | 1 |
-| prize | MAAC | 26 | 10 | 8 | 6 | 2 |
-| channel | MAAC | 25 | 4 | 20 | 1 | 0 |
-| sms | MAAC | 24 | 7 | 13 | 1 | 3 |
-| webhook | MAAC | 21 | 6 | 8 | 7 | 0 |
-| google_analytics | MAAC | 17 | 11 | 6 | 0 | 0 |
-| notification | MAAC | 17 | 3 | 9 | 5 | 0 |
-| internal | MAAC | 16 | 5 | 6 | 3 | 2 |
-| nine_one_app | MAAC | 14 | 5 | 3 | 5 | 1 |
-| referral | MAAC | 14 | 6 | 3 | 3 | 2 |
-| auto_reply | MAAC | 12 | 2 | 9 | 1 | 0 |
-| cdp | MAAC | 11 | 1 | 8 | 2 | 0 |
-| report | MAAC | 11 | 9 | 2 | 0 | 0 |
+| [line](https://doc-2-md.vercel.app/#node=maac/line) | MAAC | 129 | 47 | 49 | 22 | 11 |
+| [tag](https://doc-2-md.vercel.app/#node=maac/tag) | MAAC | 48 | 12 | 17 | 18 | 1 |
+| [openapi](https://doc-2-md.vercel.app/#node=maac/openapi) | MAAC | 44 | 12 | 20 | 7 | 5 |
+| [system](https://doc-2-md.vercel.app/#node=maac/system) | MAAC | 40 | 10 | 27 | 3 | 0 |
+| [accounts](https://doc-2-md.vercel.app/#node=maac/accounts) | MAAC | 35 | 26 | 6 | 2 | 1 |
+| [audience](https://doc-2-md.vercel.app/#node=maac/audience) | MAAC | 27 | 12 | 12 | 3 | 0 |
+| [journey](https://doc-2-md.vercel.app/#node=maac/journey) | MAAC | 27 | 7 | 13 | 7 | 0 |
+| [organization](https://doc-2-md.vercel.app/#node=maac/organization) | MAAC | 27 | 11 | 13 | 2 | 1 |
+| [prize](https://doc-2-md.vercel.app/#node=maac/prize) | MAAC | 26 | 10 | 8 | 6 | 2 |
+| [channel](https://doc-2-md.vercel.app/#node=maac/channel) | MAAC | 25 | 4 | 20 | 1 | 0 |
+| [sms](https://doc-2-md.vercel.app/#node=maac/sms) | MAAC | 24 | 7 | 13 | 1 | 3 |
+| [webhook](https://doc-2-md.vercel.app/#node=maac/webhook) | MAAC | 21 | 6 | 8 | 7 | 0 |
+| [google_analytics](https://doc-2-md.vercel.app/#node=maac/google_analytics) | MAAC | 17 | 11 | 6 | 0 | 0 |
+| [notification](https://doc-2-md.vercel.app/#node=maac/notification) | MAAC | 17 | 3 | 9 | 5 | 0 |
+| [internal](https://doc-2-md.vercel.app/#node=maac/internal) | MAAC | 16 | 5 | 6 | 3 | 2 |
+| [nine_one_app](https://doc-2-md.vercel.app/#node=maac/nine_one_app) | MAAC | 14 | 5 | 3 | 5 | 1 |
+| [referral](https://doc-2-md.vercel.app/#node=maac/referral) | MAAC | 14 | 6 | 3 | 3 | 2 |
+| [auto_reply](https://doc-2-md.vercel.app/#node=maac/auto_reply) | MAAC | 12 | 2 | 9 | 1 | 0 |
+| [cdp](https://doc-2-md.vercel.app/#node=maac/cdp) | MAAC | 11 | 1 | 8 | 2 | 0 |
+| [report](https://doc-2-md.vercel.app/#node=maac/report) | MAAC | 11 | 9 | 2 | 0 | 0 |
 
 ---
 *End of Code Architecture Knowledge Graph v7*

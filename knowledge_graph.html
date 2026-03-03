@@ -273,6 +273,10 @@ function init() {
   document.getElementById("search").addEventListener("input", onSearch);
   buildFilters();
   buildPathSelectors();
+
+  // Deep-link: focus node from URL hash
+  network.once("stabilized", () => { resolveHash(); });
+  window.addEventListener("hashchange", resolveHash);
 }
 
 // ── Filters ──
@@ -362,16 +366,39 @@ function onSearch(ev) {
   allE.forEach(e => vE.update({id:e.id, hidden:!(expanded.has(e.from) && expanded.has(e.to))}));
 }
 
+// ── Deep-link helpers ──
+function nodeToSlug(node) {
+  return encodeURIComponent(node._raw.label);
+}
+function updateHash(node) {
+  history.replaceState(null, "", "#node=" + nodeToSlug(node));
+}
+function resolveHash() {
+  const h = window.location.hash;
+  if (!h.startsWith("#node=")) return;
+  const slug = decodeURIComponent(h.slice(6));
+  const node = allN.find(n => n._raw.label === slug || n.label === slug);
+  if (node) {
+    setTimeout(() => {
+      network.focus(node.id, {scale:1.5, animation:{duration:600}});
+      network.selectNodes([node.id]);
+      showPanel(node);
+    }, 800);
+  }
+}
+
 // ── Click handler ──
 function onClick(params) {
   if (params.nodes.length === 0) {
     closePanel();
     if (impactMode) exitImpact();
+    history.replaceState(null, "", window.location.pathname);
     return;
   }
   const nid = params.nodes[0];
   const node = allN.find(n => n.id === nid);
   if (!node) return;
+  updateHash(node);
   showPanel(node);
 }
 
@@ -400,8 +427,13 @@ function showPanel(node) {
     node: allN.find(n => n.id === e.to), label: e._label, type: e._type
   })).filter(r => r.node);
 
+  const permalink = window.location.origin + window.location.pathname + "#node=" + encodeURIComponent(node._raw.label);
   let html = `<h2>${node._raw.label}</h2>`;
   html += `<div class="type-badge" style="background:${tc.bg};color:${tc.fc || '#1a1a2e'}">${node._group.replace(/_/g," ")}</div>`;
+  html += `<div style="margin:6px 0 10px;display:flex;align-items:center;gap:6px">`;
+  html += `<input readonly value="${permalink}" style="flex:1;padding:4px 8px;font-size:10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text2);outline:none" onclick="this.select()" />`;
+  html += `<button onclick="navigator.clipboard.writeText('${permalink}');this.textContent='✓ Copied'" style="padding:4px 8px;font-size:10px;background:var(--accent);border:none;border-radius:4px;color:#fff;cursor:pointer;white-space:nowrap">📋 Copy</button>`;
+  html += `</div>`;
   html += `<div class="desc">${node._raw.desc || node._raw.title || ""}</div>`;
 
   if (node._raw.product) html += `<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Product: <b>${node._raw.product}</b></div>`;
@@ -475,7 +507,7 @@ function focusNode(nid) {
   network.focus(nid, {scale:1.5, animation:{duration:400}});
   network.selectNodes([nid]);
   const node = allN.find(n => n.id === nid);
-  if (node) showPanel(node);
+  if (node) { updateHash(node); showPanel(node); }
 }
 
 // ── Impact Analysis ──
