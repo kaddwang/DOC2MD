@@ -276,6 +276,105 @@ let filters = new Set(["company","product","module","subfeature","infra","rootca
 function init() {
   allN = mkNodes(RAW.nodes);
   allE = mkEdges(RAW.edges);
+
+  // ── Concentric circle layout ──
+  // Ring radii per type layer
+  const RINGS = { company: 0, product: 220, module: 520, subfeature: 850, infra: 650, rootcause: 1100, issue: 1350 };
+
+  // Group nodes by type
+  const byType = {};
+  allN.forEach(n => { (byType[n._type] = byType[n._type] || []).push(n); });
+
+  // For modules: place them around the product they belong to
+  // Build parent map from edges (hierarchy edges: product→module, module→subfeature)
+  const parentOf = {};
+  allE.forEach(e => {
+    if (e._type === "hierarchy" || e._type === "issue_rel") {
+      parentOf[e.to] = e.from;
+    }
+  });
+
+  // Position products evenly around the center
+  const products = byType["product"] || [];
+  const productAngles = {};
+  products.forEach((n, i) => {
+    const angle = (i / products.length) * 2 * Math.PI - Math.PI / 2;
+    productAngles[n.id] = angle;
+    n.x = Math.cos(angle) * RINGS.product;
+    n.y = Math.sin(angle) * RINGS.product;
+  });
+
+  // Company at center
+  (byType["company"] || []).forEach(n => { n.x = 0; n.y = 0; });
+
+  // Modules: cluster around their parent product
+  const modules = byType["module"] || [];
+  const modulesByProduct = {};
+  modules.forEach(n => {
+    const pid = parentOf[n.id];
+    (modulesByProduct[pid] = modulesByProduct[pid] || []).push(n);
+  });
+  const moduleAngles = {};
+  Object.entries(modulesByProduct).forEach(([pid, mods]) => {
+    const baseAngle = productAngles[pid] || 0;
+    const spread = Math.PI * 0.6; // arc spread for modules around their product
+    mods.forEach((n, i) => {
+      const a = baseAngle - spread / 2 + (spread / Math.max(1, mods.length - 1)) * i;
+      moduleAngles[n.id] = a;
+      n.x = Math.cos(a) * RINGS.module;
+      n.y = Math.sin(a) * RINGS.module;
+    });
+  });
+
+  // Sub-features: cluster around their parent module
+  const subs = byType["subfeature"] || [];
+  const subsByModule = {};
+  subs.forEach(n => {
+    const mid = parentOf[n.id];
+    (subsByModule[mid] = subsByModule[mid] || []).push(n);
+  });
+  Object.entries(subsByModule).forEach(([mid, sfNodes]) => {
+    const baseAngle = moduleAngles[mid] || 0;
+    const spread = Math.PI * 0.25;
+    sfNodes.forEach((n, i) => {
+      const a = baseAngle - spread / 2 + (spread / Math.max(1, sfNodes.length - 1)) * i;
+      n.x = Math.cos(a) * RINGS.subfeature;
+      n.y = Math.sin(a) * RINGS.subfeature;
+    });
+  });
+
+  // Infra: spread evenly on their ring
+  (byType["infra"] || []).forEach((n, i, arr) => {
+    const a = (i / arr.length) * 2 * Math.PI + Math.PI * 0.15;
+    n.x = Math.cos(a) * RINGS.infra;
+    n.y = Math.sin(a) * RINGS.infra;
+  });
+
+  // Root causes: spread evenly on their ring
+  (byType["rootcause"] || []).forEach((n, i, arr) => {
+    const a = (i / arr.length) * 2 * Math.PI + Math.PI * 0.1;
+    n.x = Math.cos(a) * RINGS.rootcause;
+    n.y = Math.sin(a) * RINGS.rootcause;
+  });
+
+  // Issues: cluster near their parent module
+  const issues = byType["issue"] || [];
+  const issuesByModule = {};
+  issues.forEach(n => {
+    const mid = parentOf[n.id];
+    (issuesByModule[mid] = issuesByModule[mid] || []).push(n);
+  });
+  Object.entries(issuesByModule).forEach(([mid, issNodes]) => {
+    const baseAngle = moduleAngles[mid] || 0;
+    const spread = Math.PI * 0.3;
+    issNodes.forEach((n, i) => {
+      const a = baseAngle - spread / 2 + (spread / Math.max(1, issNodes.length - 1)) * i;
+      const jitter = (Math.random() - 0.5) * 80;
+      n.x = Math.cos(a) * (RINGS.issue + jitter);
+      n.y = Math.sin(a) * (RINGS.issue + jitter);
+    });
+  });
+
   vN = new vis.DataSet(allN);
   vE = new vis.DataSet(allE);
 
@@ -284,14 +383,14 @@ function init() {
       enabled: true,
       solver: "forceAtlas2Based",
       forceAtlas2Based: {
-        gravitationalConstant: -100,
-        centralGravity: 0.006,
-        springLength: 140,
-        springConstant: 0.035,
-        damping: 0.55,
-        avoidOverlap: 0.8,
+        gravitationalConstant: -60,
+        centralGravity: 0.003,
+        springLength: 120,
+        springConstant: 0.02,
+        damping: 0.7,
+        avoidOverlap: 0.85,
       },
-      stabilization: { iterations: 250, fit: true },
+      stabilization: { iterations: 180, fit: true },
     },
     interaction: {
       hover: true,
@@ -301,7 +400,17 @@ function init() {
       dragNodes: true,
       multiselect: false,
     },
-    layout: { improvedLayout: true },
+    layout: { improvedLayout: false },
+  });
+
+  // After stabilization, reduce physics to keep it tidy but draggable
+  network.once("stabilized", () => {
+    network.setOptions({
+      physics: {
+        solver: "forceAtlas2Based",
+        forceAtlas2Based: { gravitationalConstant: -30, centralGravity: 0.002, springConstant: 0.01, damping: 0.9, avoidOverlap: 0.9 }
+      }
+    });
   });
 
   document.getElementById("sN").textContent = allN.length;
