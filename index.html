@@ -154,8 +154,8 @@ const RAW = {"nodes": [{"id": 1, "label": "Crescendo Lab", "type": "company", "d
 // TYPE COLORS (Neo4j Bloom–inspired)
 // ============================================================
 const TC = {
-  company:     { bg: "#ce93d8", border: "#ab47bc", icon: "🏢", sz: 55 },
-  product:     { bg: "#4fc3f7", border: "#0288d1", icon: "📦", sz: 45 },
+  company:     { bg: "#ce93d8", border: "#ab47bc", icon: "🏢", sz: 80 },
+  product:     { bg: "#4fc3f7", border: "#0288d1", icon: "📦", sz: 65 },
   module:      { bg: "#4dd0e1", border: "#00acc1", icon: "🧩", sz: 32 },
   subfeature:  { bg: "#81c784", border: "#43a047", icon: "⚙️", sz: 20 },
   infra:       { bg: "#ffb74d", border: "#f57c00", icon: "🔧", sz: 22 },
@@ -186,8 +186,8 @@ function mkNodes(raw) {
       shape: "circle",
       size: c.sz,
       color: { background: c.bg, border: c.border, highlight: { background: "#fff", border: c.border } },
-      font: { color: "#1a1a2e", size: Math.max(8, Math.min(14, c.sz * 0.32)), face: "Inter, system-ui, sans-serif", multi: true, bold: n.type === "company" || n.type === "product" },
-      borderWidth: n.type === "company" ? 4 : n.type === "product" ? 3 : 2,
+      font: { color: "#1a1a2e", size: Math.max(8, Math.min(22, c.sz * 0.35)), face: "Inter, system-ui, sans-serif", multi: true, bold: n.type === "company" || n.type === "product" },
+      borderWidth: n.type === "company" ? 6 : n.type === "product" ? 5 : 2,
       shadow: { enabled: true, color: "rgba(0,0,0,0.3)", size: 8, x: 0, y: 4 },
     };
 
