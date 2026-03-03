@@ -1,6 +1,6 @@
 # Crescendo Lab — Code Architecture Knowledge Graph (LLM-Optimized)
 
-> Auto-generated from source code analysis on 2026-03-03 15:03
+> Auto-generated from source code analysis on 2026-03-03 15:44
 > Repos: rubato (MAAC BE), Grazioso (MAAC FE), cantata (CAAC BE), Zeffiroso (CAAC FE), bebop (DAAC), polyrhythmic (CDH)
 > Nodes: 137 | Edges: 495
 > Purpose: Verified architecture map from actual import analysis — for LLM impact analysis & attribution.
@@ -8,36 +8,6 @@
 ---
 
 ## 1. Product Suite
-
-### CAAC
-- **CAAC**: Conversation Automation & Analytics Cloud
-- Title: CAAC — Conversation Automation & Analytics Cloud
-Tech: Go (Cantata) + React (Zeffiroso/TS)
-Repos: {'backend': 'cantata (Go)', 'frontend': 'Zeffiroso (React/TS)'}
-
-**Cross-product connections:**
-- → MAAC: MAAC_URL (REST API)
-- → CDH: CDH_INTERNAL_URL (Unification V2)
-
-### CDH
-- **CDH**: Customer Data Hub — Unified Contact Profile
-- Title: CDH — Customer Data Hub — Unified Contact Profile
-Tech: Python + Go (Polyrhythmic)
-Repos: {'backend': 'polyrhythmic (Python+Go)', 'frontend': 'N/A (API-only)'}
-
-**Cross-product connections:**
-- → MAAC: RUBATO_HOST + RUBATO_DB_DSN
-- → CAAC: CANTATA_HOST + CANTATA_DB_DSN
-
-### DAAC
-- **DAAC**: Data Automation & Analytics Cloud
-- Title: DAAC — Data Automation & Analytics Cloud
-Tech: Python (FastAPI) + React + AI Agent
-Repos: {'backend': 'bebop (Python/FastAPI)', 'frontend': 'bebop/frontend (React/TS)'}
-
-**Cross-product connections:**
-- → MAAC: MAAC_GCP_PROJECT_ID (BigQuery)
-- → CAAC: CAAC_GCP_PROJECT_ID (BigQuery)
 
 ### MAAC
 - **MAAC**: Marketing Automation & Analytics Cloud
@@ -48,8 +18,87 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 **Cross-product connections:**
 - → CAAC: CAAC_CANTATA_URL (REST API)
 - → DAAC: DAAC_API_URL (REST API)
+- ← CDH: RUBATO_HOST + RUBATO_DB_DSN
+- ← CAAC: MAAC_URL (REST API)
+- ← DAAC: MAAC_GCP_PROJECT_ID (BigQuery)
+
+### CAAC
+- **CAAC**: Conversation Automation & Analytics Cloud
+- Title: CAAC — Conversation Automation & Analytics Cloud
+Tech: Go (Cantata) + React (Zeffiroso/TS)
+Repos: {'backend': 'cantata (Go)', 'frontend': 'Zeffiroso (React/TS)'}
+
+**Cross-product connections:**
+- → MAAC: MAAC_URL (REST API)
+- → CDH: CDH_INTERNAL_URL (Unification V2)
+- ← MAAC: CAAC_CANTATA_URL (REST API)
+- ← CDH: CANTATA_HOST + CANTATA_DB_DSN
+- ← DAAC: CAAC_GCP_PROJECT_ID (BigQuery)
+
+### DAAC
+- **DAAC**: Data Automation & Analytics Cloud
+- Title: DAAC — Data Automation & Analytics Cloud
+Tech: Python (FastAPI) + React + AI Agent
+Repos: {'backend': 'bebop (Python/FastAPI)', 'frontend': 'bebop/frontend (React/TS)'}
+
+**Cross-product connections:**
+- → MAAC: MAAC_GCP_PROJECT_ID (BigQuery)
+- → CAAC: CAAC_GCP_PROJECT_ID (BigQuery)
+- ← MAAC: DAAC_API_URL (REST API)
+
+### CDH
+- **CDH**: Customer Data Hub — Unified Contact Profile
+- Title: CDH — Customer Data Hub — Unified Contact Profile
+Tech: Python + Go (Polyrhythmic)
+Repos: {'backend': 'polyrhythmic (Python+Go)', 'frontend': 'N/A (API-only)'}
+
+**Cross-product connections:**
+- → MAAC: RUBATO_HOST + RUBATO_DB_DSN
+- → CAAC: CANTATA_HOST + CANTATA_DB_DSN
+- ← CAAC: CDH_INTERNAL_URL (Unification V2)
 
 ## 2. Module Architecture
+
+### MAAC Modules
+
+| Module | Description | Dependencies (imports) |
+|--------|-------------|----------------------|
+| **accounts** | User authentication, SSO, 2FA, session management | audience, caac, channel, journey, line, notification, organization, sms |
+| **ai_generation** | AI content generation — copywriting, image generation | organization, system |
+| **audience** | Contact management, segments, filters, ad platform audiences | accounts, cdp, google_analytics, line, organization, sms, system, tag |
+| **auto_reply** | Keyword auto-reply across LINE/FB/WhatsApp channels | accounts, channel, fb, google_analytics, line, organization, tag, whatsapp |
+| **broadcast** | Push messaging (LINE/SMS/WhatsApp), scheduling, A/B test | accounts, audience, channel, google_analytics, line, message, organization, report, system, tag |
+| **caac** | CAAC integration bridge — connects Rubato to Cantata | accounts, line, organization |
+| **campaign** | Campaign orchestration — multi-channel campaign management | accounts, channel, journey |
+| **cdp** | Customer Data Platform — profile unification, data sync | accounts, audience, journey, line, organization, tag |
+| **channel** | Multi-channel management (LINE/FB/IG/WhatsApp/Email/SMS) | accounts, line, message, notification, openapi, organization, sms, system |
+| **cyberbiz** | Cyberbiz e-commerce integration | accounts, line |
+| **email_channel** | Email campaign delivery via SendGrid, bounce handling | accounts, channel, journey, line, organization, sms, system |
+| **extension** | MAAC extension plugins — custom action nodes | accounts, channel, google_analytics, journey, line, organization |
+| **fb** | Facebook/Instagram messaging, comment auto-reply | accounts, auto_reply, channel, google_analytics, line, organization, tag |
+| **form** | SurveyCake form integration, response tracking | line, tag, webhook |
+| **google_analytics** | GA4/UTM tracking integration for campaigns | accounts, line, organization, report, system |
+| **journey** | Customer journey automation (triggers, actions, conditions) | accounts, audience, cdp, channel, email_channel, google_analytics, line, organization, report, sms, system, tag |
+| **line** | Core LINE integration — messaging, rich menu, Flex, LIFF | accounts, audience, auto_reply, caac, cdp, channel, email_channel, fb, form, google_analytics, journey, message, notification, openapi, organization, prize, receipt, referral, report, sms, system, tag, webhook, whatsapp |
+| **message** | Message rendering engine — builds LINE/FB/SMS/Email messages | channel, google_analytics, line, organization, system |
+| **nine_one_app** | 91App e-commerce integration | accounts, line, openapi, organization, payment, system, tag, webhook |
+| **notification** | In-app notification system for admin users | accounts |
+| **openapi** | Public OpenAPI — external developer API endpoints | accounts, audience, auto_reply, channel, email_channel, google_analytics, line, notification, organization, payment, prize, report, sms, system, tag, webhook, whatsapp |
+| **organization** | Org/tenant management, billing, feature control, RBAC | accounts, audience, caac, channel, google_analytics, journey, line, notification, openapi, payment |
+| **payment** | Payment & billing — subscription, invoice management | line, notification, organization |
+| **prize** | Prize/reward management, lottery, coupon distribution | accounts, google_analytics, line, notification, openapi, organization, report, sforzando, system, tag, webhook |
+| **receipt** | Receipt registration campaign for loyalty programs | line, openapi, organization, prize, system, webhook |
+| **referral** | Rapid Referral — MGM campaigns, invitation tracking | accounts, line, organization, prize, system, tag |
+| **report** | Analytics & reporting — campaign performance, member stats | google_analytics, line, openapi, payment, sms_plus, system, tag |
+| **sforzando** | Prize fulfillment partner integration | accounts, line, organization, prize, system, tag |
+| **shopify** | Shopify e-commerce integration | accounts, line, system |
+| **shopline** | Shopline e-commerce integration | accounts, line, openapi, organization, payment, system, tag, webhook |
+| **sms** | SMS delivery — domestic/international SMS campaigns | audience, channel, google_analytics, journey, line, openapi, organization, payment, report, system |
+| **sms_plus** | SMS Plus — enhanced SMS features, message records | line, notification, openapi, organization, payment, sms, whatsapp |
+| **system** | System-wide utilities — campaign tracking, feature flags | accounts, audience, google_analytics, line, message, notification, referral, tag |
+| **tag** | Tag management — contact tagging, auto-tagging rules | accounts, audience, cdp, journey, line, organization, report, system |
+| **webhook** | Webhook delivery — event push to external systems | line, openapi, prize, receipt, system, tag |
+| **whatsapp** | WhatsApp Business messaging, template management | auto_reply, channel, line, message, openapi, organization, tag |
 
 ### CAAC Modules
 
@@ -69,6 +118,20 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 | **tag** | Contact tagging within CAAC conversations |  |
 | **workertask** | Background worker tasks — message processing, sync jobs | aiusage |
 
+### DAAC Modules
+
+| Module | Description | Dependencies (imports) |
+|--------|-------------|----------------------|
+| **agent_v2** | AI Agent — natural language data querying (OpenAI/Gemini) | session |
+| **auth** | Authentication via Arioso SSO + Interlude |  |
+| **dashboard** | Custom analytics dashboards — user-created visualizations | organization |
+| **dbt** | dbt pipeline management — data transformation & modeling | organization |
+| **file** | File management — upload/download for analysis results |  |
+| **infra** | Infrastructure provisioning — Terraform client setup | organization |
+| **journey** | Journey analysis — customer path analysis via AI | session |
+| **organization** | Org management — workspace, dbt config, Terraform infra | auth |
+| **session** | AI analysis session — conversation state, context management | auth, organization |
+
 ### CDH Modules
 
 | Module | Description | Dependencies (imports) |
@@ -85,230 +148,7 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 | **task** | Background task execution — unification, sync, export jobs |  |
 | **unification** | Contact unification graph — merge/split profiles across channels | member, tag |
 
-### DAAC Modules
-
-| Module | Description | Dependencies (imports) |
-|--------|-------------|----------------------|
-| **agent_v2** | AI Agent — natural language data querying (OpenAI/Gemini) | session |
-| **auth** | Authentication via Arioso SSO + Interlude |  |
-| **dashboard** | Custom analytics dashboards — user-created visualizations | organization |
-| **dbt** | dbt pipeline management — data transformation & modeling | organization |
-| **file** | File management — upload/download for analysis results |  |
-| **infra** | Infrastructure provisioning — Terraform client setup | organization |
-| **journey** | Journey analysis — customer path analysis via AI | session |
-| **organization** | Org management — workspace, dbt config, Terraform infra | auth |
-| **session** | AI analysis session — conversation state, context management | auth, organization |
-
-### MAAC Modules
-
-| Module | Description | Dependencies (imports) |
-|--------|-------------|----------------------|
-| **accounts** | User authentication, SSO, 2FA, session management | audience, caac, channel, journey, line, notification, organization, sms |
-| **ai_generation** | AI content generation — copywriting, image generation | organization, system |
-| **audience** | Contact management, segments, filters, ad platform audiences | accounts, cdp, google_analytics, line, organization, sms, system, tag |
-| **auto_reply** | Keyword auto-reply across LINE/FB/WhatsApp channels | accounts, channel, fb, google_analytics, line, organization, tag, whatsapp |
-| **broadcast** | Push messaging (LINE/SMS/WhatsApp), scheduling, A/B test | accounts, audience, channel, google_analytics, line, message, organization, report... |
-| **caac** | CAAC integration bridge — connects Rubato to Cantata | accounts, line, organization |
-| **campaign** | Campaign orchestration — multi-channel campaign management | accounts, channel, journey |
-| **cdp** | Customer Data Platform — profile unification, data sync | accounts, audience, journey, line, organization, tag |
-| **channel** | Multi-channel management (LINE/FB/IG/WhatsApp/Email/SMS) | accounts, line, message, notification, openapi, organization, sms, system |
-| **cyberbiz** | Cyberbiz e-commerce integration | accounts, line |
-| **email_channel** | Email campaign delivery via SendGrid, bounce handling | accounts, channel, journey, line, organization, sms, system |
-| **extension** | MAAC extension plugins — custom action nodes | accounts, channel, google_analytics, journey, line, organization |
-| **fb** | Facebook/Instagram messaging, comment auto-reply | accounts, auto_reply, channel, google_analytics, line, organization, tag |
-| **form** | SurveyCake form integration, response tracking | line, tag, webhook |
-| **google_analytics** | GA4/UTM tracking integration for campaigns | accounts, line, organization, report, system |
-| **journey** | Customer journey automation (triggers, actions, conditions) | accounts, audience, cdp, channel, email_channel, google_analytics, line, organization... |
-| **line** | Core LINE integration — messaging, rich menu, Flex, LIFF | accounts, audience, auto_reply, caac, cdp, channel, email_channel, fb... |
-| **message** | Message rendering engine — builds LINE/FB/SMS/Email messages | channel, google_analytics, line, organization, system |
-| **nine_one_app** | 91App e-commerce integration | accounts, line, openapi, organization, payment, system, tag, webhook |
-| **notification** | In-app notification system for admin users | accounts |
-| **openapi** | Public OpenAPI — external developer API endpoints | accounts, audience, auto_reply, channel, email_channel, google_analytics, line, notification... |
-| **organization** | Org/tenant management, billing, feature control, RBAC | accounts, audience, caac, channel, google_analytics, journey, line, notification... |
-| **payment** | Payment & billing — subscription, invoice management | line, notification, organization |
-| **prize** | Prize/reward management, lottery, coupon distribution | accounts, google_analytics, line, notification, openapi, organization, report, sforzando... |
-| **receipt** | Receipt registration campaign for loyalty programs | line, openapi, organization, prize, system, webhook |
-| **referral** | Rapid Referral — MGM campaigns, invitation tracking | accounts, line, organization, prize, system, tag |
-| **report** | Analytics & reporting — campaign performance, member stats | google_analytics, line, openapi, payment, sms_plus, system, tag |
-| **sforzando** | Prize fulfillment partner integration | accounts, line, organization, prize, system, tag |
-| **shopify** | Shopify e-commerce integration | accounts, line, system |
-| **shopline** | Shopline e-commerce integration | accounts, line, openapi, organization, payment, system, tag, webhook |
-| **sms** | SMS delivery — domestic/international SMS campaigns | audience, channel, google_analytics, journey, line, openapi, organization, payment... |
-| **sms_plus** | SMS Plus — enhanced SMS features, message records | line, notification, openapi, organization, payment, sms, whatsapp |
-| **system** | System-wide utilities — campaign tracking, feature flags | accounts, audience, google_analytics, line, message, notification, referral, tag |
-| **tag** | Tag management — contact tagging, auto-tagging rules | accounts, audience, cdp, journey, line, organization, report, system |
-| **webhook** | Webhook delivery — event push to external systems | line, openapi, prize, receipt, system, tag |
-| **whatsapp** | WhatsApp Business messaging, template management | auto_reply, channel, line, message, openapi, organization, tag |
-
 ## 3. Module Details
-
-### CAAC/aistrategy
-- **Product**: CAAC
-- **Description**: AI strategy configuration — model selection, prompts
-- **Imported by**: aitask, chat
-- **Frontend pages**: AI Settings
-
-### CAAC/aitask
-- **Product**: CAAC
-- **Description**: AI task execution — auto-reply suggestions, summarization
-- **Imports from**: aistrategy, aiusage, chat
-- **Imported by**: organization
-- **Frontend pages**: AI Settings, Chat
-
-### CAAC/aiusage
-- **Product**: CAAC
-- **Description**: AI usage tracking — token consumption, quota
-- **Imported by**: aitask, chat, workertask
-- **Frontend pages**: AI Settings
-
-### CAAC/auth
-- **Product**: CAAC
-- **Description**: Authentication & authorization — SSO, 2FA
-- **Frontend pages**: Settings
-
-### CAAC/cat
-- **Product**: CAAC
-- **Description**: CAT (Contact Attribution Tracking) — member journey tracking
-
-### CAAC/cdp
-- **Product**: CAAC
-- **Description**: CDP integration — unified contact view within CAAC
-- **Imported by**: chat
-
-### CAAC/chat
-- **Product**: CAAC
-- **Description**: Core 1-on-1 chat — message routing, conversation lifecycle
-- **Imports from**: aistrategy, aiusage, cdp, organization, tag
-- **Imported by**: aitask, longrunningtask
-- **Frontend pages**: Broadcast, Chat, Quick Template
-
-### CAAC/dashboard
-- **Product**: CAAC
-- **Description**: CAAC analytics dashboard — conversation metrics, team performance
-- **Frontend pages**: Insights
-
-### CAAC/longrunningtask
-- **Product**: CAAC
-- **Description**: Long-running operations — bulk exports, data migration
-- **Imports from**: chat
-
-### CAAC/openapi
-- **Product**: CAAC
-- **Description**: CAAC public API for external integrations
-
-### CAAC/organization
-- **Product**: CAAC
-- **Description**: Organization management — channels, users, roles, AI features
-- **Imports from**: aitask
-- **Imported by**: chat
-- **Frontend pages**: Settings
-
-### CAAC/tag
-- **Product**: CAAC
-- **Description**: Contact tagging within CAAC conversations
-- **Imported by**: chat
-
-### CAAC/workertask
-- **Product**: CAAC
-- **Description**: Background worker tasks — message processing, sync jobs
-- **Imports from**: aiusage
-
-### CDH/broadcast
-- **Product**: CDH
-- **Description**: CDH broadcast coordination — cross-product message dispatch
-
-### CDH/channel_entity_comment
-- **Product**: CDH
-- **Description**: Channel entity commenting — AI-powered contact annotations
-
-### CDH/contact
-- **Product**: CDH
-- **Description**: Unified contact profile — cross-product contact view
-- **Imports from**: unification
-
-### CDH/custom_field
-- **Product**: CDH
-- **Description**: Custom contact fields — user-defined attributes
-
-### CDH/engagement_history
-- **Product**: CDH
-- **Description**: Engagement history — cross-channel interaction tracking
-
-### CDH/member
-- **Product**: CDH
-- **Description**: Member management — import/export, profile enrichment
-- **Imports from**: tag, unification
-- **Imported by**: tag, unification
-
-### CDH/richmenu
-- **Product**: CDH
-- **Description**: LINE Rich Menu management via CDH
-
-### CDH/segment
-- **Product**: CDH
-- **Description**: Cross-product audience segmentation via SQL/LLM
-
-### CDH/tag
-- **Product**: CDH
-- **Description**: Cross-product tag synchronization
-- **Imports from**: member
-- **Imported by**: member, unification
-
-### CDH/task
-- **Product**: CDH
-- **Description**: Background task execution — unification, sync, export jobs
-
-### CDH/unification
-- **Product**: CDH
-- **Description**: Contact unification graph — merge/split profiles across channels
-- **Imports from**: member, tag
-- **Imported by**: contact, member
-
-### DAAC/agent_v2
-- **Product**: DAAC
-- **Description**: AI Agent — natural language data querying (OpenAI/Gemini)
-- **Imports from**: session
-
-### DAAC/auth
-- **Product**: DAAC
-- **Description**: Authentication via Arioso SSO + Interlude
-- **Imported by**: organization, session
-
-### DAAC/dashboard
-- **Product**: DAAC
-- **Description**: Custom analytics dashboards — user-created visualizations
-- **Imports from**: organization
-
-### DAAC/dbt
-- **Product**: DAAC
-- **Description**: dbt pipeline management — data transformation & modeling
-- **Imports from**: organization
-
-### DAAC/file
-- **Product**: DAAC
-- **Description**: File management — upload/download for analysis results
-
-### DAAC/infra
-- **Product**: DAAC
-- **Description**: Infrastructure provisioning — Terraform client setup
-- **Imports from**: organization
-
-### DAAC/journey
-- **Product**: DAAC
-- **Description**: Journey analysis — customer path analysis via AI
-- **Imports from**: session
-
-### DAAC/organization
-- **Product**: DAAC
-- **Description**: Org management — workspace, dbt config, Terraform infra
-- **Imports from**: auth
-- **Imported by**: dashboard, dbt, infra, session
-
-### DAAC/session
-- **Product**: DAAC
-- **Description**: AI analysis session — conversation state, context management
-- **Imports from**: auth, organization
-- **Imported by**: agent_v2, journey
 
 ### MAAC/accounts
 - **Product**: MAAC
@@ -543,6 +383,174 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 - **Imported by**: auto_reply, line, openapi, sms_plus
 - **Frontend pages**: Auto Reply
 
+### CAAC/aistrategy
+- **Product**: CAAC
+- **Description**: AI strategy configuration — model selection, prompts
+- **Imported by**: aitask, chat
+- **Frontend pages**: AI Settings
+
+### CAAC/aitask
+- **Product**: CAAC
+- **Description**: AI task execution — auto-reply suggestions, summarization
+- **Imports from**: aistrategy, aiusage, chat
+- **Imported by**: organization
+- **Frontend pages**: AI Settings, Chat
+
+### CAAC/aiusage
+- **Product**: CAAC
+- **Description**: AI usage tracking — token consumption, quota
+- **Imported by**: aitask, chat, workertask
+- **Frontend pages**: AI Settings
+
+### CAAC/auth
+- **Product**: CAAC
+- **Description**: Authentication & authorization — SSO, 2FA
+- **Frontend pages**: Settings
+
+### CAAC/cat
+- **Product**: CAAC
+- **Description**: CAT (Contact Attribution Tracking) — member journey tracking
+
+### CAAC/cdp
+- **Product**: CAAC
+- **Description**: CDP integration — unified contact view within CAAC
+- **Imported by**: chat
+
+### CAAC/chat
+- **Product**: CAAC
+- **Description**: Core 1-on-1 chat — message routing, conversation lifecycle
+- **Imports from**: aistrategy, aiusage, cdp, organization, tag
+- **Imported by**: aitask, longrunningtask
+- **Frontend pages**: Broadcast, Chat, Quick Template
+
+### CAAC/dashboard
+- **Product**: CAAC
+- **Description**: CAAC analytics dashboard — conversation metrics, team performance
+- **Frontend pages**: Insights
+
+### CAAC/longrunningtask
+- **Product**: CAAC
+- **Description**: Long-running operations — bulk exports, data migration
+- **Imports from**: chat
+
+### CAAC/openapi
+- **Product**: CAAC
+- **Description**: CAAC public API for external integrations
+
+### CAAC/organization
+- **Product**: CAAC
+- **Description**: Organization management — channels, users, roles, AI features
+- **Imports from**: aitask
+- **Imported by**: chat
+- **Frontend pages**: Settings
+
+### CAAC/tag
+- **Product**: CAAC
+- **Description**: Contact tagging within CAAC conversations
+- **Imported by**: chat
+
+### CAAC/workertask
+- **Product**: CAAC
+- **Description**: Background worker tasks — message processing, sync jobs
+- **Imports from**: aiusage
+
+### DAAC/agent_v2
+- **Product**: DAAC
+- **Description**: AI Agent — natural language data querying (OpenAI/Gemini)
+- **Imports from**: session
+
+### DAAC/auth
+- **Product**: DAAC
+- **Description**: Authentication via Arioso SSO + Interlude
+- **Imported by**: organization, session
+
+### DAAC/dashboard
+- **Product**: DAAC
+- **Description**: Custom analytics dashboards — user-created visualizations
+- **Imports from**: organization
+
+### DAAC/dbt
+- **Product**: DAAC
+- **Description**: dbt pipeline management — data transformation & modeling
+- **Imports from**: organization
+
+### DAAC/file
+- **Product**: DAAC
+- **Description**: File management — upload/download for analysis results
+
+### DAAC/infra
+- **Product**: DAAC
+- **Description**: Infrastructure provisioning — Terraform client setup
+- **Imports from**: organization
+
+### DAAC/journey
+- **Product**: DAAC
+- **Description**: Journey analysis — customer path analysis via AI
+- **Imports from**: session
+
+### DAAC/organization
+- **Product**: DAAC
+- **Description**: Org management — workspace, dbt config, Terraform infra
+- **Imports from**: auth
+- **Imported by**: dashboard, dbt, infra, session
+
+### DAAC/session
+- **Product**: DAAC
+- **Description**: AI analysis session — conversation state, context management
+- **Imports from**: auth, organization
+- **Imported by**: agent_v2, journey
+
+### CDH/broadcast
+- **Product**: CDH
+- **Description**: CDH broadcast coordination — cross-product message dispatch
+
+### CDH/channel_entity_comment
+- **Product**: CDH
+- **Description**: Channel entity commenting — AI-powered contact annotations
+
+### CDH/contact
+- **Product**: CDH
+- **Description**: Unified contact profile — cross-product contact view
+- **Imports from**: unification
+
+### CDH/custom_field
+- **Product**: CDH
+- **Description**: Custom contact fields — user-defined attributes
+
+### CDH/engagement_history
+- **Product**: CDH
+- **Description**: Engagement history — cross-channel interaction tracking
+
+### CDH/member
+- **Product**: CDH
+- **Description**: Member management — import/export, profile enrichment
+- **Imports from**: tag, unification
+- **Imported by**: tag, unification
+
+### CDH/richmenu
+- **Product**: CDH
+- **Description**: LINE Rich Menu management via CDH
+
+### CDH/segment
+- **Product**: CDH
+- **Description**: Cross-product audience segmentation via SQL/LLM
+
+### CDH/tag
+- **Product**: CDH
+- **Description**: Cross-product tag synchronization
+- **Imports from**: member
+- **Imported by**: member, unification
+
+### CDH/task
+- **Product**: CDH
+- **Description**: Background task execution — unification, sync, export jobs
+
+### CDH/unification
+- **Product**: CDH
+- **Description**: Contact unification graph — merge/split profiles across channels
+- **Imports from**: member, tag
+- **Imported by**: contact, member
+
 ## 4. Frontend → Backend Mapping
 
 ### MAAC Frontend Pages
@@ -557,21 +565,21 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 | Channel Settings | channel |
 | DPM | line |
 | Deeplink | line |
-| Insight (Dashboard) | report, google_analytics |
-| Interaction Games | prize, line |
-| Journey | journey, email_channel |
+| Insight (Dashboard) | google_analytics, report |
+| Interaction Games | line, prize |
+| Journey | email_channel, journey |
 | Members | audience, cdp, tag |
-| Organization Settings | organization, accounts |
+| Organization Settings | accounts, organization |
 | Prize | prize, sforzando |
 | Receipt Register | receipt |
 | Referral V2 | referral |
 | Retarget | audience, fb |
 | Rich Menu | line |
-| SMS Plus | sms_plus, sms |
+| SMS Plus | sms, sms_plus |
 | Segment | audience |
 | SurveyCake (Form) | form |
 | Tag Manager | tag |
-| Template Library | message, line |
+| Template Library | line, message |
 | Tracelink | google_analytics |
 | Webhook | webhook |
 | Widget | line |
@@ -582,16 +590,16 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 |------|----------------------|
 | AI Settings | aistrategy, aitask, aiusage |
 | Broadcast | chat |
-| Chat | chat, aitask |
+| Chat | aitask, chat |
 | Insights | dashboard |
 | Quick Template | chat |
-| Settings | organization, auth |
+| Settings | auth, organization |
 
 ## 5. Infrastructure Dependencies
 
 | Infrastructure | Description | Used by Products |
 |---------------|-------------|-----------------|
-| **BigQuery** | Data warehouse for engagement history & analytics | CAAC, CDH, DAAC, MAAC |
+| **BigQuery** | Data warehouse for engagement history & analytics | MAAC, CAAC, DAAC, CDH |
 | **Cloud Run Jobs** | Task execution for heavy processing | CDH |
 | **Cloud Storage (GCS)** | File/image storage | MAAC |
 | **Cloud Tasks** | Deferred task execution | MAAC |
@@ -599,20 +607,20 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 | **Elasticsearch** | Message search & conversation indexing | CAAC |
 | **FCM** | Push notifications to mobile/browser | CAAC |
 | **Firebase / Firestore** | Real-time database for live features | MAAC |
-| **GCS** | File storage for import/export | CAAC, CDH, DAAC |
+| **GCS** | File storage for import/export | CAAC, DAAC, CDH |
 | **Google Analytics** | Campaign tracking & UTM parameters | MAAC |
 | **Infobip** | WhatsApp/Voice gateway | CAAC |
 | **LINE Messaging API** | LINE platform messaging, rich menu, LIFF | MAAC |
 | **Meta API (FB/IG)** | Facebook & Instagram messaging API | MAAC |
 | **OpenAI** | AI for segment tagging & entity commenting | CDH |
 | **OpenAI / Gemini** | AI model APIs for agent | DAAC |
-| **PostgreSQL** | Primary database (SQLAlchemy + raw SQL) | CAAC, CDH, DAAC, MAAC |
-| **PubSub** | Event streaming — profile changes, tag updates | CAAC, CDH, MAAC |
+| **PostgreSQL** | Primary database (SQLAlchemy + raw SQL) | MAAC, CAAC, DAAC, CDH |
+| **PubSub** | Event streaming — profile changes, tag updates | MAAC, CAAC, CDH |
 | **RabbitMQ / Celery** | Async task queue for background jobs | MAAC |
-| **Redis** | Session cache, rate limiting, pub/sub | CAAC, MAAC |
+| **Redis** | Session cache, rate limiting, pub/sub | MAAC, CAAC |
 | **SendGrid** | Email delivery service | MAAC |
 | **Sentry** | Error tracking & monitoring | MAAC |
-| **Statsig** | Feature flag management | CDH, MAAC |
+| **Statsig** | Feature flag management | MAAC, CDH |
 | **Terraform** | Infrastructure as code for client provisioning | DAAC |
 | **WhatsApp Cloud API** | WhatsApp Business messaging via Infobip | MAAC |
 | **dbt** | Data transformation pipeline | DAAC |
@@ -621,7 +629,7 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 
 ### Arioso
 - SSO authentication service — Google/MS OAuth
-- Used by: CAAC, DAAC, MAAC
+- Used by: MAAC, CAAC, DAAC
 
 ### Harmony
 - Partner API & Google Ads integration
@@ -629,7 +637,7 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 
 ### Interlude
 - Admin center — billing, subscription, org provisioning
-- Used by: CAAC, DAAC, MAAC
+- Used by: MAAC, CAAC, DAAC
 
 ### MDS
 - Message Delivery Service
@@ -637,7 +645,7 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 
 ### Monophony
 - URL shortener service (maac.io)
-- Used by: CAAC, MAAC
+- Used by: MAAC, CAAC
 
 ### Sforzando
 - Prize fulfillment & reward distribution
@@ -646,14 +654,64 @@ Repos: {'backend': 'rubato (Python/Django)', 'frontend': 'Grazioso (React/TS)'}
 ## 7. Cross-Product Data Flow
 
 ```
-MAAC (rubato) ──CAAC_CANTATA_URL──→ CAAC (cantata)
-MAAC (rubato) ──DAAC_API_URL──────→ DAAC (bebop)
-CAAC (cantata) ──MAAC_URL──────────→ MAAC (rubato)
-CAAC (cantata) ──CDH_INTERNAL_URL──→ CDH  (polyrhythmic)
-CDH  ──RUBATO_HOST+DB_DSN──────────→ MAAC (reads DB)
-CDH  ──CANTATA_HOST+DB_DSN─────────→ CAAC (reads DB)
-DAAC ──MAAC_GCP_PROJECT_ID─────────→ MAAC (BigQuery)
-DAAC ──CAAC_GCP_PROJECT_ID─────────→ CAAC (BigQuery)
+MAAC (rubato (Python/Django) + Grazioso (React/TS)) ──[API]──→ CAAC (cantata (Go) + Zeffiroso (React/TS))  (CAAC_CANTATA_URL (REST API))
+MAAC (rubato (Python/Django) + Grazioso (React/TS)) ──[API]──→ DAAC (bebop (Python/FastAPI))  (DAAC_API_URL (REST API))
+CAAC (cantata (Go) + Zeffiroso (React/TS)) ──[API]──→ MAAC (rubato (Python/Django) + Grazioso (React/TS))  (MAAC_URL (REST API))
+CAAC (cantata (Go) + Zeffiroso (React/TS)) ──[API]──→ CDH (polyrhythmic (Python+Go))  (CDH_INTERNAL_URL (Unification V2))
+page/Insight (Dashboard) ──[API]──→ maac/report  (calls API)
+page/Insight (Dashboard) ──[API]──→ maac/google_analytics  (calls API)
+page/Members ──[API]──→ maac/audience  (calls API)
+page/Members ──[API]──→ maac/cdp  (calls API)
+page/Members ──[API]──→ maac/tag  (calls API)
+page/Segment ──[API]──→ maac/audience  (calls API)
+page/Tag Manager ──[API]──→ maac/tag  (calls API)
+page/Broadcast ──[API]──→ maac/broadcast  (calls API)
+page/Broadcast ──[API]──→ maac/message  (calls API)
+page/Broadcast ──[API]──→ maac/sms  (calls API)
+page/Auto Reply ──[API]──→ maac/auto_reply  (calls API)
+page/Auto Reply ──[API]──→ maac/fb  (calls API)
+page/Auto Reply ──[API]──→ maac/whatsapp  (calls API)
+page/Template Library ──[API]──→ maac/message  (calls API)
+page/Template Library ──[API]──→ maac/line  (calls API)
+page/Rich Menu ──[API]──→ maac/line  (calls API)
+page/Journey ──[API]──→ maac/journey  (calls API)
+page/Journey ──[API]──→ maac/email_channel  (calls API)
+page/Deeplink ──[API]──→ maac/line  (calls API)
+page/Tracelink ──[API]──→ maac/google_analytics  (calls API)
+page/Prize ──[API]──→ maac/prize  (calls API)
+page/Prize ──[API]──→ maac/sforzando  (calls API)
+page/Retarget ──[API]──→ maac/audience  (calls API)
+page/Retarget ──[API]──→ maac/fb  (calls API)
+page/Referral V2 ──[API]──→ maac/referral  (calls API)
+page/Receipt Register ──[API]──→ maac/receipt  (calls API)
+page/Webhook ──[API]──→ maac/webhook  (calls API)
+page/SurveyCake (Form) ──[API]──→ maac/form  (calls API)
+page/API Token ──[API]──→ maac/openapi  (calls API)
+page/Widget ──[API]──→ maac/line  (calls API)
+page/SMS Plus ──[API]──→ maac/sms_plus  (calls API)
+page/SMS Plus ──[API]──→ maac/sms  (calls API)
+page/Organization Settings ──[API]──→ maac/organization  (calls API)
+page/Organization Settings ──[API]──→ maac/accounts  (calls API)
+page/Channel Settings ──[API]──→ maac/channel  (calls API)
+page/DPM ──[API]──→ maac/line  (calls API)
+page/Beacon ──[API]──→ maac/line  (calls API)
+page/Bindlink ──[API]──→ maac/line  (calls API)
+page/Interaction Games ──[API]──→ maac/prize  (calls API)
+page/Interaction Games ──[API]──→ maac/line  (calls API)
+caac_page/Chat ──[API]──→ caac/chat  (calls API)
+caac_page/Chat ──[API]──→ caac/aitask  (calls API)
+caac_page/Broadcast ──[API]──→ caac/chat  (calls API)
+caac_page/Insights ──[API]──→ caac/dashboard  (calls API)
+caac_page/Quick Template ──[API]──→ caac/chat  (calls API)
+caac_page/AI Settings ──[API]──→ caac/aistrategy  (calls API)
+caac_page/AI Settings ──[API]──→ caac/aitask  (calls API)
+caac_page/AI Settings ──[API]──→ caac/aiusage  (calls API)
+caac_page/Settings ──[API]──→ caac/organization  (calls API)
+caac_page/Settings ──[API]──→ caac/auth  (calls API)
+CDH (polyrhythmic (Python+Go)) ──[DATA_SYNC]──→ MAAC (rubato (Python/Django) + Grazioso (React/TS))  (RUBATO_HOST + RUBATO_DB_DSN)
+CDH (polyrhythmic (Python+Go)) ──[DATA_SYNC]──→ CAAC (cantata (Go) + Zeffiroso (React/TS))  (CANTATA_HOST + CANTATA_DB_DSN)
+DAAC (bebop (Python/FastAPI)) ──[DATA_SYNC]──→ MAAC (rubato (Python/Django) + Grazioso (React/TS))  (MAAC_GCP_PROJECT_ID (BigQuery))
+DAAC (bebop (Python/FastAPI)) ──[DATA_SYNC]──→ CAAC (cantata (Go) + Zeffiroso (React/TS))  (CAAC_GCP_PROJECT_ID (BigQuery))
 ```
 
 ## 8. Impact Analysis Guide
@@ -669,12 +727,12 @@ DAAC ──CAAC_GCP_PROJECT_ID─────────→ CAAC (BigQuery)
 | maac/tag | 18 | 🔴 Critical |
 | maac/channel | 14 | 🔴 Critical |
 | maac/google_analytics | 14 | 🔴 Critical |
-| maac/openapi | 12 | 🔴 Critical |
+| maac/openapi | 12 | 🟡 High |
 | maac/audience | 10 | 🟡 High |
 | maac/journey | 9 | 🟡 High |
 | maac/notification | 9 | 🟡 High |
-| maac/sms | 8 | 🟡 High |
 | maac/report | 8 | 🟡 High |
+| maac/sms | 8 | 🟡 High |
 | maac/webhook | 7 | 🟡 High |
 | maac/payment | 7 | 🟡 High |
 
@@ -684,8 +742,8 @@ DAAC ──CAAC_GCP_PROJECT_ID─────────→ CAAC (BigQuery)
 |--------|---------------------|----------|
 | maac/line | 24 | 🔴 High |
 | maac/openapi | 17 | 🔴 High |
-| maac/journey | 12 | 🔴 High |
-| maac/prize | 11 | 🔴 High |
+| maac/journey | 12 | 🟡 Medium |
+| maac/prize | 11 | 🟡 Medium |
 | maac/broadcast | 10 | 🟡 Medium |
 | maac/organization | 10 | 🟡 Medium |
 | maac/sms | 10 | 🟡 Medium |
@@ -913,6 +971,121 @@ Directly affects 9 modules:
 - maac/organization
 - maac/sms
 - maac/tag
+
+## 10. Product Dependency Matrix
+
+Summary of how each product connects to others:
+
+| From \ To | MAAC | CAAC | DAAC | CDH |
+|-----------|------|------|------|-----|
+| **MAAC** | — | api_call: CAAC_CANTATA_URL (REST API); ←api_call: MAAC_URL (REST API) | api_call: DAAC_API_URL (REST API); ←data_sync: MAAC_GCP_PROJECT_ID (BigQuery) | ←data_sync: RUBATO_HOST + RUBATO_DB_DSN |
+| **CAAC** | api_call: MAAC_URL (REST API); ←api_call: CAAC_CANTATA_URL (REST API) | — | ←data_sync: CAAC_GCP_PROJECT_ID (BigQuery) | api_call: CDH_INTERNAL_URL (Unification V2); ←data_sync: CANTATA_HOST + CANTATA_DB_DSN |
+| **DAAC** | data_sync: MAAC_GCP_PROJECT_ID (BigQuery); ←api_call: DAAC_API_URL (REST API) | data_sync: CAAC_GCP_PROJECT_ID (BigQuery) | — | — |
+| **CDH** | data_sync: RUBATO_HOST + RUBATO_DB_DSN | data_sync: CANTATA_HOST + CANTATA_DB_DSN; ←api_call: CDH_INTERNAL_URL (Unification V2) | — | — |
+
+## 11. Module-to-Infrastructure Mapping
+
+Which modules depend on which infrastructure components:
+
+### BigQuery
+- Data warehouse for engagement history & analytics
+- **Depended on by**: CAAC, CDH, DAAC, MAAC
+
+### Cloud Run Jobs
+- Task execution for heavy processing
+- **Depended on by**: CDH
+
+### Cloud Storage (GCS)
+- File/image storage
+- **Depended on by**: MAAC
+
+### Cloud Tasks
+- Deferred task execution
+- **Depended on by**: MAAC
+
+### Datadog
+- APM & distributed tracing
+- **Depended on by**: MAAC
+
+### Elasticsearch
+- Message search & conversation indexing
+- **Depended on by**: CAAC
+
+### FCM
+- Push notifications to mobile/browser
+- **Depended on by**: CAAC
+
+### Firebase / Firestore
+- Real-time database for live features
+- **Depended on by**: MAAC
+
+### GCS
+- File storage for import/export
+- **Depended on by**: CAAC, CDH, DAAC
+
+### Google Analytics
+- Campaign tracking & UTM parameters
+- **Depended on by**: MAAC
+
+### Infobip
+- WhatsApp/Voice gateway
+- **Depended on by**: CAAC
+
+### LINE Messaging API
+- LINE platform messaging, rich menu, LIFF
+- **Depended on by**: MAAC
+
+### Meta API (FB/IG)
+- Facebook & Instagram messaging API
+- **Depended on by**: MAAC
+
+### OpenAI
+- AI for segment tagging & entity commenting
+- **Depended on by**: CDH
+
+### OpenAI / Gemini
+- AI model APIs for agent
+- **Depended on by**: DAAC
+
+### PostgreSQL
+- Primary database (SQLAlchemy + raw SQL)
+- **Depended on by**: CAAC, CDH, DAAC, MAAC
+
+### PubSub
+- Event streaming — profile changes, tag updates
+- **Depended on by**: CAAC, CDH, MAAC
+
+### RabbitMQ / Celery
+- Async task queue for background jobs
+- **Depended on by**: MAAC
+
+### Redis
+- Session cache, rate limiting, pub/sub
+- **Depended on by**: CAAC, MAAC
+
+### SendGrid
+- Email delivery service
+- **Depended on by**: MAAC
+
+### Sentry
+- Error tracking & monitoring
+- **Depended on by**: MAAC
+
+### Statsig
+- Feature flag management
+- **Depended on by**: CDH, MAAC
+
+### Terraform
+- Infrastructure as code for client provisioning
+- **Depended on by**: DAAC
+
+### WhatsApp Cloud API
+- WhatsApp Business messaging via Infobip
+- **Depended on by**: MAAC
+
+### dbt
+- Data transformation pipeline
+- **Depended on by**: DAAC
 
 ---
 *End of Code Architecture Knowledge Graph*
