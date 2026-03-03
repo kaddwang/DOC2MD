@@ -138,16 +138,25 @@ function mkNodes(raw) {
 function mkEdges(raw) {
   return raw.map((e,i) => {
     const c = EC[e.type] || EC.code_dep;
-    const showLabel = e.type !== "hierarchy" && e.type !== "code_dep";
+    // Edge label style per type — smaller for dense types, bigger for critical paths
+    const fontCfg = {
+      hierarchy:   { size:7,  color:"rgba(255,255,255,0.45)" },
+      code_dep:    { size:7,  color:"rgba(79,195,247,0.6)" },
+      api_call:    { size:9,  color:"#ffa726" },
+      infra_dep:   { size:8,  color:"rgba(144,164,174,0.7)" },
+      service_dep: { size:8,  color:"rgba(179,157,219,0.8)" },
+      data_sync:   { size:9,  color:"#66bb6a" },
+    };
+    const fc = fontCfg[e.type] || fontCfg.code_dep;
     return {
       id: i, from: e.from, to: e.to,
-      label: showLabel ? e.label : "",
+      label: e.label || "",
       _type: e.type, _label: e.label,
       arrows: e.arrows || "to",
       color: { color: c.color, highlight: "#fff", opacity: 0.8 },
       width: c.width,
       dashes: c.dashes || false,
-      font: { color:"#ccc", size:8, strokeWidth:0, background:"rgba(10,10,18,0.7)", align:"middle" },
+      font: { color:fc.color, size:fc.size, strokeWidth:0, background:"rgba(10,10,18,0.75)", align:"middle" },
       smooth: { type:"continuous", roundness:0.15 },
     };
   });
