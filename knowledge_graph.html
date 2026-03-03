@@ -130,7 +130,7 @@ function mkNodes(raw) {
       font: { color:"#1a1a2e", size: c.fontSz, face:"Inter,system-ui,sans-serif", multi:true },
       borderWidth: n.type === "company" ? 6 : n.type === "product" ? 5 : 2,
       shadow: { enabled:true, color:"rgba(0,0,0,0.3)", size:6, x:0, y:3 },
-      x: n.x || 0, y: n.y || 0, fixed: true,
+      x: (n.x || 0) * 1.6, y: (n.y || 0) * 1.6,
     };
   });
 }
@@ -172,8 +172,25 @@ function init() {
     layout: { improvedLayout: false },
   });
 
-  network.on("dragStart", () => network.setOptions({ physics: { enabled:true, solver:"forceAtlas2Based", forceAtlas2Based:{ gravitationalConstant:-50, centralGravity:0.002, springLength:100, springConstant:0.015, damping:0.7, avoidOverlap:0.8 }, stabilization:false }}));
-  network.on("dragEnd", () => setTimeout(() => network.setOptions({ physics:{enabled:false} }), 600));
+  // Gentle micro-physics: only on dragEnd, very brief, very damped
+  // so connected nodes nudge slightly but nothing flies around
+  network.on("dragEnd", (params) => {
+    if (params.nodes.length === 0) return;
+    network.setOptions({ physics: {
+      enabled: true,
+      solver: "forceAtlas2Based",
+      forceAtlas2Based: {
+        gravitationalConstant: -8,
+        centralGravity: 0.0,
+        springLength: 200,
+        springConstant: 0.003,
+        damping: 0.95,
+        avoidOverlap: 0.9,
+      },
+      stabilization: false,
+    }});
+    setTimeout(() => network.setOptions({ physics: { enabled: false } }), 200);
+  });
 
   document.getElementById("sN").textContent = allN.length;
   document.getElementById("sE").textContent = allE.length;
